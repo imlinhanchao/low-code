@@ -2,7 +2,7 @@
 import { inject, ref, type Ref } from 'vue'
 import type { ComponentConfig, FormSchema } from '../../types'
 import { draggingConfig } from '../useDragState'
-import CanvasWidget from './widget.vue'
+import { LcCanvasWidgetNode } from './CanvasWidgetNode'
 
 const props = defineProps<{ schema: FormSchema }>()
 
@@ -28,7 +28,6 @@ function onDragLeave(e: DragEvent) {
 }
 
 function onDrop(e: DragEvent) {
-  // Only handle drops that weren't stopped by a nested slot-zone
   e.preventDefault()
   isOver.value = false
   if (!draggingConfig.value) return
@@ -49,7 +48,7 @@ function onDrop(e: DragEvent) {
     <div v-if="schema.widgets.length === 0" class="lc-canvas-empty">
       从左侧拖拽组件到此处
     </div>
-    <CanvasWidget
+    <LcCanvasWidgetNode
       v-for="widget in schema.widgets"
       :key="widget.id"
       :widget="widget"
@@ -57,7 +56,12 @@ function onDrop(e: DragEvent) {
   </div>
 </template>
 
-<style scoped>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Canvas + WYSIWYG node styles
+     These are NOT scoped so they apply to dynamically-rendered h() nodes.
+     ──────────────────────────────────────────────────────────────────────── -->
+<style>
+/* ── Canvas container ───────────────────────────────────────────────────── */
 .lc-canvas {
   height: 100%;
   padding: 12px;
@@ -80,5 +84,154 @@ function onDrop(e: DragEvent) {
   color: #c0c4cc;
   font-size: 15px;
   pointer-events: none;
+}
+
+/* ── Widget wrapper (selection ring) ──────────────────────────────────── */
+.lc-canvas-node {
+  position: relative;
+  border: 1px dashed #c0c4cc;
+  border-radius: 4px;
+  margin: 6px 0;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: visible;
+}
+.lc-canvas-node:hover {
+  border-color: #409eff;
+}
+.lc-canvas-node--selected {
+  border: 2px solid #409eff !important;
+}
+.lc-canvas-node--layout {
+  border-style: solid;
+  border-color: #dcdfe6;
+}
+.lc-canvas-node--missing {
+  padding: 6px 10px;
+  color: #f56c6c;
+  font-size: 12px;
+}
+
+/* ── Thin toolbar (badge + delete button) ─────────────────────────────── */
+.lc-node-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 2px 8px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+  min-height: 20px;
+  border-radius: 3px 3px 0 0;
+}
+.lc-node-badge {
+  font-size: 10px;
+  color: #909399;
+  user-select: none;
+  line-height: 1;
+}
+.lc-node-delete {
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: #f56c6c;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 8px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.lc-canvas-node:hover .lc-node-delete,
+.lc-canvas-node--selected .lc-node-delete {
+  display: flex;
+}
+
+/* ── Canvas slot zone ─────────────────────────────────────────────────── */
+/*
+ * This div is passed AS the slot content to the real component, so it
+ * renders INSIDE the component's visual slot area — e.g. inside a card's
+ * header, inside a grid column, inside ElInput's prefix area.
+ */
+.lc-canvas-slot {
+  box-sizing: border-box;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+/* Layout slot: block, takes full width of the parent cell */
+.lc-canvas-slot--layout {
+  display: block;
+  min-height: 56px;
+  padding: 4px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  background: #fafbfc;
+}
+.lc-canvas-slot--layout.lc-canvas-slot--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+}
+
+/* Widget slot: compact, wraps slot children (e.g. inside ElInput prefix) */
+.lc-canvas-slot--widget {
+  display: inline-flex;
+  align-items: center;
+  min-width: 10px;
+}
+.lc-canvas-slot--widget.lc-canvas-slot--empty {
+  min-width: 32px;
+  min-height: 16px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  padding: 1px 4px;
+  background: #f5f7fa;
+}
+
+/* Drag-over highlight for any slot */
+.lc-canvas-slot--over {
+  background: #ecf5ff !important;
+  border-color: #409eff !important;
+}
+
+/* Empty slot hint text */
+.lc-canvas-slot__hint {
+  font-size: 10px;
+  color: #b8becc;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Empty-slot chip panel (widget slots, shown on select / while dragging) */
+.lc-canvas-node__slots-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 6px 5px;
+  border-top: 1px dashed #e4e7ed;
+  background: #fafbfc;
+}
+/* Chips inside the panel are always block-visible */
+.lc-canvas-node__slots-panel .lc-canvas-slot--widget {
+  flex: 0 0 auto;
+  min-width: 60px;
+  min-height: 28px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  padding: 3px 8px;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-canvas-node__slots-panel .lc-canvas-slot--widget.lc-canvas-slot--over {
+  background: #ecf5ff;
+  border-color: #409eff;
 }
 </style>

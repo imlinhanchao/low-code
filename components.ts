@@ -16,10 +16,10 @@ const components: ComponentConfig[] = [
     },
     // ElInput exposes functional named slots; default slot is not a text content area
     slots: [
-      { name: 'prefix',  label: '前缀 (prefix)'  },
-      { name: 'suffix',  label: '后缀 (suffix)'  },
+      { name: 'prefix',  label: '前缀 (prefix)' },
+      { name: 'suffix',  label: '后缀 (suffix)' },
       { name: 'prepend', label: '前置 (prepend)' },
-      { name: 'append',  label: '后置 (append)'  },
+      { name: 'append',  label: '后置 (append)' },
     ],
   },
   {
