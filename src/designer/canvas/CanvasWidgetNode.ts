@@ -318,9 +318,15 @@ export const LcCanvasWidgetNode = defineComponent({
       //  a) Regular (non-virtual) empty widget slots as droppable chip hints
       //  b) Virtual slot contents — existing children as clickable virtual chips
       //     plus a drop zone for adding more items
+      //
+      // The panel also stays open while a virtual-slot child is selected so the
+      // user can click another sibling chip without having to re-select the parent.
+      const hasVirtualChildSelected = virtualSlots.some((s) =>
+        (props.widget.slots[s.name] ?? []).some((c) => c.id === selectedId.value),
+      )
       const showPanel = !isLayout && (
         (widgetEmptySlots.length > 0 || virtualSlots.length > 0) &&
-        (isSelected || isDragging)
+        (isSelected || isDragging || hasVirtualChildSelected)
       )
       const slotsPanel = showPanel
         ? h(
