@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ComponentConfig, WidgetSchema } from '../../types'
+import type { ComponentConfig, SlotConfig, WidgetSchema } from '../../types'
 
 const props = defineProps<{
   widget: WidgetSchema | null
   config: ComponentConfig | null
+  effectiveSlots: SlotConfig[]
 }>()
 
 const emit = defineEmits<{
   'update:widget': [widget: WidgetSchema]
 }>()
-
-const hasProp = computed(() =>
-  props.widget !== null &&
-  (Object.keys(props.widget.props).length > 0 ||
-    Object.keys(props.widget.models).length > 0 ||
-    props.config?.slots?.some(s => s.name === 'default'))
-)
 
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
@@ -39,9 +33,33 @@ function updateSlotContent(value: string) {
   emit('update:widget', { ...props.widget, slotContent: value })
 }
 
+function removeSlotChild(slotName: string, childId: string) {
+  if (!props.widget) return
+  emit('update:widget', {
+    ...props.widget,
+    slots: {
+      ...props.widget.slots,
+      [slotName]: (props.widget.slots[slotName] ?? []).filter((c) => c.id !== childId),
+    },
+  })
+}
+
 function valueToString(v: unknown): string {
   return v == null ? '' : String(v)
 }
+
+/** Slots that have at least one child in the schema (to show in the panel always) */
+const populatedSlots = computed(() =>
+  props.effectiveSlots.filter((s) => (props.widget?.slots[s.name] ?? []).length > 0),
+)
+
+/** Show the slotContent editor for leaf widgets that still use slotContent */
+const showSlotContent = computed(
+  () =>
+    props.config?.category !== 'layout' &&
+    props.widget?.slotContent !== undefined &&
+    !(props.widget?.slots['default'] ?? []).length,
+)
 </script>
 
 <template>
@@ -85,16 +103,40 @@ function valueToString(v: unknown): string {
         </div>
       </template>
 
-      <!-- Default slot text content -->
-      <template v-if="config.slots?.some(s => s.name === 'default')">
-        <div class="lc-properties-group-label">插槽内容</div>
+      <!-- Simple text content for the default slot (leaf widgets like buttons) -->
+      <template v-if="showSlotContent">
+        <div class="lc-properties-group-label">文本内容</div>
         <div class="lc-prop-row">
-          <label class="lc-prop-label">默认</label>
+          <label class="lc-prop-label">内容</label>
           <input
             class="lc-prop-input"
             :value="widget.slotContent ?? ''"
             @input="updateSlotContent(($event.target as HTMLInputElement).value)"
           />
+        </div>
+      </template>
+
+      <!-- Slot children management (slots that already have children) -->
+      <template v-if="populatedSlots.length > 0">
+        <div class="lc-properties-group-label">插槽内容</div>
+        <div
+          v-for="slot in populatedSlots"
+          :key="'slot-' + slot.name"
+          class="lc-slot-section"
+        >
+          <div class="lc-slot-section-label">{{ slot.label ?? slot.name }}</div>
+          <div
+            v-for="child in widget.slots[slot.name]"
+            :key="child.id"
+            class="lc-slot-child-row"
+          >
+            <span class="lc-slot-child-name">{{ child.name }}</span>
+            <button
+              class="lc-slot-child-remove"
+              title="从插槽移除"
+              @click="removeSlotChild(slot.name, child.id)"
+            >✕</button>
+          </div>
         </div>
       </template>
     </template>
@@ -118,6 +160,9 @@ function valueToString(v: unknown): string {
   color: #606266;
   border-bottom: 1px solid #dcdfe6;
   background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .lc-properties-section {
   padding: 8px 14px 4px;
@@ -127,7 +172,8 @@ function valueToString(v: unknown): string {
 }
 .lc-properties-group-label {
   padding: 6px 14px 2px;
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 600;
   color: #909399;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -139,7 +185,7 @@ function valueToString(v: unknown): string {
   gap: 8px;
 }
 .lc-prop-label {
-  flex: 0 0 90px;
+  flex: 0 0 84px;
   font-size: 12px;
   color: #606266;
   text-align: right;
@@ -161,6 +207,46 @@ function valueToString(v: unknown): string {
 }
 .lc-prop-input:focus {
   border-color: #409eff;
+}
+
+/* Slot children */
+.lc-slot-section {
+  padding: 2px 14px 4px;
+}
+.lc-slot-section-label {
+  font-size: 11px;
+  color: #909399;
+  margin-bottom: 2px;
+}
+.lc-slot-child-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  background: #f5f7fa;
+  border: 1px solid #ebeef5;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+.lc-slot-child-name {
+  font-size: 11px;
+  color: #606266;
+}
+.lc-slot-child-remove {
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: #f56c6c;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 8px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
 }
 .lc-properties-empty {
   padding: 24px 14px;

@@ -1,26 +1,25 @@
 import { ElInput, ElButton, ElSelect, ElOption, ElTooltip } from 'element-plus'
-export default [
+import type { ComponentConfig } from './src/types'
+
+const components: ComponentConfig[] = [
   {
     name: '文本框',
     component: ElInput,
     props: {
-      placeholder: '',
+      placeholder: '请输入内容',
     },
     models: {
       modelValue: '',
     },
     events: {
-      change: [{
-        name: 'value',
-        type: String,
-      }],
+      change: [{ name: 'value', type: String }],
     },
+    // ElInput exposes functional named slots; default slot is not a text content area
     slots: [
-      { name: 'default' },
-      { name: 'prefix' },
-      { name: 'suffix' },
-      { name: 'prepend' },
-      { name: 'append' },
+      { name: 'prefix',  label: '前缀 (prefix)'  },
+      { name: 'suffix',  label: '后缀 (suffix)'  },
+      { name: 'prepend', label: '前置 (prepend)' },
+      { name: 'append',  label: '后置 (append)'  },
     ],
   },
   {
@@ -33,43 +32,36 @@ export default [
       click: [],
     },
     slots: [
-      { name: 'default' },
+      { name: 'default', label: '按钮文字' },
     ],
   },
   {
     name: '下拉选择',
     component: ElSelect,
     props: {
-      placeholder: '',
+      placeholder: '请选择',
     },
     models: {
       modelValue: '',
     },
     events: {
-      change: [{
-        name: 'value',
-        type: String,
-      }],
+      change: [{ name: 'value', type: String }],
     },
     slots: [
-      { 
-        name: 'default', 
+      {
+        name: 'default',
+        label: '选项列表',
         components: [
           {
             name: '选项',
             component: ElOption,
             props: {
-              label: '',
+              label: '选项',
               value: '',
             },
-            events: {
-              click: [],
-            },
-            slots: [
-              { name: 'default' },
-            ],
-          }
-        ] 
+            slots: [],
+          },
+        ],
       },
     ],
   },
@@ -77,11 +69,14 @@ export default [
     name: '工具提示',
     component: ElTooltip,
     props: {
-      content: '',
+      content: '提示内容',
+      placement: 'top',
     },
     slots: [
-      { name: 'default' },
-      { name: 'content' },
+      { name: 'default', label: '触发元素' },
+      { name: 'content', label: '提示内容 (content)' },
     ],
   },
 ]
+
+export default components

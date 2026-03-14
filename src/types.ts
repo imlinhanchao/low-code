@@ -1,9 +1,11 @@
 import type { Component } from 'vue'
 
-/** Definition of a slot that a component exposes */
+/** Definition of a named slot that a component exposes */
 export interface SlotConfig {
   name: string
-  /** Optional list of sub-components that can be placed inside this slot */
+  /** Human-readable label shown in the designer */
+  label?: string
+  /** Sub-component configs allowed in this slot (empty = any) */
   components?: ComponentConfig[]
 }
 
@@ -13,34 +15,55 @@ export interface EventParam {
   type: unknown
 }
 
-/** Config entry for a single registerable component */
+/** Config entry for a single registerable component (or built-in layout) */
 export interface ComponentConfig {
   /** Display name shown in the palette */
   name: string
+  /**
+   * 'layout'  – built-in container (always shown in the 布局 section of the palette).
+   * 'widget'  – user-configured component (default when omitted).
+   */
+  category?: 'layout' | 'widget'
   /** The actual Vue component constructor */
   component: Component
-  /** Default static prop values (string / number / boolean) */
+  /** Default static prop values */
   props?: Record<string, unknown>
-  /** Default model bindings (v-model keys → initial values) */
+  /** Default v-model bindings */
   models?: Record<string, unknown>
-  /** Declared events and their parameter descriptors */
+  /** Declared events */
   events?: Record<string, EventParam[]>
-  /** Slots the component exposes */
+  /**
+   * Static list of slots.
+   * For layouts whose slot set depends on props (e.g. a grid with N columns),
+   * use `computeSlots` instead (or in addition).
+   */
   slots?: SlotConfig[]
+  /**
+   * Called with the widget's current props to derive the effective slot list.
+   * Takes precedence over the static `slots` array when provided.
+   */
+  computeSlots?: (props: Record<string, unknown>) => SlotConfig[]
 }
 
-/** One widget placed on the canvas */
+/** One widget instance placed on the canvas */
 export interface WidgetSchema {
   /** Unique instance id */
   id: string
   /** Matches ComponentConfig.name */
   name: string
-  /** Current prop values (editable by the right panel) */
+  /** Mirrors ComponentConfig.category; stored so the canvas can render without looking up the config */
+  category: 'layout' | 'widget'
+  /** Current prop values */
   props: Record<string, unknown>
-  /** Current model values */
+  /** Current v-model values */
   models: Record<string, unknown>
-  /** Text content for the default slot (simple text only) */
+  /**
+   * Simple text for the default slot of leaf widgets (e.g. button label).
+   * Overridden by `slots.default` children when present.
+   */
   slotContent?: string
+  /** Named slot children: slotName → ordered child widget list */
+  slots: Record<string, WidgetSchema[]>
 }
 
 /** The full form schema produced by the designer */

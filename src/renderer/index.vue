@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 import type { ComponentConfig, FormSchema } from '../types'
+import { builtinLayouts } from '../layouts/index'
+import LcWidgetNode from './WidgetNode'
 
 const props = defineProps<{
   schema: FormSchema
@@ -12,51 +14,43 @@ const emit = defineEmits<{
   'update:modelValue': [data: Record<string, unknown>]
 }>()
 
-/** Live model store: widgetId → value */
-const formData = computed<Record<string, unknown>>(() => props.modelValue ?? {})
+const formData = computed(
+  () => (props.modelValue ?? {}) as Record<string, Record<string, unknown>>,
+)
 
-function findConfig(name: string): ComponentConfig | undefined {
-  return props.components.find(c => c.name === name)
+/** All known configs: built-in layouts are always included */
+const allConfigs = computed<ComponentConfig[]>(() => [
+  ...builtinLayouts,
+  ...props.components,
+])
+
+function getConfig(name: string): ComponentConfig | undefined {
+  return allConfigs.value.find((c) => c.name === name)
 }
 
-function getModelValue(widgetId: string, key: string): unknown {
-  return (formData.value as Record<string, Record<string, unknown>>)[widgetId]?.[key]
-    ?? ''
+function getFormData() {
+  return formData.value
 }
 
-function onUpdateModel(widgetId: string, key: string, value: unknown) {
-  const current = { ...(formData.value as Record<string, Record<string, unknown>>) }
+function updateModel(widgetId: string, key: string, value: unknown) {
+  const current = { ...formData.value }
   current[widgetId] = { ...(current[widgetId] ?? {}), [key]: value }
   emit('update:modelValue', current)
 }
 
-/** Build props for a rendered widget, wiring model updates */
-function buildProps(widgetId: string, config: ComponentConfig, staticProps: Record<string, unknown>, models: Record<string, unknown>) {
-  const result: Record<string, unknown> = { ...staticProps }
-
-  for (const key of Object.keys(models)) {
-    // Live value from formData, fall back to schema default
-    result[key] = (formData.value as Record<string, Record<string, unknown>>)[widgetId]?.[key] ?? models[key]
-
-    // Vue 3 v-model convention: modelValue → onUpdate:modelValue
-    const eventKey = key === 'modelValue' ? 'onUpdate:modelValue' : `onUpdate:${key}`
-    result[eventKey] = (v: unknown) => onUpdateModel(widgetId, key, v)
-  }
-
-  return result
-}
+// Provide context for recursive LcWidgetNode rendering
+provide('lc:getConfig', getConfig)
+provide('lc:getFormData', getFormData)
+provide('lc:updateModel', updateModel)
 </script>
 
 <template>
   <div class="lc-renderer">
-    <template v-for="widget in schema.widgets" :key="widget.id">
-      <template v-if="findConfig(widget.name)">
-        <component
-          :is="findConfig(widget.name)!.component"
-          v-bind="buildProps(widget.id, findConfig(widget.name)!, widget.props, widget.models)"
-        >{{ widget.slotContent ?? '' }}</component>
-      </template>
-    </template>
+    <LcWidgetNode
+      v-for="widget in schema.widgets"
+      :key="widget.id"
+      :widget="widget"
+    />
   </div>
 </template>
 
@@ -66,5 +60,6 @@ function buildProps(widgetId: string, config: ComponentConfig, staticProps: Reco
   flex-wrap: wrap;
   gap: 12px;
   align-items: flex-start;
+  width: 100%;
 }
 </style>
