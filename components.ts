@@ -7,6 +7,7 @@ const components: ComponentConfig[] = [
     component: ElInput,
     props: {
       placeholder: '请输入内容',
+      showWordLimit: false,
     },
     models: {
       modelValue: '',
@@ -39,7 +40,7 @@ const components: ComponentConfig[] = [
     name: '下拉选择',
     component: ElSelect,
     props: {
-      placeholder: '请选择',
+      placeholder: { type: String },
     },
     models: {
       modelValue: '',
