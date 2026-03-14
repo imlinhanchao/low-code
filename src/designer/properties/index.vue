@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ComponentConfig, SlotConfig, WidgetSchema } from '../../types'
 
 const props = defineProps<{
@@ -42,6 +42,50 @@ function removeSlotChild(slotName: string, childId: string) {
       [slotName]: (props.widget.slots[slotName] ?? []).filter((c) => c.id !== childId),
     },
   })
+}
+
+// ── Drag-to-reorder state for slot children ───────────────────────────────────
+const dragFromSlot = ref<string | null>(null)
+const dragFromIdx  = ref(-1)
+const dragOverSlot = ref<string | null>(null)
+const dragOverIdx  = ref(-1)
+
+function onSlotChildDragStart(slotName: string, idx: number, e: DragEvent) {
+  dragFromSlot.value = slotName
+  dragFromIdx.value  = idx
+  dragOverSlot.value = slotName
+  dragOverIdx.value  = idx
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+}
+
+function onSlotChildDragOver(slotName: string, idx: number, e: DragEvent) {
+  if (dragFromSlot.value !== slotName) return
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+  dragOverSlot.value = slotName
+  dragOverIdx.value  = idx
+}
+
+function onSlotChildDrop(slotName: string, idx: number, e: DragEvent) {
+  e.preventDefault()
+  const from     = dragFromIdx.value
+  const fromSlot = dragFromSlot.value
+  resetDrag()
+  if (fromSlot !== slotName || from === idx || !props.widget) return
+  const children = [...(props.widget.slots[slotName] ?? [])]
+  const [item] = children.splice(from, 1)
+  children.splice(idx, 0, item)
+  emit('update:widget', {
+    ...props.widget,
+    slots: { ...props.widget.slots, [slotName]: children },
+  })
+}
+
+function resetDrag() {
+  dragFromSlot.value = null
+  dragFromIdx.value  = -1
+  dragOverSlot.value = null
+  dragOverIdx.value  = -1
 }
 
 function valueToString(v: unknown): string {
@@ -126,10 +170,21 @@ const showSlotContent = computed(
         >
           <div class="lc-slot-section-label">{{ slot.label ?? slot.name }}</div>
           <div
-            v-for="child in widget.slots[slot.name]"
+            v-for="(child, idx) in widget.slots[slot.name]"
             :key="child.id"
             class="lc-slot-child-row"
+            :class="{
+              'lc-slot-child-row--dragging':    dragFromSlot === slot.name && dragFromIdx === idx,
+              'lc-slot-child-row--drop-before': dragOverSlot === slot.name && dragOverIdx === idx && dragFromIdx > idx,
+              'lc-slot-child-row--drop-after':  dragOverSlot === slot.name && dragOverIdx === idx && dragFromIdx < idx,
+            }"
+            draggable="true"
+            @dragstart="onSlotChildDragStart(slot.name, idx, $event)"
+            @dragover="onSlotChildDragOver(slot.name, idx, $event)"
+            @drop="onSlotChildDrop(slot.name, idx, $event)"
+            @dragend="resetDrag"
           >
+            <span class="lc-slot-child-drag-handle" title="拖拽排序">⠿</span>
             <span class="lc-slot-child-name">{{ child.name }}</span>
             <button
               class="lc-slot-child-remove"
@@ -227,8 +282,31 @@ const showSlotContent = computed(
   border: 1px solid #ebeef5;
   border-radius: 3px;
   margin-bottom: 2px;
+  cursor: default;
+  user-select: none;
+}
+.lc-slot-child-drag-handle {
+  color: #c0c4cc;
+  cursor: grab;
+  font-size: 12px;
+  letter-spacing: -1px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.lc-slot-child-drag-handle:active {
+  cursor: grabbing;
+}
+.lc-slot-child-row--dragging {
+  opacity: 0.4;
+}
+.lc-slot-child-row--drop-before {
+  border-top: 2px solid #409eff;
+}
+.lc-slot-child-row--drop-after {
+  border-bottom: 2px solid #409eff;
 }
 .lc-slot-child-name {
+  flex: 1;
   font-size: 11px;
   color: #606266;
 }
