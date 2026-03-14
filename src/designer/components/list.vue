@@ -5,6 +5,8 @@ import PaletteItem from './item.vue'
 defineProps<{
   layouts: ComponentConfig[]
   components: ComponentConfig[]
+  /** Components valid only inside specific slots (e.g. ElOption for ElSelect) */
+  slotOnlyComponents?: ComponentConfig[]
 }>()
 </script>
 
@@ -25,6 +27,14 @@ defineProps<{
       <div class="lc-palette-section-label">自定义组件</div>
       <div class="lc-palette-items">
         <PaletteItem v-for="cfg in components" :key="cfg.name" :config="cfg" />
+      </div>
+    </div>
+
+    <!-- Slot-specific components (e.g. ElOption for ElSelect) -->
+    <div v-if="slotOnlyComponents && slotOnlyComponents.length > 0" class="lc-palette-section">
+      <div class="lc-palette-section-label">插槽组件</div>
+      <div class="lc-palette-items">
+        <PaletteItem v-for="cfg in slotOnlyComponents" :key="cfg.name" :config="cfg" />
       </div>
     </div>
   </div>

@@ -32,6 +32,11 @@ const CanvasSlotZone = defineComponent({
     slotLabel: { type: String,                          required: true },
     children:  { type: Array as PropType<WidgetSchema[]>, required: true },
     isLayout:  { type: Boolean, default: false },
+    /**
+     * Whitelist of component names that may be dropped into this slot.
+     * An empty array (default) means any component is accepted.
+     */
+    accept:    { type: Array as PropType<string[]>, default: () => [] },
   },
 
   setup(props) {
@@ -43,10 +48,21 @@ const CanvasSlotZone = defineComponent({
     const isOver = ref(false)
     const isDragging = computed(() => draggingConfig.value !== null)
 
+    /** True when a drag is active but the dragged component is not allowed here */
+    const isBlocked = computed(() =>
+      isDragging.value &&
+      props.accept.length > 0 &&
+      draggingConfig.value !== null &&
+      !props.accept.includes(draggingConfig.value.name),
+    )
+
     function onDragOver(e: DragEvent) {
       if (!draggingConfig.value) return
-      e.preventDefault()
       e.stopPropagation()
+      // Reset hover state first; re-enable below only if the drop is accepted
+      isOver.value = false
+      if (isBlocked.value) return
+      e.preventDefault()
       isOver.value = true
       if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
     }
@@ -61,6 +77,11 @@ const CanvasSlotZone = defineComponent({
       e.stopPropagation()
       isOver.value = false
       if (!draggingConfig.value) return
+      // Silently ignore drops of components not in the accept list
+      if (props.accept.length > 0 && !props.accept.includes(draggingConfig.value.name)) {
+        draggingConfig.value = null
+        return
+      }
       addWidget(props.parentId, props.slotName, draggingConfig.value)
       draggingConfig.value = null
     }
@@ -80,6 +101,7 @@ const CanvasSlotZone = defineComponent({
         'lc-canvas-slot--empty': isEmpty,
         'lc-canvas-slot--over': isOver.value,
         'lc-canvas-slot--dragging': isDragging.value,
+        'lc-canvas-slot--blocked': isBlocked.value,
       }
 
       return h(
@@ -167,6 +189,7 @@ export const LcCanvasWidgetNode = defineComponent({
         const sn = slotCfg.name
         const label = slotCfg.label ?? sn
         const children = props.widget.slots[sn] ?? []
+        const accept = slotCfg.components?.map((c) => c.name) ?? []
         slotFns[sn] = () =>
           h(CanvasSlotZone, {
             parentId: props.widget.id,
@@ -174,6 +197,7 @@ export const LcCanvasWidgetNode = defineComponent({
             slotLabel: label,
             children,
             isLayout,
+            accept,
           })
       }
 
@@ -184,6 +208,7 @@ export const LcCanvasWidgetNode = defineComponent({
           if (slotFns[slotCfg.name]) continue
           const sn = slotCfg.name
           const label = slotCfg.label ?? sn
+          const accept = slotCfg.components?.map((c) => c.name) ?? []
           slotFns[sn] = () =>
             h(CanvasSlotZone, {
               parentId: props.widget.id,
@@ -191,6 +216,7 @@ export const LcCanvasWidgetNode = defineComponent({
               slotLabel: label,
               children: [],
               isLayout: false,
+              accept,
             })
         }
       }
@@ -230,6 +256,7 @@ export const LcCanvasWidgetNode = defineComponent({
                 slotLabel: s.label ?? s.name,
                 children: [],
                 isLayout: false,
+                accept: s.components?.map((c) => c.name) ?? [],
               }),
             ),
           )

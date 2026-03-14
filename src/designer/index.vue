@@ -25,11 +25,29 @@ const schema = computed<FormSchema>({
 // ── Selection ────────────────────────────────────────────────────────────────
 const selectedId = ref<string | null>(null)
 
-// ── All configs: built-in layouts + user components ──────────────────────────
-const allConfigs = computed<ComponentConfig[]>(() => [
-  ...builtinLayouts,
-  ...props.components,
-])
+// ── All configs: built-in layouts + user components + slot-specific components ─
+const allConfigs = computed<ComponentConfig[]>(() => {
+  const base = [...builtinLayouts, ...props.components]
+  const known = new Set(base.map((c) => c.name))
+  const extra: ComponentConfig[] = []
+  for (const cfg of base) {
+    for (const slot of cfg.slots ?? []) {
+      for (const sc of slot.components ?? []) {
+        if (!known.has(sc.name)) {
+          known.add(sc.name)
+          extra.push(sc)
+        }
+      }
+    }
+  }
+  return [...base, ...extra]
+})
+
+/** Components that only appear inside specific slots (e.g. ElOption inside ElSelect) */
+const slotOnlyComponents = computed<ComponentConfig[]>(() => {
+  const topNames = new Set([...builtinLayouts, ...props.components].map((c) => c.name))
+  return allConfigs.value.filter((c) => !topNames.has(c.name))
+})
 
 // ── Tree helpers ─────────────────────────────────────────────────────────────
 function generateId(): string {
@@ -157,7 +175,7 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
 <template>
   <article class="lc-designer">
     <aside class="lc-designer-panel lc-panel-left">
-      <PaletteList :layouts="builtinLayouts" :components="components" />
+      <PaletteList :layouts="builtinLayouts" :components="components" :slot-only-components="slotOnlyComponents" />
     </aside>
 
     <section class="lc-designer-canvas">

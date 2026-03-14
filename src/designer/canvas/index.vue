@@ -138,7 +138,6 @@ function onDrop(e: DragEvent) {
   white-space: nowrap;
   line-height: 1;
 }
-.lc-canvas-node:hover > .lc-node-actions,
 .lc-canvas-node--selected > .lc-node-actions {
   opacity: 1;
   pointer-events: auto;
@@ -227,6 +226,16 @@ function onDrop(e: DragEvent) {
 .lc-canvas-slot--over {
   background: #ecf5ff !important;
   border-color: #409eff !important;
+}
+
+/* Drop blocked — dragged component not allowed in this slot */
+.lc-canvas-slot--blocked {
+  background: #fef0f0 !important;
+  border-color: #f56c6c !important;
+  cursor: not-allowed;
+}
+.lc-canvas-slot--blocked .lc-canvas-slot__hint {
+  color: #f56c6c;
 }
 
 /* Empty slot hint text */
