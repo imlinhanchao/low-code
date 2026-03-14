@@ -69,6 +69,8 @@ export interface WidgetSchema {
    * Overridden by `slots.default` children when present.
    */
   slotContent?: string
+  /** User-authored event handler function bodies: eventName → function body string */
+  events?: Record<string, string>
   /** Named slot children: slotName → ordered child widget list */
   slots: Record<string, WidgetSchema[]>
 }

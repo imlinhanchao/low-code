@@ -36,6 +36,22 @@ const LcWidgetNode = defineComponent({
         result[eventKey] = (v: unknown) => updateModel(props.widget.id, capturedKey, v)
       }
 
+      // Bind user-authored event handlers from widget.events.
+      // NOTE: new Function() is intentional here — this is a developer-facing
+      // low-code builder where the user is expected to write JavaScript handlers.
+      // The same pattern is used by vform3 and other low-code platforms.
+      for (const [eventName, code] of Object.entries(props.widget.events ?? {})) {
+        if (!code.trim()) continue
+        const handlerKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
+        const paramNames = config.events?.[eventName]?.map((p) => p.name) ?? []
+        try {
+          // eslint-disable-next-line no-new-func
+          result[handlerKey] = new Function(...paramNames, code)
+        } catch {
+          // Ignore invalid function bodies silently
+        }
+      }
+
       return result
     }
 

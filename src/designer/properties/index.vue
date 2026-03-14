@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import type { ComponentConfig, SlotConfig, WidgetSchema } from '../../types'
 
 const props = defineProps<{
@@ -11,6 +11,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:widget': [widget: WidgetSchema]
 }>()
+
+const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
 
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
@@ -88,6 +90,14 @@ function resetDrag() {
   dragOverIdx.value  = -1
 }
 
+function updateEvent(key: string, value: string) {
+  if (!props.widget) return
+  emit('update:widget', {
+    ...props.widget,
+    events: { ...(props.widget.events ?? {}), [key]: value },
+  })
+}
+
 function valueToString(v: unknown): string {
   return v == null ? '' : String(v)
 }
@@ -104,6 +114,9 @@ const showSlotContent = computed(
     props.widget?.slotContent !== undefined &&
     !(props.widget?.slots['default'] ?? []).length,
 )
+
+/** Event entries from config, if any */
+const configEvents = computed(() => Object.entries(props.config?.events ?? {}))
 </script>
 
 <template>
@@ -187,11 +200,36 @@ const showSlotContent = computed(
             <span class="lc-slot-child-drag-handle" title="拖拽排序">⠿</span>
             <span class="lc-slot-child-name">{{ child.name }}</span>
             <button
-              class="lc-slot-child-remove"
+              class="lc-slot-child-btn lc-slot-child-configure"
+              title="组件设置"
+              @click="selectWidget?.(child.id)"
+            >⚙</button>
+            <button
+              class="lc-slot-child-btn lc-slot-child-remove"
               title="从插槽移除"
               @click="removeSlotChild(slot.name, child.id)"
             >✕</button>
           </div>
+        </div>
+      </template>
+
+      <!-- Events configuration -->
+      <template v-if="configEvents.length > 0">
+        <div class="lc-properties-group-label">事件</div>
+        <div
+          v-for="[eventName, params] in configEvents"
+          :key="'event-' + eventName"
+          class="lc-event-row"
+        >
+          <div class="lc-event-signature">
+            {{ eventName }}({{ params.map(p => p.name).join(', ') }})
+          </div>
+          <textarea
+            class="lc-event-editor"
+            :placeholder="`// ${eventName} 事件处理函数体`"
+            :value="widget.events?.[eventName] ?? ''"
+            @input="updateEvent(eventName, ($event.target as HTMLTextAreaElement).value)"
+          />
         </div>
       </template>
     </template>
@@ -310,14 +348,12 @@ const showSlotContent = computed(
   font-size: 11px;
   color: #606266;
 }
-.lc-slot-child-remove {
-  width: 14px;
-  height: 14px;
+.lc-slot-child-btn {
+  width: 16px;
+  height: 16px;
   border: none;
-  background: #f56c6c;
-  color: #fff;
   border-radius: 50%;
-  font-size: 8px;
+  font-size: 9px;
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -325,6 +361,53 @@ const showSlotContent = computed(
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
+  margin-left: 2px;
+}
+.lc-slot-child-configure {
+  background: #409eff;
+  color: #fff;
+}
+.lc-slot-child-configure:hover {
+  background: #66b1ff;
+}
+.lc-slot-child-remove {
+  background: #f56c6c;
+  color: #fff;
+}
+.lc-slot-child-remove:hover {
+  background: #f78989;
+}
+
+/* Events */
+.lc-event-row {
+  padding: 4px 14px 6px;
+}
+.lc-event-signature {
+  font-size: 11px;
+  color: #606266;
+  font-family: 'Consolas', 'Monaco', monospace;
+  margin-bottom: 3px;
+  padding: 2px 4px;
+  background: #f5f7fa;
+  border-radius: 3px;
+  word-break: break-all;
+}
+.lc-event-editor {
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #303133;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+.lc-event-editor:focus {
+  border-color: #409eff;
 }
 .lc-properties-empty {
   padding: 24px 14px;

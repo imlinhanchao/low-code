@@ -68,6 +68,7 @@ function buildWidget(config: ComponentConfig): WidgetSchema {
       config.category !== 'layout' && config.slots?.some((s) => s.name === 'default')
         ? config.name
         : undefined,
+    events: Object.fromEntries(Object.keys(config.events ?? {}).map((k) => [k, ''])),
     slots: {},
   }
 }
