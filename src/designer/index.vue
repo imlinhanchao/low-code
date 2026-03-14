@@ -148,11 +148,28 @@ function updateWidget(updated: WidgetSchema): void {
   }
 }
 
+function reorderSlotChildren(
+  parentId: string,
+  slotName: string,
+  fromIdx: number,
+  toIdx: number,
+): void {
+  schema.value = {
+    widgets: updateInTree(schema.value.widgets, parentId, (parent) => {
+      const children = [...(parent.slots[slotName] ?? [])]
+      const [item] = children.splice(fromIdx, 1)
+      children.splice(toIdx, 0, item)
+      return { ...parent, slots: { ...parent.slots, [slotName]: children } }
+    }),
+  }
+}
+
 provide('lc:addWidget', addWidget)
 provide('lc:removeWidget', removeWidget)
 provide('lc:selectWidget', selectWidget)
 provide('lc:selectedId', selectedId)
 provide('lc:allConfigs', allConfigs)
+provide('lc:reorderSlotChildren', reorderSlotChildren)
 
 // ── Properties panel data ─────────────────────────────────────────────────────
 const selectedWidget = computed<WidgetSchema | null>(() =>

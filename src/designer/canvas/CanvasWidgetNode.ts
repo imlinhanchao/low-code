@@ -157,6 +157,14 @@ export const LcCanvasWidgetNode = defineComponent({
      * specific parent (ElSelect) to be in the component tree.
      */
     virtual: { type: Boolean, default: false },
+    /** Parent widget id — supplied when virtual=true to enable reordering */
+    slotParentId: { type: String, default: null },
+    /** Slot name within the parent — supplied when virtual=true */
+    slotName: { type: String, default: null },
+    /** Zero-based position of this child within its slot — supplied when virtual=true */
+    slotIndex: { type: Number, default: -1 },
+    /** Total number of children in the slot — supplied when virtual=true */
+    slotTotal: { type: Number, default: 0 },
   },
 
   setup(props) {
@@ -164,6 +172,9 @@ export const LcCanvasWidgetNode = defineComponent({
     const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')!
     const removeWidget = inject<(id: string) => void>('lc:removeWidget')!
     const selectedId   = inject<Ref<string | null>>('lc:selectedId')!
+    const reorderSlotChildren = inject<
+      (parentId: string, slotName: string, from: number, to: number) => void
+    >('lc:reorderSlotChildren')
 
     return () => {
       const config = allConfigs.value.find((c) => c.name === props.widget.name)
@@ -198,6 +209,66 @@ export const LcCanvasWidgetNode = defineComponent({
       // Renders a simple named chip without mounting the actual component —
       // this avoids inject errors from components that require a specific parent.
       if (props.virtual) {
+        const canMoveUp   = props.slotIndex > 0
+        const canMoveDown = props.slotIndex < props.slotTotal - 1
+
+        const virtualActionsBar = h('div', { class: 'lc-node-actions' }, [
+          h('span', { class: 'lc-node-actions__name' }, config.name),
+          // Move-up button — hidden when already first
+          canMoveUp
+            ? h(
+                'button',
+                {
+                  class: 'lc-node-actions__btn',
+                  title: '上移',
+                  onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    reorderSlotChildren?.(
+                      props.slotParentId!,
+                      props.slotName!,
+                      props.slotIndex,
+                      props.slotIndex - 1,
+                    )
+                  },
+                },
+                '↑',
+              )
+            : null,
+          // Move-down button — hidden when already last
+          canMoveDown
+            ? h(
+                'button',
+                {
+                  class: 'lc-node-actions__btn',
+                  title: '下移',
+                  onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    reorderSlotChildren?.(
+                      props.slotParentId!,
+                      props.slotName!,
+                      props.slotIndex,
+                      props.slotIndex + 1,
+                    )
+                  },
+                },
+                '↓',
+              )
+            : null,
+          // Delete button
+          h(
+            'button',
+            {
+              class: 'lc-node-actions__btn lc-node-actions__btn--delete',
+              title: '删除',
+              onClick: (e: MouseEvent) => {
+                e.stopPropagation()
+                removeWidget(props.widget.id)
+              },
+            },
+            '✕',
+          ),
+        ])
+
         return h(
           'div',
           {
@@ -211,7 +282,7 @@ export const LcCanvasWidgetNode = defineComponent({
               selectWidget(props.widget.id)
             },
           },
-          [actionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, config.name)],
+          [virtualActionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, config.name)],
         )
       }
 
@@ -351,8 +422,16 @@ export const LcCanvasWidgetNode = defineComponent({
                 const accept = s.components?.map((c) => c.name) ?? []
                 return [
                   // Existing children as selectable virtual-mode chips
-                  ...children.map((c) =>
-                    h(LcCanvasWidgetNode, { key: c.id, widget: c, virtual: true }),
+                  ...children.map((c, i) =>
+                    h(LcCanvasWidgetNode, {
+                      key: c.id,
+                      widget: c,
+                      virtual: true,
+                      slotParentId: props.widget.id,
+                      slotName: s.name,
+                      slotIndex: i,
+                      slotTotal: children.length,
+                    }),
                   ),
                   // Drop zone for adding more items to this virtual slot
                   h(CanvasSlotZone, {
