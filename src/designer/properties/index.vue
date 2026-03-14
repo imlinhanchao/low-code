@@ -15,9 +15,16 @@ const emit = defineEmits<{
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
 
-function updateField(value: string) {
+function updateModelField(modelKey: string, fieldName: string) {
   if (!props.widget) return
-  emit('update:widget', { ...props.widget, field: value.trim() || undefined })
+  const newFields = { ...(props.widget.fields ?? {}) }
+  const trimmed = fieldName.trim()
+  if (trimmed) {
+    newFields[modelKey] = trimmed
+  } else {
+    delete newFields[modelKey]
+  }
+  emit('update:widget', { ...props.widget, fields: newFields })
 }
 
 function updateProp(key: string, value: unknown) {
@@ -218,20 +225,6 @@ function isEventSet(eventName: string): boolean {
     <template v-if="widget && config">
       <div class="lc-properties-section">{{ config.name }}</div>
 
-      <!-- Field name – shown for widgets that have v-model bindings -->
-      <template v-if="Object.keys(widget.models).length > 0">
-        <div class="lc-properties-group-label">字段设置</div>
-        <div class="lc-prop-row">
-          <label class="lc-prop-label" title="字段名">字段名</label>
-          <input
-            class="lc-prop-input"
-            :value="widget.field ?? ''"
-            placeholder="如: username"
-            @input="updateField(($event.target as HTMLInputElement).value)"
-          />
-        </div>
-      </template>
-
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">
         <div class="lc-properties-group-label">属性</div>
@@ -293,20 +286,34 @@ function isEventSet(eventName: string): boolean {
         </div>
       </template>
 
-      <!-- Models (v-model bindings) -->
+      <!-- Models (v-model bindings) — each model has a field name + default value -->
       <template v-if="Object.keys(widget.models).length">
         <div class="lc-properties-group-label">数据绑定</div>
         <div
           v-for="(val, key) in widget.models"
           :key="'model-' + key"
-          class="lc-prop-row"
+          class="lc-model-row"
         >
-          <label class="lc-prop-label">{{ key }}</label>
-          <input
-            class="lc-prop-input"
-            :value="valueToString(val)"
-            @input="updateModel(key, ($event.target as HTMLInputElement).value)"
-          />
+          <span class="lc-model-key">{{ key }}</span>
+          <div class="lc-model-fields">
+            <div class="lc-prop-row lc-model-field-row">
+              <label class="lc-prop-label lc-prop-label--sub">字段名</label>
+              <input
+                class="lc-prop-input"
+                :value="widget.fields?.[key] ?? ''"
+                placeholder="如: username"
+                @input="updateModelField(key, ($event.target as HTMLInputElement).value)"
+              />
+            </div>
+            <div class="lc-prop-row lc-model-field-row">
+              <label class="lc-prop-label lc-prop-label--sub">默认值</label>
+              <input
+                class="lc-prop-input"
+                :value="valueToString(val)"
+                @input="updateModel(key, ($event.target as HTMLInputElement).value)"
+              />
+            </div>
+          </div>
         </div>
       </template>
 
@@ -485,6 +492,30 @@ function isEventSet(eventName: string): boolean {
 }
 .lc-prop-input:focus {
   border-color: #409eff;
+}
+.lc-model-row {
+  padding: 4px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.lc-model-key {
+  font-size: 11px;
+  color: #909399;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+  padding-left: 4px;
+}
+.lc-model-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lc-model-field-row {
+  padding: 2px 0;
+}
+.lc-prop-label--sub {
+  flex: 0 0 60px;
+  color: #909399;
 }
 .lc-prop-checkbox-wrap {
   flex: 1;

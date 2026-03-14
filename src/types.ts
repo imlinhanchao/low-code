@@ -32,7 +32,7 @@ export interface PropConfig {
   type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor
   /** Human-readable label shown in the designer */
   label?: string
-  /** Default value; falls back to '' / false / 0 per type */
+  /** Default value; falls back to undefined when not set */
   default?: unknown
   /** Allowed string values – renders a <select> in the designer */
   options?: string[]
@@ -84,13 +84,13 @@ export interface WidgetSchema {
   /** Mirrors ComponentConfig.category; stored so the canvas can render without looking up the config */
   category: 'layout' | 'widget'
   /**
-   * Field name used as the key when collecting form values.
-   * Only set for widgets that have v-model bindings (i.e. `models` is non-empty).
-   * The renderer uses this as the outer key in the form data object so that
-   * consumers receive `{ username: { modelValue: '...' } }` instead of
-   * `{ randomId: { modelValue: '...' } }`.
+   * Per-model field names used as flat keys in the form data output.
+   * Maps each model key to the field name exposed in the form data.
+   * E.g. `{ modelValue: 'username' }` → form data becomes `{ username: 'hello' }`
+   * instead of `{ someId: { modelValue: 'hello' } }`.
+   * Only present for widgets that have v-model bindings.
    */
-  field?: string
+  fields?: Record<string, string>
   /** Current prop values */
   props: Record<string, unknown>
   /** Current v-model values */

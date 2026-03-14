@@ -20,24 +20,24 @@ const LcWidgetNode = defineComponent({
   setup(props) {
     const getConfig = inject<(name: string) => ComponentConfig | undefined>('lc:getConfig')!
     const getFormData =
-      inject<() => Record<string, Record<string, unknown>>>('lc:getFormData')!
+      inject<() => Record<string, unknown>>('lc:getFormData')!
     const updateModel =
-      inject<(id: string, key: string, val: unknown) => void>('lc:updateModel')!
+      inject<(fieldName: string, val: unknown) => void>('lc:updateModel')!
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const result: Record<string, unknown> = { ...props.widget.props }
       const formData = getFormData()
-      // Use field name (if set) as the form data key so consumers get
-      // { fieldName: { modelValue: ... } } instead of { randomId: { ... } }
-      const dataKey = props.widget.field ?? props.widget.id
 
       for (const key of Object.keys(props.widget.models)) {
-        result[key] = formData[dataKey]?.[key] ?? props.widget.models[key]
+        // Use the per-model field name (or fall back to the model key itself)
+        // to read from / write to the flat form data object.
+        const fieldName = props.widget.fields?.[key] ?? key
+        result[key] = formData[fieldName] ?? props.widget.models[key]
 
         const eventKey =
           key === 'modelValue' ? 'onUpdate:modelValue' : `onUpdate:${key}`
-        const capturedKey = key
-        result[eventKey] = (v: unknown) => updateModel(dataKey, capturedKey, v)
+        const capturedFieldName = fieldName
+        result[eventKey] = (v: unknown) => updateModel(capturedFieldName, v)
       }
 
       // Bind user-authored event handlers from widget.events.

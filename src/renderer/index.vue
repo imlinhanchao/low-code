@@ -15,7 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const formData = computed(
-  () => (props.modelValue ?? {}) as Record<string, Record<string, unknown>>,
+  () => (props.modelValue ?? {}) as Record<string, unknown>,
 )
 
 /** All known configs: built-in layouts are always included */
@@ -32,9 +32,9 @@ function getFormData() {
   return formData.value
 }
 
-function updateModel(widgetId: string, key: string, value: unknown) {
+function updateModel(fieldName: string, value: unknown) {
   const current = { ...formData.value }
-  current[widgetId] = { ...(current[widgetId] ?? {}), [key]: value }
+  current[fieldName] = value
   emit('update:modelValue', current)
 }
 

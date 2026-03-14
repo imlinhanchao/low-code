@@ -72,14 +72,17 @@ function buildWidget(config: ComponentConfig): WidgetSchema {
     if (val !== undefined) propValues[k] = val
   }
   const id = generateId()
-  const hasModels = Object.keys(config.models ?? {}).length > 0
+  const modelKeys = Object.keys(config.models ?? {})
+  // Auto-generate a field name per model key so form data is flat:
+  // e.g. { modelValue: 'modelValue_abc' } → formData = { modelValue_abc: 'hello' }
+  const fields: Record<string, string> | undefined = modelKeys.length > 0
+    ? Object.fromEntries(modelKeys.map((k) => [k, `${k}_${id}`]))
+    : undefined
   return {
     id,
     name: config.name,
     category: config.category ?? 'widget',
-    // Auto-generate a human-readable field name for widgets with v-model bindings.
-    // Users can rename it in the properties panel.
-    field: hasModels ? `field_${id}` : undefined,
+    fields,
     props: propValues,
     models: { ...(config.models ?? {}) },
     // Seed slotContent for non-layout widgets that expose a 'default' slot
