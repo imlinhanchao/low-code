@@ -140,12 +140,23 @@ const CanvasSlotZone = defineComponent({
  * only while the user is dragging (so the component itself looks clean).
  * Once a slot has children, those children render inside the component's
  * actual slot position (full WYSIWYG).
+ *
+ * For **virtual** slots (e.g. ElOption inside ElSelect), children are rendered
+ * as selectable chip items in the panel rather than embedded in the component's
+ * slot area (where they would be invisible and unclickable).
  */
 export const LcCanvasWidgetNode = defineComponent({
   name: 'LcCanvasWidgetNode',
 
   props: {
     widget: { type: Object as PropType<WidgetSchema>, required: true },
+    /**
+     * When true, renders as a compact clickable chip instead of mounting the
+     * real component.  Used for virtual-slot children shown in the panel — this
+     * avoids `inject` errors from components like ElOption that require a
+     * specific parent (ElSelect) to be in the component tree.
+     */
+    virtual: { type: Boolean, default: false },
   },
 
   setup(props) {
@@ -164,25 +175,70 @@ export const LcCanvasWidgetNode = defineComponent({
       const isLayout   = props.widget.category === 'layout'
       const isDragging = draggingConfig.value !== null
 
+      // ── Floating action bar (shared between normal and virtual render modes) ─
+      const actionsBar = h('div', { class: 'lc-node-actions' }, [
+        h('span', { class: 'lc-node-actions__name' }, config.name),
+        h('span', { class: 'lc-node-actions__btn lc-node-actions__btn--drag', title: '拖拽' }, '⠿'),
+        h(
+          'button',
+          {
+            class: 'lc-node-actions__btn lc-node-actions__btn--delete',
+            title: '删除',
+            onClick: (e: MouseEvent) => {
+              e.stopPropagation()
+              removeWidget(props.widget.id)
+            },
+          },
+          '✕',
+        ),
+      ])
+
+      // ── Virtual chip rendering ────────────────────────────────────────────
+      // Used for virtual-slot children (e.g. ElOption) shown in the panel.
+      // Renders a simple named chip without mounting the actual component —
+      // this avoids inject errors from components that require a specific parent.
+      if (props.virtual) {
+        return h(
+          'div',
+          {
+            class: {
+              'lc-canvas-node': true,
+              'lc-canvas-node--selected': isSelected,
+              'lc-canvas-node--virtual-item': true,
+            },
+            onClick: (e: MouseEvent) => {
+              e.stopPropagation()
+              selectWidget(props.widget.id)
+            },
+          },
+          [actionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, config.name)],
+        )
+      }
+
       const effectiveSlots: SlotConfig[] = config.computeSlots
         ? config.computeSlots(props.widget.props)
         : (config.slots ?? [])
 
+      // ── Split slots: virtual vs. normal ──────────────────────────────────
+      // Virtual slots (e.g. ElSelect's option slot) have children that don't
+      // render visibly in position — they are shown in the panel instead.
+      const virtualSlots = effectiveSlots.filter((s) => s.virtual)
+      const normalSlots  = effectiveSlots.filter((s) => !s.virtual)
+
       // ── Build slot functions ────────────────────────────────────────────
       const slotFns: Record<string, () => VNode | VNode[] | string> = {}
 
-      // Slots that already have children — always embed inline (WYSIWYG)
-      const populatedSlots = effectiveSlots.filter(
+      // Normal populated slots — always embed inline (WYSIWYG)
+      const populatedSlots = normalSlots.filter(
         (s) => (props.widget.slots[s.name] ?? []).length > 0,
       )
       // Empty slots on layout components — always embed (they ARE the visual cells)
       const layoutEmptySlots = isLayout
-        ? effectiveSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
+        ? normalSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
         : []
-      // Empty slots on widget components — embed only while dragging (so the
-      // component looks clean at rest, but shows targets when user drags)
+      // Empty slots on widget components (non-virtual) — embed only while dragging
       const widgetEmptySlots = !isLayout
-        ? effectiveSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
+        ? normalSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
         : []
 
       for (const slotCfg of [...populatedSlots, ...layoutEmptySlots]) {
@@ -201,10 +257,9 @@ export const LcCanvasWidgetNode = defineComponent({
           })
       }
 
-      // While dragging, also embed empty widget slots so the user can drop in
+      // While dragging, also embed empty (non-virtual) widget slots
       if (isDragging) {
         for (const slotCfg of widgetEmptySlots) {
-          // Skip slots that were already handled (populated slots above)
           if (slotFns[slotCfg.name]) continue
           const sn = slotCfg.name
           const label = slotCfg.label ?? sn
@@ -221,8 +276,26 @@ export const LcCanvasWidgetNode = defineComponent({
         }
       }
 
+      // Virtual populated slots — pass raw component vnodes for parent registration
+      // (e.g. ElOption must be in ElSelect's slot to register, but is not wrapped in
+      // a canvas node here — the panel handles the designer representation instead).
+      for (const slotCfg of virtualSlots) {
+        const sn = slotCfg.name
+        const children = props.widget.slots[sn] ?? []
+        if (children.length > 0) {
+          slotFns[sn] = () =>
+            children
+              .map((c) => {
+                const childCfg = allConfigs.value.find((cc) => cc.name === c.name)
+                return childCfg
+                  ? h(childCfg.component as Parameters<typeof h>[0], { ...c.props, ...c.models })
+                  : null
+              })
+              .filter(Boolean) as VNode[]
+        }
+      }
+
       // Fallback: simple text content for leaf widgets (e.g. button label)
-      // Only used when no named slots are being shown
       if (Object.keys(slotFns).length === 0 && props.widget.slotContent !== undefined) {
         slotFns['default'] = () => props.widget.slotContent!
       }
@@ -240,49 +313,56 @@ export const LcCanvasWidgetNode = defineComponent({
         Object.keys(slotFns).length > 0 ? slotFns : undefined,
       )
 
-      // ── Empty-slot panel for regular widgets (shown when selected or dragging) ──
-      // These appear as compact labeled chips below the component so the user
-      // knows which slots are available, without cluttering the component itself.
-      const showEmptyPanel = !isLayout && widgetEmptySlots.length > 0 && (isSelected || isDragging)
-      const emptySlotPanel = showEmptyPanel
+      // ── Unified slots panel ──────────────────────────────────────────────
+      // Shown when selected or dragging.  Contains:
+      //  a) Regular (non-virtual) empty widget slots as droppable chip hints
+      //  b) Virtual slot contents — existing children as clickable virtual chips
+      //     plus a drop zone for adding more items
+      const showPanel = !isLayout && (
+        (widgetEmptySlots.length > 0 || virtualSlots.length > 0) &&
+        (isSelected || isDragging)
+      )
+      const slotsPanel = showPanel
         ? h(
             'div',
             { class: 'lc-canvas-node__slots-panel' },
-            widgetEmptySlots.map((s) =>
-              h(CanvasSlotZone, {
-                key: `empty-${s.name}`,
-                parentId: props.widget.id,
-                slotName: s.name,
-                slotLabel: s.label ?? s.name,
-                children: [],
-                isLayout: false,
-                accept: s.components?.map((c) => c.name) ?? [],
+            [
+              // (a) Regular empty widget slots
+              ...widgetEmptySlots.map((s) =>
+                h(CanvasSlotZone, {
+                  key: `empty-${s.name}`,
+                  parentId: props.widget.id,
+                  slotName: s.name,
+                  slotLabel: s.label ?? s.name,
+                  children: [],
+                  isLayout: false,
+                  accept: s.components?.map((c) => c.name) ?? [],
+                }),
+              ),
+              // (b) Virtual slot children + drop zone
+              ...virtualSlots.flatMap((s) => {
+                const children = props.widget.slots[s.name] ?? []
+                const accept = s.components?.map((c) => c.name) ?? []
+                return [
+                  // Existing children as selectable virtual-mode chips
+                  ...children.map((c) =>
+                    h(LcCanvasWidgetNode, { key: c.id, widget: c, virtual: true }),
+                  ),
+                  // Drop zone for adding more items to this virtual slot
+                  h(CanvasSlotZone, {
+                    key: `vslot-${s.name}`,
+                    parentId: props.widget.id,
+                    slotName: s.name,
+                    slotLabel: s.label ?? s.name,
+                    children: [],
+                    isLayout: false,
+                    accept,
+                  }),
+                ]
               }),
-            ),
+            ],
           )
         : null
-
-      // ── Floating action bar (shown only on hover / when selected) ──────
-      // Positioned absolute at the top-right corner; does NOT affect layout.
-      const actionsBar = h('div', { class: 'lc-node-actions' }, [
-        // Component-name label so the user always knows what widget they are on
-        h('span', { class: 'lc-node-actions__name' }, config.name),
-        // Drag handle — visual affordance for future drag-to-reorder
-        h('span', { class: 'lc-node-actions__btn lc-node-actions__btn--drag', title: '拖拽' }, '⠿'),
-        // Delete button
-        h(
-          'button',
-          {
-            class: 'lc-node-actions__btn lc-node-actions__btn--delete',
-            title: '删除',
-            onClick: (e: MouseEvent) => {
-              e.stopPropagation()
-              removeWidget(props.widget.id)
-            },
-          },
-          '✕',
-        ),
-      ])
 
       // ── Selection wrapper ───────────────────────────────────────────────
       return h(
@@ -302,7 +382,7 @@ export const LcCanvasWidgetNode = defineComponent({
           // Floating action bar — overlays the component, never pushes content down
           actionsBar,
           componentVNode,
-          emptySlotPanel,
+          slotsPanel,
         ],
       )
     }

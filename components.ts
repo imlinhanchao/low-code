@@ -51,6 +51,7 @@ const components: ComponentConfig[] = [
       {
         name: 'default',
         label: '选项列表',
+        virtual: true,
         components: [
           {
             name: '选项',

@@ -273,4 +273,26 @@ function onDrop(e: DragEvent) {
   background: #ecf5ff;
   border-color: #409eff;
 }
+
+/* ── Virtual item chip (e.g. ElOption inside ElSelect's panel) ──────────── */
+/*
+ * Shown in the slots panel instead of being embedded in the component's
+ * slot area.  Acts like a mini canvas node: position:relative so the
+ * floating action bar can sit above it.
+ */
+.lc-canvas-node--virtual-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  min-width: 60px;
+  min-height: 28px;
+  margin: 2px 0;
+  background: #f0f2f5;
+}
+.lc-canvas-node__virtual-label {
+  font-size: 12px;
+  color: #606266;
+  user-select: none;
+  pointer-events: none;
+}
 </style>

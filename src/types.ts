@@ -7,6 +7,13 @@ export interface SlotConfig {
   label?: string
   /** Sub-component configs allowed in this slot (empty = any) */
   components?: ComponentConfig[]
+  /**
+   * When true, slot children are "virtual" components (e.g. ElOption inside ElSelect)
+   * that don't render visible content at their slot-mount position.  In the designer
+   * they are shown as clickable chips in the panel rather than embedded inside the
+   * parent component's visual area.
+   */
+  virtual?: boolean
 }
 
 /** Shape of an event parameter */
