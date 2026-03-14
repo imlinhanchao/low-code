@@ -189,7 +189,36 @@ function reorderSlotChildren(
   }
 }
 
+function moveWidget(
+  widgetId: string,
+  newParentId: string | null,
+  newSlotName: string | null,
+): void {
+  const widget = findInTree(schema.value.widgets, widgetId)
+  if (!widget) return
+  // Remove from current location first
+  const newWidgets = removeFromTree(schema.value.widgets, widgetId)
+  // Guard: if the target parent was inside the moved widget, abort
+  if (newParentId !== null && !findInTree(newWidgets, newParentId)) return
+  if (newParentId === null) {
+    schema.value = { widgets: [...newWidgets, widget] }
+  } else {
+    schema.value = {
+      widgets: updateInTree(newWidgets, newParentId, (parent) => ({
+        ...parent,
+        slots: {
+          ...parent.slots,
+          [newSlotName!]: [...(parent.slots[newSlotName!] ?? []), widget],
+        },
+      })),
+    }
+  }
+  selectedId.value = widget.id
+}
+
+
 provide('lc:addWidget', addWidget)
+provide('lc:moveWidget', moveWidget)
 provide('lc:removeWidget', removeWidget)
 provide('lc:selectWidget', selectWidget)
 provide('lc:selectedId', selectedId)

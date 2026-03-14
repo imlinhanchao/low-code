@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject, ref, type Ref } from 'vue'
+import { inject, ref } from 'vue'
 import type { ComponentConfig, FormSchema } from '../../types'
-import { draggingConfig } from '../useDragState'
+import { draggingConfig, draggingWidget } from '../useDragState'
 import { LcCanvasWidgetNode } from './CanvasWidgetNode'
 
 const props = defineProps<{ schema: FormSchema }>()
@@ -10,15 +10,19 @@ const addWidget =
   inject<(parentId: string | null, slotName: string | null, cfg: ComponentConfig) => void>(
     'lc:addWidget',
   )!
+const moveWidget =
+  inject<(id: string, parentId: string | null, slotName: string | null) => void>(
+    'lc:moveWidget',
+  )
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')!
 
 const isOver = ref(false)
 
 function onDragOver(e: DragEvent) {
-  if (!draggingConfig.value) return
+  if (!draggingConfig.value && !draggingWidget.value) return
   e.preventDefault()
   isOver.value = true
-  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
+  if (e.dataTransfer) e.dataTransfer.dropEffect = draggingWidget.value ? 'move' : 'copy'
 }
 
 function onDragLeave(e: DragEvent) {
@@ -30,9 +34,13 @@ function onDragLeave(e: DragEvent) {
 function onDrop(e: DragEvent) {
   e.preventDefault()
   isOver.value = false
-  if (!draggingConfig.value) return
-  addWidget(null, null, draggingConfig.value)
-  draggingConfig.value = null
+  if (draggingWidget.value) {
+    moveWidget?.(draggingWidget.value.id, null, null)
+    draggingWidget.value = null
+  } else if (draggingConfig.value) {
+    addWidget(null, null, draggingConfig.value)
+    draggingConfig.value = null
+  }
 }
 </script>
 
@@ -138,6 +146,7 @@ function onDrop(e: DragEvent) {
   white-space: nowrap;
   line-height: 1;
 }
+.lc-canvas-node:hover > .lc-node-actions,
 .lc-canvas-node--selected > .lc-node-actions {
   opacity: 1;
   pointer-events: auto;

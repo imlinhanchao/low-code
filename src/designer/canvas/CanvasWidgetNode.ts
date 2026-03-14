@@ -9,7 +9,7 @@ import {
   type VNode,
 } from 'vue'
 import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
-import { draggingConfig } from '../useDragState'
+import { draggingConfig, draggingWidget } from '../useDragState'
 
 // ── Canvas Slot Zone ──────────────────────────────────────────────────────────
 /**
@@ -44,27 +44,39 @@ const CanvasSlotZone = defineComponent({
       inject<(pid: string | null, sn: string | null, cfg: ComponentConfig) => void>(
         'lc:addWidget',
       )!
+    const moveWidget =
+      inject<(id: string, parentId: string | null, slotName: string | null) => void>(
+        'lc:moveWidget',
+      )
 
     const isOver = ref(false)
-    const isDragging = computed(() => draggingConfig.value !== null)
+
+    /** Name of whatever is currently being dragged (palette config or placed widget) */
+    const currentDragName = computed<string | null>(() => {
+      if (draggingConfig.value) return draggingConfig.value.name
+      if (draggingWidget.value) return draggingWidget.value.name
+      return null
+    })
+
+    const isDragging = computed(() => currentDragName.value !== null)
 
     /** True when a drag is active but the dragged component is not allowed here */
     const isBlocked = computed(() =>
       isDragging.value &&
       props.accept.length > 0 &&
-      draggingConfig.value !== null &&
-      !props.accept.includes(draggingConfig.value.name),
+      currentDragName.value !== null &&
+      !props.accept.includes(currentDragName.value),
     )
 
     function onDragOver(e: DragEvent) {
-      if (!draggingConfig.value) return
+      if (!currentDragName.value) return
       e.stopPropagation()
       // Reset hover state first; re-enable below only if the drop is accepted
       isOver.value = false
       if (isBlocked.value) return
       e.preventDefault()
       isOver.value = true
-      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
+      if (e.dataTransfer) e.dataTransfer.dropEffect = draggingWidget.value ? 'move' : 'copy'
     }
 
     function onDragLeave(e: DragEvent) {
@@ -76,14 +88,21 @@ const CanvasSlotZone = defineComponent({
       e.preventDefault()
       e.stopPropagation()
       isOver.value = false
-      if (!draggingConfig.value) return
-      // Silently ignore drops of components not in the accept list
-      if (props.accept.length > 0 && !props.accept.includes(draggingConfig.value.name)) {
+      if (draggingWidget.value) {
+        if (props.accept.length > 0 && !props.accept.includes(draggingWidget.value.name)) {
+          draggingWidget.value = null
+          return
+        }
+        moveWidget?.(draggingWidget.value.id, props.parentId, props.slotName)
+        draggingWidget.value = null
+      } else if (draggingConfig.value) {
+        if (props.accept.length > 0 && !props.accept.includes(draggingConfig.value.name)) {
+          draggingConfig.value = null
+          return
+        }
+        addWidget(props.parentId, props.slotName, draggingConfig.value)
         draggingConfig.value = null
-        return
       }
-      addWidget(props.parentId, props.slotName, draggingConfig.value)
-      draggingConfig.value = null
     }
 
     return () => {
@@ -184,12 +203,27 @@ export const LcCanvasWidgetNode = defineComponent({
 
       const isSelected = selectedId.value === props.widget.id
       const isLayout   = props.widget.category === 'layout'
-      const isDragging = draggingConfig.value !== null
+      const isDragging = draggingConfig.value !== null || draggingWidget.value !== null
 
       // ── Floating action bar (shared between normal and virtual render modes) ─
       const actionsBar = h('div', { class: 'lc-node-actions' }, [
         h('span', { class: 'lc-node-actions__name' }, config.name),
-        h('span', { class: 'lc-node-actions__btn lc-node-actions__btn--drag', title: '拖拽' }, '⠿'),
+        h('span', {
+          class: 'lc-node-actions__btn lc-node-actions__btn--drag',
+          title: '拖拽',
+          draggable: true,
+          onDragstart: (e: DragEvent) => {
+            e.stopPropagation()
+            draggingWidget.value = props.widget
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = 'move'
+              e.dataTransfer.setData('text/plain', props.widget.id)
+            }
+          },
+          onDragend: () => {
+            draggingWidget.value = null
+          },
+        }, '⠿'),
         h(
           'button',
           {
