@@ -18,11 +18,23 @@ const formData = computed(
   () => (props.modelValue ?? {}) as Record<string, unknown>,
 )
 
-/** All known configs: built-in layouts are always included */
-const allConfigs = computed<ComponentConfig[]>(() => [
-  ...builtinLayouts,
-  ...props.components,
-])
+/** All known configs: built-in layouts + user components + slot-specific components */
+const allConfigs = computed<ComponentConfig[]>(() => {
+  const base = [...builtinLayouts, ...props.components]
+  const known = new Set(base.map((c) => c.name))
+  const extra: ComponentConfig[] = []
+  for (const cfg of base) {
+    for (const slot of cfg.slots ?? []) {
+      for (const sc of slot.components ?? []) {
+        if (!known.has(sc.name)) {
+          known.add(sc.name)
+          extra.push(sc)
+        }
+      }
+    }
+  }
+  return [...base, ...extra]
+})
 
 function getConfig(name: string): ComponentConfig | undefined {
   return allConfigs.value.find((c) => c.name === name)
