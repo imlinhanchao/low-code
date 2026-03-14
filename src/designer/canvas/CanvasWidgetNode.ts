@@ -235,14 +235,36 @@ export const LcCanvasWidgetNode = defineComponent({
           )
         : null
 
+      // ── Floating action bar (shown only on hover / when selected) ──────
+      // Positioned absolute at the top-right corner; does NOT affect layout.
+      const actionsBar = h('div', { class: 'lc-node-actions' }, [
+        // Component-name label so the user always knows what widget they are on
+        h('span', { class: 'lc-node-actions__name' }, config.name),
+        // Drag handle — visual affordance for future drag-to-reorder
+        h('span', { class: 'lc-node-actions__btn lc-node-actions__btn--drag', title: '拖拽' }, '⠿'),
+        // Delete button
+        h(
+          'button',
+          {
+            class: 'lc-node-actions__btn lc-node-actions__btn--delete',
+            title: '删除',
+            onClick: (e: MouseEvent) => {
+              e.stopPropagation()
+              removeWidget(props.widget.id)
+            },
+          },
+          '✕',
+        ),
+      ])
+
       // ── Selection wrapper ───────────────────────────────────────────────
       return h(
         'div',
         {
           class: {
-            'lc-canvas-node':           true,
+            'lc-canvas-node': true,
             'lc-canvas-node--selected': isSelected,
-            'lc-canvas-node--layout':   isLayout,
+            'lc-canvas-node--layout': isLayout,
           },
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
@@ -250,18 +272,8 @@ export const LcCanvasWidgetNode = defineComponent({
           },
         },
         [
-          // Thin toolbar: component-name badge + delete button
-          h('div', { class: 'lc-node-toolbar' }, [
-            h('span', { class: 'lc-node-badge' }, config.name),
-            h('button', {
-              class:   'lc-node-delete',
-              title:   '删除',
-              onClick: (e: MouseEvent) => {
-                e.stopPropagation()
-                removeWidget(props.widget.id)
-              },
-            }, '✕'),
-          ]),
+          // Floating action bar — overlays the component, never pushes content down
+          actionsBar,
           componentVNode,
           emptySlotPanel,
         ],

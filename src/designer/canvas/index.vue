@@ -113,42 +113,72 @@ function onDrop(e: DragEvent) {
   font-size: 12px;
 }
 
-/* ── Thin toolbar (badge + delete button) ─────────────────────────────── */
-.lc-node-toolbar {
+/* ── Floating action bar ────────────────────────────────────────────────── */
+/*
+ * Absolutely positioned at the top-right of the node wrapper.
+ * Uses translateY(-100%) so it floats ABOVE the component border,
+ * taking up zero layout space.  Invisible by default; fades in on
+ * hover or when the node is selected.
+ */
+.lc-node-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  z-index: 100;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 2px 4px 2px 8px;
-  background: #f5f7fa;
-  border-bottom: 1px solid #ebeef5;
-  min-height: 20px;
-  border-radius: 3px 3px 0 0;
+  gap: 0;
+  background: #409eff;
+  border-radius: 4px 4px 0 0;
+  padding: 2px 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  line-height: 1;
 }
-.lc-node-badge {
+.lc-canvas-node:hover > .lc-node-actions,
+.lc-canvas-node--selected > .lc-node-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lc-node-actions__name {
   font-size: 10px;
-  color: #909399;
+  color: #fff;
   user-select: none;
+  padding: 0 4px 0 2px;
+  opacity: 0.9;
   line-height: 1;
 }
-.lc-node-delete {
-  width: 14px;
-  height: 14px;
-  border: none;
-  background: #f56c6c;
-  color: #fff;
-  border-radius: 50%;
-  font-size: 8px;
-  line-height: 1;
-  cursor: pointer;
-  display: none;
+.lc-node-actions__btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
   padding: 0;
   flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
 }
-.lc-canvas-node:hover .lc-node-delete,
-.lc-canvas-node--selected .lc-node-delete {
-  display: flex;
+.lc-node-actions__btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.lc-node-actions__btn--drag {
+  cursor: grab;
+  font-size: 12px;
+  letter-spacing: -1px;
+}
+.lc-node-actions__btn--delete:hover {
+  background: #f56c6c;
 }
 
 /* ── Canvas slot zone ─────────────────────────────────────────────────── */
