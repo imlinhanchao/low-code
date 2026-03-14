@@ -90,9 +90,32 @@ const LcWidgetNode = defineComponent({
       // Build slot functions from stored children
       const slotFns: Record<string, () => VNode | VNode[] | string> = {}
 
+      // Identify virtual slots (e.g. ElOption inside ElSelect) — their children
+      // must be rendered as raw component vnodes so Vue's provide/inject chain
+      // between the parent (ElSelect) and child (ElOption) remains intact.
+      // Wrapping them in LcWidgetNode would break the chain.
+      const effectiveSlots = config.computeSlots
+        ? config.computeSlots(props.widget.props)
+        : (config.slots ?? [])
+      const virtualSlotNames = new Set(
+        effectiveSlots.filter((s) => s.virtual).map((s) => s.name),
+      )
+
       for (const [slotName, children] of Object.entries(props.widget.slots)) {
-        if (children.length > 0) {
-          const capturedChildren = children
+        if (children.length === 0) continue
+        const capturedChildren = children
+        if (virtualSlotNames.has(slotName)) {
+          // Virtual slot: render children directly as real component vnodes
+          slotFns[slotName] = () =>
+            capturedChildren
+              .map((c) => {
+                const childCfg = getConfig(c.name)
+                return childCfg
+                  ? h(childCfg.component as Parameters<typeof h>[0], { ...c.props, ...c.models })
+                  : null
+              })
+              .filter(Boolean) as VNode[]
+        } else {
           slotFns[slotName] = () =>
             capturedChildren.map((c) => h(LcWidgetNode, { widget: c, key: c.id }))
         }

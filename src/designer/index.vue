@@ -60,15 +60,16 @@ function getPropDefaultValue(v: unknown): unknown {
   if (!isPropConfig(v)) return v           // plain primitive (layout props)
   const cfg = v as PropConfig
   if (cfg.default !== undefined) return cfg.default
-  if (cfg.type === Boolean) return false
-  if (cfg.type === Number) return 0
-  return ''   // String / Function props start empty
+  // Props with no explicit default are left undefined so they aren't passed
+  // to the component at all (avoids e.g. maxlength=0 blocking text input).
+  return undefined
 }
 
 function buildWidget(config: ComponentConfig): WidgetSchema {
   const propValues: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(config.props ?? {})) {
-    propValues[k] = getPropDefaultValue(v)
+    const val = getPropDefaultValue(v)
+    if (val !== undefined) propValues[k] = val
   }
   const id = generateId()
   const hasModels = Object.keys(config.models ?? {}).length > 0

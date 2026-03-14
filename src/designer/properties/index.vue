@@ -22,10 +22,13 @@ function updateField(value: string) {
 
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
-  emit('update:widget', {
-    ...props.widget,
-    props: { ...props.widget.props, [key]: value },
-  })
+  const newProps = { ...props.widget.props }
+  if (value === undefined) {
+    delete newProps[key]
+  } else {
+    newProps[key] = value
+  }
+  emit('update:widget', { ...props.widget, props: newProps })
 }
 
 function updateModel(key: string, value: unknown) {
@@ -276,8 +279,8 @@ function isEventSet(eventName: string): boolean {
             v-else-if="propKind(cfgVal) === 'number'"
             class="lc-prop-input"
             type="number"
-            :value="widget.props[key]"
-            @input="updateProp(key, Number(($event.target as HTMLInputElement).value))"
+            :value="widget.props[key] ?? ''"
+            @input="updateProp(key, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
           />
 
           <!-- String / plain text (default) -->
