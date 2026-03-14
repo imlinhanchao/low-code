@@ -6,8 +6,8 @@ const components: ComponentConfig[] = [
     name: '文本框',
     component: ElInput,
     props: {
-      placeholder: '请输入内容',
-      showWordLimit: false,
+      placeholder: { type: String, label: '占位文本' },
+      showWordLimit: { type: Boolean, label: '显示字数限制', default: false },
     },
     models: {
       modelValue: '',
@@ -27,7 +27,8 @@ const components: ComponentConfig[] = [
     name: '按钮',
     component: ElButton,
     props: {
-      type: 'primary',
+      type: { type: String, label: '按钮类型', options: ['primary', 'success', 'warning', 'danger', 'info', 'text'] },
+      size: { type: String, label: '按钮尺寸', options: ['default', 'small', 'large'] },
     },
     events: {
       click: [],
@@ -40,7 +41,8 @@ const components: ComponentConfig[] = [
     name: '下拉选择',
     component: ElSelect,
     props: {
-      placeholder: { type: String },
+      placeholder: { type: String, label: '占位文本' },
+      filterMethod: { type: Function, label: '过滤方法', params: [{ name: 'query', type: String }] },
     },
     models: {
       modelValue: '',
@@ -58,8 +60,8 @@ const components: ComponentConfig[] = [
             name: '选项',
             component: ElOption,
             props: {
-              label: '选项',
-              value: '',
+              label: { type: String, label: '选项标签' },
+              value: { type: String, label: '选项值' },
             },
             slots: [],
           },
@@ -71,8 +73,8 @@ const components: ComponentConfig[] = [
     name: '工具提示',
     component: ElTooltip,
     props: {
-      content: '提示内容',
-      placement: 'top',
+      content: { type: String, label: '提示内容' },
+      placement: { type: String, label: '提示位置', options: ['top', 'bottom', 'left', 'right'] },
     },
     slots: [
       { name: 'default', label: '触发元素' },
