@@ -83,6 +83,14 @@ export interface WidgetSchema {
   name: string
   /** Mirrors ComponentConfig.category; stored so the canvas can render without looking up the config */
   category: 'layout' | 'widget'
+  /**
+   * Field name used as the key when collecting form values.
+   * Only set for widgets that have v-model bindings (i.e. `models` is non-empty).
+   * The renderer uses this as the outer key in the form data object so that
+   * consumers receive `{ username: { modelValue: '...' } }` instead of
+   * `{ randomId: { modelValue: '...' } }`.
+   */
+  field?: string
   /** Current prop values */
   props: Record<string, unknown>
   /** Current v-model values */

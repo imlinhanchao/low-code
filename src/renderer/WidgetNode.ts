@@ -27,14 +27,17 @@ const LcWidgetNode = defineComponent({
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const result: Record<string, unknown> = { ...props.widget.props }
       const formData = getFormData()
+      // Use field name (if set) as the form data key so consumers get
+      // { fieldName: { modelValue: ... } } instead of { randomId: { ... } }
+      const dataKey = props.widget.field ?? props.widget.id
 
       for (const key of Object.keys(props.widget.models)) {
-        result[key] = formData[props.widget.id]?.[key] ?? props.widget.models[key]
+        result[key] = formData[dataKey]?.[key] ?? props.widget.models[key]
 
         const eventKey =
           key === 'modelValue' ? 'onUpdate:modelValue' : `onUpdate:${key}`
         const capturedKey = key
-        result[eventKey] = (v: unknown) => updateModel(props.widget.id, capturedKey, v)
+        result[eventKey] = (v: unknown) => updateModel(dataKey, capturedKey, v)
       }
 
       // Bind user-authored event handlers from widget.events.

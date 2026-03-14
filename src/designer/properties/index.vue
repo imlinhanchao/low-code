@@ -15,6 +15,11 @@ const emit = defineEmits<{
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
 
+function updateField(value: string) {
+  if (!props.widget) return
+  emit('update:widget', { ...props.widget, field: value.trim() || undefined })
+}
+
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
   emit('update:widget', {
@@ -209,6 +214,20 @@ function isEventSet(eventName: string): boolean {
 
     <template v-if="widget && config">
       <div class="lc-properties-section">{{ config.name }}</div>
+
+      <!-- Field name – shown for widgets that have v-model bindings -->
+      <template v-if="Object.keys(widget.models).length > 0">
+        <div class="lc-properties-group-label">字段设置</div>
+        <div class="lc-prop-row">
+          <label class="lc-prop-label" title="字段名">字段名</label>
+          <input
+            class="lc-prop-input"
+            :value="widget.field ?? ''"
+            placeholder="如: username"
+            @input="updateField(($event.target as HTMLInputElement).value)"
+          />
+        </div>
+      </template>
 
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">

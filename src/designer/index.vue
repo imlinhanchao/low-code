@@ -70,10 +70,15 @@ function buildWidget(config: ComponentConfig): WidgetSchema {
   for (const [k, v] of Object.entries(config.props ?? {})) {
     propValues[k] = getPropDefaultValue(v)
   }
+  const id = generateId()
+  const hasModels = Object.keys(config.models ?? {}).length > 0
   return {
-    id: generateId(),
+    id,
     name: config.name,
     category: config.category ?? 'widget',
+    // Auto-generate a human-readable field name for widgets with v-model bindings.
+    // Users can rename it in the properties panel.
+    field: hasModels ? `field_${id}` : undefined,
     props: propValues,
     models: { ...(config.models ?? {}) },
     // Seed slotContent for non-layout widgets that expose a 'default' slot
