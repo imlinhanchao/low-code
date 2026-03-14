@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, provide } from 'vue'
-import type { ComponentConfig, FormSchema, WidgetSchema, SlotConfig } from '../types'
+import type { ComponentConfig, FormSchema, WidgetSchema, SlotConfig, PropConfig } from '../types'
+import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
 import PropertiesPanel from './properties/index.vue'
@@ -54,12 +55,26 @@ function generateId(): string {
   return Math.random().toString(36).slice(2, 10)
 }
 
+/** Extract the runtime default value from a prop descriptor (or plain value for layouts). */
+function getPropDefaultValue(v: unknown): unknown {
+  if (!isPropConfig(v)) return v           // plain primitive (layout props)
+  const cfg = v as PropConfig
+  if (cfg.default !== undefined) return cfg.default
+  if (cfg.type === Boolean) return false
+  if (cfg.type === Number) return 0
+  return ''   // String / Function props start empty
+}
+
 function buildWidget(config: ComponentConfig): WidgetSchema {
+  const propValues: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(config.props ?? {})) {
+    propValues[k] = getPropDefaultValue(v)
+  }
   return {
     id: generateId(),
     name: config.name,
     category: config.category ?? 'widget',
-    props: { ...config.props },
+    props: propValues,
     models: { ...(config.models ?? {}) },
     // Seed slotContent for non-layout widgets that expose a 'default' slot
     // (e.g. buttons show their label as initial text; users can replace it by

@@ -2,6 +2,7 @@ import type { Component } from 'vue'
 
 /** Definition of a named slot that a component exposes */
 export interface SlotConfig {
+
   name: string
   /** Human-readable label shown in the designer */
   label?: string
@@ -20,6 +21,28 @@ export interface SlotConfig {
 export interface EventParam {
   name: string
   type: unknown
+}
+
+/**
+ * Metadata for a single component prop.
+ * Used in ComponentConfig.props to describe the prop's type, label, default, etc.
+ */
+export interface PropConfig {
+  /** JavaScript type constructor: String, Boolean, Number, Function */
+  type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor
+  /** Human-readable label shown in the designer */
+  label?: string
+  /** Default value; falls back to '' / false / 0 per type */
+  default?: unknown
+  /** Allowed string values – renders a <select> in the designer */
+  options?: string[]
+  /** For Function-type props: named parameters */
+  params?: EventParam[]
+}
+
+/** Returns true when a ComponentConfig.props value is a PropConfig descriptor */
+export function isPropConfig(v: unknown): v is PropConfig {
+  return v !== null && typeof v === 'object' && 'type' in (v as object)
 }
 
 /** Config entry for a single registerable component (or built-in layout) */

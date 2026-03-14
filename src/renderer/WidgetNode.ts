@@ -1,5 +1,6 @@
 import { defineComponent, inject, h, type PropType, type VNode } from 'vue'
 import type { ComponentConfig, WidgetSchema } from '../types'
+import { isPropConfig } from '../types'
 
 /**
  * Recursive render-function component.
@@ -47,8 +48,30 @@ const LcWidgetNode = defineComponent({
         try {
           // eslint-disable-next-line no-new-func
           result[handlerKey] = new Function(...paramNames, code)
-        } catch {
-          // Ignore invalid function bodies silently
+        } catch (err) {
+          if (import.meta.env.DEV) {
+            console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
+          }
+        }
+      }
+
+      // Compile Function-typed props (stored as code strings) into real functions.
+      for (const [key, propCfg] of Object.entries(config.props ?? {})) {
+        if (!isPropConfig(propCfg) || propCfg.type !== Function) continue
+        const code = result[key]
+        if (typeof code === 'string' && code.trim()) {
+          const paramNames = propCfg.params?.map((p) => p.name) ?? []
+          try {
+            // eslint-disable-next-line no-new-func
+            result[key] = new Function(...paramNames, code)
+          } catch (err) {
+            if (import.meta.env.DEV) {
+              console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)
+            }
+            delete result[key]
+          }
+        } else {
+          delete result[key]
         }
       }
 
