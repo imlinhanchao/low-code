@@ -1,38 +1,154 @@
 <template>
-  <div class="debug-container">
-    <h1>组件库预览 (调试页面)</h1>
-    <section>
-      <h2>MyButton</h2>
-      <MyButton @click="handleClick">点击我</MyButton>
-    </section>
+  <div class="app-root">
+    <header class="app-header">
+      <h1>低代码表单设计器</h1>
+      <div class="header-actions">
+        <button class="btn" @click="mode = 'designer'">设计器</button>
+        <button class="btn btn-primary" @click="mode = 'preview'">预览</button>
+        <button class="btn btn-danger" @click="clearSchema">清空</button>
+      </div>
+    </header>
+
+    <main class="app-body">
+      <!-- Designer mode -->
+      <LcDesigner
+        v-if="mode === 'designer'"
+        v-model="schema"
+        :components="components"
+        class="app-designer"
+      />
+
+      <!-- Preview mode -->
+      <div v-else class="app-preview">
+        <h2 class="preview-title">表单预览</h2>
+        <div class="preview-form">
+          <LcRenderer
+            :schema="schema"
+            :components="components"
+            v-model="formData"
+          />
+        </div>
+        <div class="preview-data">
+          <h3>表单数据</h3>
+          <pre>{{ JSON.stringify(formData, null, 2) }}</pre>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MyButton } from './src/index'
+import { ref } from 'vue'
+import 'element-plus/dist/index.css'
+import { LcDesigner, LcRenderer } from './src/index'
+import type { FormSchema } from './src/types'
+import componentList from './components'
 
-const handleClick = () => {
-  alert('MyButton clicked!')
+const components = componentList
+const mode = ref<'designer' | 'preview'>('designer')
+
+const schema = ref<FormSchema>({ widgets: [] })
+const formData = ref<Record<string, unknown>>({})
+
+function clearSchema() {
+  schema.value = { widgets: [] }
 }
 </script>
 
 <style>
-.debug-container {
-  padding: 20px;
-  font-family: sans-serif;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-section {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px dashed #ccc;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f2f5;
 }
-/* 这里由于 tsdown 暂时不支持编译 style，我们直接在 App.vue 里复写按钮样式用于调试 */
-.my-button {
-  padding: 8px 16px;
-  background-color: #42b883;
-  color: white;
-  border: none;
+.app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid #dcdfe6;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+.app-header h1 {
+  font-size: 18px;
+  color: #303133;
+  font-weight: 600;
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn {
+  padding: 6px 16px;
+  border: 1px solid #dcdfe6;
   border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
   cursor: pointer;
+  color: #606266;
+  transition: all 0.2s;
+}
+.btn:hover { border-color: #409eff; color: #409eff; }
+.btn-primary { background: #409eff; color: #fff; border-color: #409eff; }
+.btn-primary:hover { background: #66b1ff; border-color: #66b1ff; color: #fff; }
+.btn-danger { color: #f56c6c; border-color: #f56c6c; }
+.btn-danger:hover { background: #f56c6c; color: #fff; }
+
+.app-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 16px;
+}
+.app-designer {
+  height: 100%;
+}
+.app-preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+.preview-title {
+  font-size: 16px;
+  color: #303133;
+}
+.preview-form {
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 20px;
+  min-height: 80px;
+}
+.preview-data {
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 16px;
+}
+.preview-data h3 {
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 8px;
+}
+.preview-data pre {
+  font-size: 12px;
+  color: #303133;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 </style>
+
