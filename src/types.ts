@@ -15,6 +15,12 @@ export interface SlotConfig {
    * parent component's visual area.
    */
   virtual?: boolean
+  /**
+   * When true, this slot will NOT render a static placeholder in the canvas when it
+   * has no children.  Use this for modifier/decorator slots (e.g. label, error) where
+   * providing an empty slot would override the component's own rendering logic.
+   */
+  noPlaceholder?: boolean
 }
 
 /** Shape of an event parameter */

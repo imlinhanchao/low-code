@@ -795,8 +795,8 @@ const components: ComponentGroup[] = [
         },
         slots: [
           { name: 'default', label: '控件内容' },
-          { name: 'label',   label: '自定义标签 (label)' },
-          { name: 'error',   label: '自定义验证错误 (error)' },
+          { name: 'label',   label: '自定义标签 (label)',       noPlaceholder: true },
+          { name: 'error',   label: '自定义验证错误 (error)',    noPlaceholder: true },
         ],
       },
 

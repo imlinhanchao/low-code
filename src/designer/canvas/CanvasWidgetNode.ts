@@ -322,9 +322,11 @@ export const LcCanvasWidgetNode = defineComponent({
             h(LcCanvasWidgetNode, { key: c.id, widget: c }),
           )
           slotFns[sn] = () => childNodes
-        } else if (isLayout) {
+        } else if (isLayout && !slotCfg.noPlaceholder) {
           // For layout components (grid/card/tabs), show a static visual
           // placeholder so the empty slot cells remain visible. No drop events.
+          // Slots marked noPlaceholder (e.g. label, error) skip this so the
+          // component's own rendering (e.g. the label prop) is not overridden.
           slotFns[sn] = () =>
             h('div', { class: 'lc-canvas-slot-placeholder' }, slotCfg.label ?? sn)
         }
