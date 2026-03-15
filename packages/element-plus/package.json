@@ -1,45 +1,38 @@
 {
-  "name": "low-code",
+  "name": "@low-code/element-plus",
   "version": "1.0.0",
   "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
+  "description": "Element Plus component definitions for the low-code designer/renderer",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     }
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "play": "vite",
-    "dev": "tsdown --watch",
     "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsdown --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "peerDependencies": {
+    "element-plus": ">=2.0.0",
+    "vue": ">=3.0.0"
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
-    "@vitejs/plugin-vue-jsx": "^5.1.4",
     "element-plus": "^2.13.5",
-    "less": "^4.5.1",
     "tsdown": "^0.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
     "vue": "^3.5.29",
     "vue-tsc": "^3.2.5"
-  },
-  "dependencies": {
-    "@iconify/vue": "^5.0.0"
   }
 }

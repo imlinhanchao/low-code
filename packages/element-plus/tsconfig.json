@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "rootDir": "src",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*", "env.d.ts", "typings/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "tsdown.config.ts"]
+}

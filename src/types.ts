@@ -34,8 +34,8 @@ export interface EventParam {
  * Used in ComponentConfig.props to describe the prop's type, label, default, etc.
  */
 export interface PropConfig {
-  /** JavaScript type constructor: String, Boolean, Number, Function, Object */
-  type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor | ObjectConstructor
+  /** JavaScript type constructor: String, Boolean, Number, Function, Object, Array */
+  type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor | ObjectConstructor | ArrayConstructor
   /** Human-readable label shown in the designer */
   label?: string
   /** Default value; falls back to undefined when not set */
