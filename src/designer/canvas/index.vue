@@ -281,4 +281,20 @@ function onDrop(e: DragEvent) {
   user-select: none;
   pointer-events: none;
 }
+
+/* ── Static layout slot placeholder (empty slot, no drag interaction) ─────── */
+.lc-canvas-slot-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 60px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 3px;
+  background: #f5f7fa;
+  font-size: 10px;
+  color: #c0c4cc;
+  user-select: none;
+  pointer-events: none;
+}
 </style>

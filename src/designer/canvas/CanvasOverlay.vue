@@ -145,11 +145,7 @@ function onDragEnd() {
   draggingWidget.value = null
 }
 
-// ── Slots panel (moved from CanvasWidgetNode) ─────────────────────────────────
-const isDragging = computed(() =>
-  draggingConfig.value !== null || draggingWidget.value !== null,
-)
-
+// ── Slots panel ───────────────────────────────────────────────────────────────
 /** Effective slot list for the currently selected widget */
 const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
   if (!selectedConfig.value) return []
@@ -159,12 +155,10 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
   return selectedConfig.value.slots ?? []
 })
 
-/** Empty non-virtual slots of the selected widget (shown as droppable chips) */
-const widgetEmptySlots = computed<SlotConfig[]>(() => {
-  if (!selectedWidget.value || selectedWidget.value.category === 'layout') return []
-  return effectiveSelectedSlots.value.filter(
-    (s) => !s.virtual && !(selectedWidget.value!.slots[s.name] ?? []).length,
-  )
+/** All non-virtual slots of the selected widget (empty + populated) */
+const nonVirtualSlots = computed<SlotConfig[]>(() => {
+  if (!selectedWidget.value) return []
+  return effectiveSelectedSlots.value.filter((s) => !s.virtual)
 })
 
 /** Virtual slots of the selected widget (e.g. ElSelect's option slot) */
@@ -173,19 +167,9 @@ const virtualSlots = computed<SlotConfig[]>(() => {
   return effectiveSelectedSlots.value.filter((s) => s.virtual)
 })
 
-/** True when a virtual-slot child of the selected widget is itself selected */
-const hasVirtualChildSelected = computed(() =>
-  virtualSlots.value.some((s) =>
-    (selectedWidget.value?.slots[s.name] ?? []).some((c) => c.id === selectedId.value),
-  ),
-)
-
 const showSlotsPanel = computed(() => {
-  if (!selectedWidget.value || selectedWidget.value.category === 'layout') return false
-  return (
-    (widgetEmptySlots.value.length > 0 || virtualSlots.value.length > 0) &&
-    (!!selectedId.value || isDragging.value || hasVirtualChildSelected.value)
-  )
+  if (!selectedWidget.value) return false
+  return effectiveSelectedSlots.value.length > 0 && !!selectedId.value
 })
 </script>
 
@@ -239,9 +223,9 @@ const showSlotsPanel = computed(() => {
 
     <!--
       Slots panel: displayed below the selected component.
-      Moved here from CanvasWidgetNode so the node wrapper can be
-      display:contents (layout-transparent) without breaking absolute
-      positioning of the panel.
+      Shows all slots (empty + populated) for slot management.
+      Slot children are shown as reorderable chips; each slot has a drop zone
+      at the bottom to append more components by drag-drop.
     -->
     <div
       v-if="showSlotsPanel && selectRect && selectedWidget"
@@ -252,37 +236,53 @@ const showSlotsPanel = computed(() => {
         minWidth: `${selectRect.width}px`,
       }"
     >
-      <!-- (a) Regular empty widget slots as droppable chip hints -->
-      <CanvasSlotZone
-        v-for="slot in widgetEmptySlots"
-        :key="`empty-${slot.name}`"
-        :parent-id="selectedWidget.id"
-        :slot-name="slot.name"
-        :slot-label="slot.label ?? slot.name"
-        :children="[]"
-        :is-layout="false"
-        :accept="slot.components?.map((c) => c.name) ?? []"
-      />
-      <!-- (b) Virtual slot children + drop zone -->
+      <!-- Non-virtual slots: show children chips + append drop zone -->
+      <template v-for="slot in nonVirtualSlots" :key="slot.name">
+        <div class="lc-overlay__slot-group">
+          <div class="lc-overlay__slot-group-label">{{ slot.label ?? slot.name }}</div>
+          <LcCanvasWidgetNode
+            v-for="(child, i) in (selectedWidget.slots[slot.name] ?? [])"
+            :key="child.id"
+            :widget="child"
+            :virtual="true"
+            :slot-parent-id="selectedWidget.id"
+            :slot-name="slot.name"
+            :slot-index="i"
+            :slot-total="(selectedWidget.slots[slot.name] ?? []).length"
+          />
+          <CanvasSlotZone
+            :parent-id="selectedWidget.id"
+            :slot-name="slot.name"
+            :slot-label="slot.label ?? slot.name"
+            :children="[]"
+            :is-layout="false"
+            :accept="slot.components?.map((c) => c.name) ?? []"
+          />
+        </div>
+      </template>
+      <!-- Virtual slot children + drop zone -->
       <template v-for="slot in virtualSlots" :key="slot.name">
-        <LcCanvasWidgetNode
-          v-for="(child, i) in (selectedWidget.slots[slot.name] ?? [])"
-          :key="child.id"
-          :widget="child"
-          :virtual="true"
-          :slot-parent-id="selectedWidget.id"
-          :slot-name="slot.name"
-          :slot-index="i"
-          :slot-total="(selectedWidget.slots[slot.name] ?? []).length"
-        />
-        <CanvasSlotZone
-          :parent-id="selectedWidget.id"
-          :slot-name="slot.name"
-          :slot-label="slot.label ?? slot.name"
-          :children="[]"
-          :is-layout="false"
-          :accept="slot.components?.map((c) => c.name) ?? []"
-        />
+        <div class="lc-overlay__slot-group">
+          <div class="lc-overlay__slot-group-label">{{ slot.label ?? slot.name }}</div>
+          <LcCanvasWidgetNode
+            v-for="(child, i) in (selectedWidget.slots[slot.name] ?? [])"
+            :key="child.id"
+            :widget="child"
+            :virtual="true"
+            :slot-parent-id="selectedWidget.id"
+            :slot-name="slot.name"
+            :slot-index="i"
+            :slot-total="(selectedWidget.slots[slot.name] ?? []).length"
+          />
+          <CanvasSlotZone
+            :parent-id="selectedWidget.id"
+            :slot-name="slot.name"
+            :slot-label="slot.label ?? slot.name"
+            :children="[]"
+            :is-layout="false"
+            :accept="slot.components?.map((c) => c.name) ?? []"
+          />
+        </div>
       </template>
     </div>
   </div>
@@ -406,7 +406,6 @@ const showSlotsPanel = computed(() => {
 
 /* ── Slots panel (absolutely positioned below the selected component) ─────── */
 /*
- * Moved from CanvasWidgetNode.ts so the node shell can be display:contents.
  * Positioned via inline style at selectRect.bottom.  pointer-events: auto
  * so the drag/drop zones and chips inside are interactive.
  */
@@ -414,7 +413,7 @@ const showSlotsPanel = computed(() => {
   position: absolute;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   padding: 4px 6px 5px;
   border: 1px solid #dcdfe6;
   border-top: none;
@@ -424,6 +423,19 @@ const showSlotsPanel = computed(() => {
   z-index: 101;
   pointer-events: auto;
   white-space: nowrap;
+}
+/* Each named slot group */
+.lc-overlay__slot-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 80px;
+}
+.lc-overlay__slot-group-label {
+  font-size: 10px;
+  color: #909399;
+  padding: 1px 2px;
+  user-select: none;
 }
 /* Chip slots inside the panel */
 .lc-overlay__slots-panel .lc-canvas-slot--widget {

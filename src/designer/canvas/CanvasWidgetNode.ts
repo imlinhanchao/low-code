@@ -151,15 +151,16 @@ export const CanvasSlotZone = defineComponent({
  * WYSIWYG canvas rendering of a single widget.
  *
  * Renders `h(config.component, props, slotFunctions)` so the canvas looks
- * IDENTICAL to the live preview.  Each named slot gets a `CanvasSlotZone`
- * that accepts drops; child widgets are rendered recursively inside the
- * correct slot positions.
+ * IDENTICAL to the live preview.
  *
- * For regular (non-layout) widgets, empty slots are NOT embedded inside the
- * component by default — they appear as a compact panel below the component
- * only while the user is dragging (so the component itself looks clean).
- * Once a slot has children, those children render inside the component's
- * actual slot position (full WYSIWYG).
+ * Slot management (drag-drop, reorder) is handled entirely via:
+ *   1. The CanvasOverlay slots panel (rendered below the selected component).
+ *   2. The PropertiesPanel sidebar slot section.
+ *
+ * No CanvasSlotZone is ever rendered inside the component itself.
+ * - Populated slots render their children as nested CanvasWidgetNodes (WYSIWYG).
+ * - Empty slots on layout components show a static placeholder div.
+ * - Empty slots on widget components render nothing.
  *
  * For **virtual** slots (e.g. ElOption inside ElSelect), children are rendered
  * as selectable chip items in the panel rather than embedded in the component's
@@ -204,7 +205,6 @@ export const LcCanvasWidgetNode = defineComponent({
 
       const isSelected = selectedId.value === props.widget.id
       const isLayout   = props.widget.category === 'layout'
-      const isDragging = draggingConfig.value !== null || draggingWidget.value !== null
 
       // ── Virtual chip rendering ────────────────────────────────────────────
       // Used for virtual-slot children (e.g. ElOption) shown in the panel.
@@ -307,54 +307,29 @@ export const LcCanvasWidgetNode = defineComponent({
       const normalSlots  = effectiveSlots.filter((s) => !s.virtual)
 
       // ── Build slot functions ────────────────────────────────────────────
+      // Slot management (drag-drop, reorder) is handled entirely via the overlay
+      // slots panel (below the component) and the properties sidebar — NOT inline.
       const slotFns: Record<string, () => VNode | VNode[] | string> = {}
 
-      // Normal populated slots — always embed inline (WYSIWYG)
-      const populatedSlots = normalSlots.filter(
-        (s) => (props.widget.slots[s.name] ?? []).length > 0,
-      )
-      // Empty slots on layout components — always embed (they ARE the visual cells)
-      const layoutEmptySlots = isLayout
-        ? normalSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
-        : []
-      // Empty slots on widget components (non-virtual) — embed only while dragging
-      const widgetEmptySlots = !isLayout
-        ? normalSlots.filter((s) => !(props.widget.slots[s.name] ?? []).length)
-        : []
-
-      for (const slotCfg of [...populatedSlots, ...layoutEmptySlots]) {
+      for (const slotCfg of normalSlots) {
         const sn = slotCfg.name
-        const label = slotCfg.label ?? sn
         const children = props.widget.slots[sn] ?? []
-        const accept = slotCfg.components?.map((c) => c.name) ?? []
-        slotFns[sn] = () =>
-          h(CanvasSlotZone, {
-            parentId: props.widget.id,
-            slotName: sn,
-            slotLabel: label,
-            children,
-            isLayout,
-            accept,
-          })
-      }
 
-      // While dragging, also embed empty (non-virtual) widget slots
-      if (isDragging) {
-        for (const slotCfg of widgetEmptySlots) {
-          if (slotFns[slotCfg.name]) continue
-          const sn = slotCfg.name
-          const label = slotCfg.label ?? sn
-          const accept = slotCfg.components?.map((c) => c.name) ?? []
+        if (children.length > 0) {
+          // Render children WYSIWYG, without an interactive drop zone wrapper.
+          // Dropping is done via the overlay panel, not inside the component.
+          const childNodes = children.map((c) =>
+            h(LcCanvasWidgetNode, { key: c.id, widget: c }),
+          )
+          slotFns[sn] = () => childNodes
+        } else if (isLayout) {
+          // For layout components (grid/card/tabs), show a static visual
+          // placeholder so the empty slot cells remain visible. No drop events.
           slotFns[sn] = () =>
-            h(CanvasSlotZone, {
-              parentId: props.widget.id,
-              slotName: sn,
-              slotLabel: label,
-              children: [],
-              isLayout: false,
-              accept,
-            })
+            h('div', { class: 'lc-canvas-slot-placeholder' }, slotCfg.label ?? sn)
         }
+        // For non-layout widgets with empty slots: render nothing inline.
+        // Users add slot children via the overlay panel or the properties sidebar.
       }
 
       // Virtual populated slots — pass raw component vnodes for parent registration

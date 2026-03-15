@@ -3,6 +3,7 @@ import { computed, inject, ref, watch, type Component } from 'vue'
 import type { ComponentConfig, EventParam, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
+import { draggingConfig } from '../useDragState'
 
 const props = defineProps<{
   widget: WidgetSchema | null
@@ -26,6 +27,7 @@ watch(() => props.widget, (w) => {
 })
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
+const addWidget = inject<(parentId: string | null, slotName: string | null, cfg: ComponentConfig) => void>('lc:addWidget')
 
 function updateModelField(modelKey: string, fieldName: string) {
   if (!props.widget) return
@@ -116,6 +118,41 @@ function resetDrag() {
   dragFromIdx.value  = -1
   dragOverSlot.value = null
   dragOverIdx.value  = -1
+}
+
+// ── Slot drop targets (right sidebar) ────────────────────────────────────────
+
+/** Track which slot row is being hovered during a palette drag */
+const slotDropOver = ref<string | null>(null)
+
+function onSlotRowDragOver(slotName: string, e: DragEvent) {
+  if (!draggingConfig.value) return
+  const slot = props.effectiveSlots.find((s) => s.name === slotName)
+  if (!slot) return
+  // Check accept list
+  const accept = slot.components?.map((c) => c.name) ?? []
+  if (accept.length > 0 && !accept.includes(draggingConfig.value.name)) return
+  e.preventDefault()
+  e.stopPropagation()
+  slotDropOver.value = slotName
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
+}
+
+function onSlotRowDragLeave(slotName: string) {
+  if (slotDropOver.value === slotName) slotDropOver.value = null
+}
+
+function onSlotRowDrop(slotName: string, e: DragEvent) {
+  e.preventDefault()
+  e.stopPropagation()
+  slotDropOver.value = null
+  if (!draggingConfig.value || !props.widget) return
+  const slot = props.effectiveSlots.find((s) => s.name === slotName)
+  if (!slot) return
+  const accept = slot.components?.map((c) => c.name) ?? []
+  if (accept.length > 0 && !accept.includes(draggingConfig.value.name)) return
+  addWidget?.(props.widget.id, slotName, draggingConfig.value)
+  draggingConfig.value = null
 }
 
 function updateEvent(key: string, value: string) {
@@ -460,6 +497,26 @@ function isObjectPropSet(key: string): boolean {
         </div>
       </template>
 
+      <!-- Slot drop targets: all available slots (drag palette items here) -->
+      <template v-if="effectiveSlots.length > 0">
+        <div class="lc-properties-group-label">插槽列表</div>
+        <div
+          v-for="slot in effectiveSlots"
+          :key="'slotdrop-' + slot.name"
+          class="lc-slot-drop-row"
+          :class="{ 'lc-slot-drop-row--over': slotDropOver === slot.name }"
+          @dragover="onSlotRowDragOver(slot.name, $event)"
+          @dragleave="onSlotRowDragLeave(slot.name)"
+          @drop="onSlotRowDrop(slot.name, $event)"
+        >
+          <span class="lc-slot-drop-name">{{ slot.label ?? slot.name }}</span>
+          <span class="lc-slot-drop-count">
+            {{ (widget.slots[slot.name] ?? []).length > 0 ? `${(widget.slots[slot.name] ?? []).length} 项` : '空' }}
+          </span>
+          <span class="lc-slot-drop-hint">拖拽组件到此处</span>
+        </div>
+      </template>
+
       <!-- Events – button per event that opens the code dialog -->
       <template v-if="configEvents.length > 0">
         <div class="lc-properties-group-label">事件</div>
@@ -788,6 +845,45 @@ function isObjectPropSet(key: string): boolean {
 }
 .lc-slot-child-remove:hover {
   background: #f78989;
+}
+
+/* ── Slot drop target rows (in right sidebar) ──────────────────────────────── */
+.lc-slot-drop-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 3px;
+  margin: 2px 10px;
+  background: #f5f7fa;
+  cursor: default;
+  transition: background 0.12s, border-color 0.12s;
+}
+.lc-slot-drop-row--over {
+  background: #ecf5ff;
+  border-color: #409eff;
+}
+.lc-slot-drop-name {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: #303133;
+  min-width: 50px;
+}
+.lc-slot-drop-count {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: #909399;
+  background: #e9ecef;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.lc-slot-drop-hint {
+  flex: 1;
+  font-size: 10px;
+  color: #c0c4cc;
+  text-align: right;
+  user-select: none;
 }
 
 /* Events row */
