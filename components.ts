@@ -29,6 +29,7 @@ import {
 } from 'element-plus'
 import type { ComponentGroup } from './src/types'
 import RulesEditor from './src/components/RulesEditor.vue'
+import FieldRulesEditor from './src/components/FieldRulesEditor.vue'
 
 const components: ComponentGroup[] = [
   // ── 表单 ─────────────────────────────────────────────────────────────────────
@@ -763,6 +764,7 @@ const components: ComponentGroup[] = [
         category: 'layout',
         props: {
           model:          { type: String,  label: '表单数据 (model)', default: '$model' },
+          rules:          { type: Object,  label: '验证规则',          dialog: RulesEditor },
           labelPosition:  { type: String,  label: '标签位置',     options: ['left', 'right', 'top'], default: 'right' },
           labelWidth:     { type: String,  label: '标签宽度',     default: '100px' },
           labelSuffix:    { type: String,  label: '标签后缀' },
@@ -792,7 +794,7 @@ const components: ComponentGroup[] = [
           showMessage:   { type: Boolean, label: '显示验证信息', default: true },
           inlineMessage: { type: Boolean, label: '行内显示验证信息', default: false },
           size:          { type: String,  label: '尺寸',         options: ['default', 'small', 'large'] },
-          rules:         { type: Object,  label: '验证规则',     dialog: RulesEditor },
+          rules:         { type: Object,  label: '字段验证规则',      dialog: FieldRulesEditor },
         },
         slots: [
           { name: 'default', label: '控件内容' },
