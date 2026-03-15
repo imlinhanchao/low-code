@@ -20,11 +20,3 @@ const gridStyle = computed(() => ({
   </div>
 </template>
 
-<style scoped>
-.lc-grid-col {
-  min-height: 32px;
-  border-radius: 3px;
-  padding: 4px;
-  box-sizing: border-box;
-}
-</style>

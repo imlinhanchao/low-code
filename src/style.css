@@ -1,0 +1,1474 @@
+
+/* === src/layouts/TabsLayout.vue === */
+.lc-tabs-layout {
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  width: 100%;
+}
+.lc-tabs-nav {
+  display: flex;
+  border-bottom: 1px solid #e4e7ed;
+  background: #fafafa;
+}
+.lc-tab-item {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #606266;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.lc-tab-item.is-active {
+  border-bottom-color: #409eff;
+  color: #409eff;
+}
+.lc-tab-item:hover:not(.is-active) {
+  color: #409eff;
+}
+.lc-tabs-body {
+  padding: 8px;
+}
+.lc-tab-pane {
+  min-height: 32px;
+}
+
+/* === src/layouts/HtmlBlock.vue === */
+.lc-html-block {
+  min-height: 20px;
+}
+
+/* === src/layouts/GridLayout.vue === */
+.lc-grid-col {
+  min-height: 32px;
+  border-radius: 3px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+/* === src/layouts/CardLayout.vue === */
+.lc-card-layout {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+.lc-card-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #ebeef5;
+  background: #fafafa;
+  font-weight: 600;
+  font-size: 14px;
+  color: #303133;
+}
+.lc-card-body {
+  padding: 16px;
+  min-height: 32px;
+}
+
+/* === src/layouts/StaticText.vue === */
+.lc-static-text {
+  display: inline;
+  white-space: pre-wrap;
+}
+
+/* === src/layouts/TableLayout.vue === */
+.lc-table-layout {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.lc-table-layout td {
+  border: 1px solid #dcdfe6;
+  padding: 6px 8px;
+  vertical-align: top;
+  min-width: 60px;
+  min-height: 30px;
+}
+
+/* === src/designer/index.vue === */
+.lc-designer {
+  display: flex;
+  height: 100%;
+  min-height: 500px;
+  border: 1px solid #e0e3ea;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f2f7;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+.lc-designer-panel {
+  flex: 0 0 260px;
+  overflow: hidden;
+  background: #f8f9fc;
+}
+.lc-panel-left {
+  border-right: 1px solid #e0e3ea;
+}
+.lc-panel-right {
+  border-left: 1px solid #e0e3ea;
+  flex-basis: 260px;
+}
+.lc-designer-canvas {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: #f0f2f7;
+}
+
+/* === src/designer/components/item.vue === */
+.lc-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  cursor: grab;
+  user-select: none;
+  font-size: 12px;
+  color: #303133;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, color 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.lc-palette-item:hover {
+  border-color: #409eff;
+  background: #ecf5ff;
+  color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.18);
+}
+.lc-palette-item:active {
+  cursor: grabbing;
+}
+.lc-palette-item__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.75;
+}
+.lc-palette-item__icon--default {
+  opacity: 0.35;
+}
+.lc-palette-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* === src/designer/components/list.vue === */
+.lc-palette {
+  height: 100%;
+  overflow-y: auto;
+  background: #f8f9fc;
+  display: flex;
+  flex-direction: column;
+}
+.lc-palette-title {
+  padding: 12px 14px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #303133;
+  letter-spacing: 0.3px;
+  background: #fff;
+  border-bottom: 1px solid #e8eaf0;
+  flex-shrink: 0;
+}
+.lc-palette-section {
+  padding: 4px 0 2px;
+}
+.lc-palette-section-label {
+  padding: 8px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #909399;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  user-select: none;
+}
+.lc-palette-section-label--toggle {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s;
+}
+.lc-palette-section-label--toggle:hover {
+  color: #606266;
+}
+.lc-palette-section-arrow {
+  display: inline-block;
+  font-size: 8px;
+  transition: transform 0.2s;
+  transform: rotate(90deg);
+}
+.lc-palette-section-arrow.is-collapsed {
+  transform: rotate(0deg);
+}
+.lc-palette-items {
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.lc-palette-slot-children {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-left: 12px;
+  border-left: 2px solid #e4e7ed;
+  padding-left: 12px;
+  margin-top: -4px;
+}
+:deep(.is-full) {
+  grid-column: 1 / -1;
+}
+
+/* === src/designer/properties/index.vue === */
+.lc-properties {
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  box-sizing: border-box;
+}
+/* Tab bar */
+.lc-prop-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e3ea;
+  background: #f8f9fc;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.lc-prop-tab {
+  flex: 1;
+  padding: 9px 4px;
+  font-size: 12px;
+  color: #606266;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s;
+}
+.lc-prop-tab:hover {
+  color: #409eff;
+}
+.lc-prop-tab--active {
+  color: #409eff;
+  border-bottom-color: #409eff;
+  background: #fff;
+}
+.lc-properties-section {
+  padding: 10px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #409eff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.lc-properties-group-label {
+  padding: 6px 14px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #b0b3bb;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.lc-prop-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 14px;
+  gap: 8px;
+}
+.lc-prop-label {
+  flex: 0 0 84px;
+  font-size: 12px;
+  color: #606266;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lc-prop-input {
+  flex: 1;
+  height: 28px;
+  border: 1px solid #e0e3ea;
+  border-radius: 5px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #303133;
+  outline: none;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.lc-prop-input:focus {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.12);
+}
+.lc-model-row {
+  padding: 4px 14px;
+  border-bottom: 1px solid #f2f3f7;
+}
+.lc-model-key {
+  font-size: 11px;
+  color: #909399;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+  padding-left: 4px;
+}
+.lc-model-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lc-model-field-row {
+  padding: 2px 0;
+}
+.lc-prop-label--sub {
+  flex: 0 0 60px;
+  color: #909399;
+}
+.lc-prop-checkbox-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.lc-prop-checkbox-wrap input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Function-prop / event buttons */
+.lc-fn-btn {
+  flex: 1;
+  position: relative;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #e0e3ea;
+  border-radius: 5px;
+  background: #f8f9fc;
+  color: #606266;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.lc-fn-btn:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+.lc-fn-btn--set {
+  border-color: #67c23a;
+  color: #67c23a;
+  background: #f0f9eb;
+}
+.lc-fn-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f56c6c;
+  flex-shrink: 0;
+}
+
+/* Slot children */
+.lc-slot-section {
+  padding: 2px 14px 4px;
+}
+.lc-slot-section-label {
+  font-size: 11px;
+  color: #909399;
+  margin-bottom: 2px;
+}
+.lc-slot-child-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  background: #f8f9fc;
+  border: 1px solid #e4e7ed;
+  border-radius: 5px;
+  margin-bottom: 2px;
+  cursor: default;
+  user-select: none;
+}
+.lc-slot-child-drag-handle {
+  color: #c0c4cc;
+  cursor: grab;
+  font-size: 12px;
+  letter-spacing: -1px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.lc-slot-child-drag-handle:active {
+  cursor: grabbing;
+}
+.lc-slot-child-row--dragging {
+  opacity: 0.4;
+}
+.lc-slot-child-row--drop-before {
+  border-top: 2px solid #409eff;
+}
+.lc-slot-child-row--drop-after {
+  border-bottom: 2px solid #409eff;
+}
+.lc-slot-child-name {
+  flex: 1;
+  font-size: 11px;
+  color: #606266;
+}
+.lc-slot-child-btn {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.lc-slot-child-configure {
+  background: #409eff;
+  color: #fff;
+}
+.lc-slot-child-configure:hover {
+  background: #66b1ff;
+}
+.lc-slot-child-remove {
+  background: #f56c6c;
+  color: #fff;
+}
+.lc-slot-child-remove:hover {
+  background: #f78989;
+}
+
+/* ── Slot drop target rows (in right sidebar) ──────────────────────────────── */
+.lc-slot-drop-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1px dashed #e0e3ea;
+  border-radius: 5px;
+  margin: 2px 10px;
+  background: #f8f9fc;
+  cursor: default;
+  transition: background 0.12s, border-color 0.12s;
+}
+.lc-slot-drop-row--over {
+  background: #ecf5ff;
+  border-color: #409eff;
+}
+.lc-slot-drop-name {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: #303133;
+  min-width: 50px;
+}
+.lc-slot-drop-count {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: #909399;
+  background: #e9ecef;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.lc-slot-drop-hint {
+  flex: 1;
+  font-size: 10px;
+  color: #c0c4cc;
+  text-align: right;
+  user-select: none;
+}
+
+/* Events row */
+.lc-event-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 14px;
+  gap: 8px;
+}
+.lc-event-name {
+  flex: 0 0 auto;
+  max-width: 110px;
+  font-size: 11px;
+  color: #606266;
+  font-family: 'Consolas', 'Monaco', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-properties-empty {
+  padding: 24px 14px;
+  color: #c0c4cc;
+  font-size: 13px;
+  text-align: center;
+}
+.lc-code-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.lc-code-dialog {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  width: 560px;
+  max-width: 96vw;
+  max-height: 72vh;
+  overflow: hidden;
+}
+.lc-code-dialog--fs {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+}
+.lc-code-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid #dcdfe6;
+  background: #f5f7fa;
+  flex-shrink: 0;
+}
+.lc-code-dialog-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #303133;
+}
+.lc-code-dialog-header-btns {
+  display: flex;
+  gap: 4px;
+}
+.lc-code-hdr-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #909399;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.lc-code-hdr-btn:hover {
+  background: #ebeef5;
+  color: #303133;
+}
+.lc-code-signature {
+  padding: 6px 14px 2px;
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #909399;
+  background: #fafafa;
+  flex-shrink: 0;
+  border-bottom: 1px dashed #ebeef5;
+}
+.lc-code-editor {
+  flex: 1;
+  min-height: 180px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #303133;
+  border: none;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  background: #fff;
+}
+.lc-code-closing {
+  padding: 2px 14px 6px;
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #909399;
+  background: #fafafa;
+  flex-shrink: 0;
+  border-top: 1px dashed #ebeef5;
+}
+.lc-code-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid #dcdfe6;
+  background: #f5f7fa;
+  flex-shrink: 0;
+}
+.lc-code-btn-primary {
+  padding: 6px 18px;
+  border: none;
+  border-radius: 4px;
+  background: #409eff;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.lc-code-btn-primary:hover {
+  background: #66b1ff;
+}
+.lc-code-btn {
+  padding: 6px 18px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fff;
+  color: #606266;
+  font-size: 13px;
+  cursor: pointer;
+}
+.lc-code-btn:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+.lc-object-dialog {
+  width: 640px;
+}
+.lc-object-dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  min-height: 120px;
+}
+
+/* === src/designer/properties/GlobalConfigPanel.vue === */
+.lc-global-panel {
+  padding: 0 0 16px;
+}
+.lc-global-section-label {
+  padding: 8px 14px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #909399;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.lc-global-section-label--with-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+.lc-add-btn {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  background: #fff;
+  color: #409eff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.lc-add-btn:hover {
+  background: #ecf5ff;
+}
+.lc-global-fn-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 14px;
+  gap: 8px;
+}
+.lc-global-fn-name {
+  flex: 0 0 auto;
+  max-width: 110px;
+  font-size: 11px;
+  color: #606266;
+  font-family: 'Consolas', 'Monaco', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-global-fn-remove {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #f56c6c;
+  color: #fff;
+  font-size: 9px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-global-fn-remove:hover {
+  background: #f78989;
+}
+.lc-global-add-fn-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 14px;
+  gap: 8px;
+}
+/* Reuse fn-btn styles from parent (non-scoped) */
+.lc-fn-btn {
+  flex: 1;
+  position: relative;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #f5f7fa;
+  color: #606266;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.lc-fn-btn:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+.lc-fn-btn--set {
+  border-color: #67c23a;
+  color: #67c23a;
+  background: #f0f9eb;
+}
+.lc-confirm-btn {
+  flex: 0 0 auto;
+  width: 48px;
+}
+.lc-fn-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #67c23a;
+  flex-shrink: 0;
+}
+.lc-prop-input {
+  flex: 1;
+  height: 28px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #303133;
+  outline: none;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #fff;
+}
+.lc-prop-input:focus {
+  border-color: #409eff;
+}
+
+/* === src/renderer/index.vue === */
+.lc-renderer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* === src/components/RulesEditor.vue === */
+.re-root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+.re-add-field-row {
+  display: flex;
+  gap: 8px;
+}
+.re-empty {
+  color: #c0c4cc;
+  text-align: center;
+  padding: 12px 0;
+}
+.re-field {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.re-field-header {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  padding: 5px 8px;
+  gap: 6px;
+}
+.re-field-name {
+  flex: 1;
+  font-weight: 600;
+  color: #303133;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+.re-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 8px;
+  border-top: 1px solid #f0f0f0;
+}
+.re-rule-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.re-rule-cell--check {
+  cursor: pointer;
+  gap: 3px;
+}
+.re-rule-cell--msg {
+  flex: 1;
+}
+.re-rule-label {
+  color: #909399;
+  white-space: nowrap;
+}
+.re-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 12px;
+  outline: none;
+  color: #303133;
+  background: #fff;
+  box-sizing: border-box;
+}
+.re-input--sm {
+  width: 56px;
+  flex: none;
+}
+.re-input:focus {
+  border-color: #409eff;
+}
+.re-btn {
+  padding: 0 12px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #606266;
+  white-space: nowrap;
+}
+.re-btn--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+.re-btn--primary:hover {
+  background: #66b1ff;
+}
+.re-icon-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.re-icon-btn--add {
+  background: #409eff;
+  color: #fff;
+}
+.re-icon-btn--del {
+  background: #f56c6c;
+  color: #fff;
+}
+.re-icon-btn--add:hover { background: #66b1ff; }
+.re-icon-btn--del:hover { background: #f78989; }
+
+/* === src/components/FieldRulesEditor.vue === */
+.fre-root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.fre-toolbar {
+  display: flex;
+}
+.fre-empty {
+  color: #c0c4cc;
+  text-align: center;
+  padding: 12px 0;
+}
+.fre-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fafafa;
+}
+.fre-rule-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fre-rule-cell--check {
+  cursor: pointer;
+  gap: 3px;
+}
+.fre-rule-cell--msg {
+  flex: 1;
+}
+.fre-rule-label {
+  color: #909399;
+  white-space: nowrap;
+}
+.fre-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 12px;
+  outline: none;
+  color: #303133;
+  background: #fff;
+  box-sizing: border-box;
+}
+.fre-input--sm {
+  width: 56px;
+  flex: none;
+}
+.fre-input:focus {
+  border-color: #409eff;
+}
+.fre-btn {
+  padding: 0 12px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #606266;
+  white-space: nowrap;
+}
+.fre-btn--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+.fre-btn--primary:hover {
+  background: #66b1ff;
+}
+.fre-icon-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.fre-icon-btn--del {
+  background: #f56c6c;
+  color: #fff;
+}
+.fre-icon-btn--del:hover {
+  background: #f78989;
+}
+
+/* === src/designer/canvas/index.vue === */
+/* ── Canvas container ───────────────────────────────────────────────────── */
+.lc-canvas {
+  position: relative; /* needed so the overlay is positioned correctly */
+  height: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f0f2f7;
+  transition: background 0.15s;
+  box-sizing: border-box;
+}
+.lc-canvas.drag-over {
+  background: #e8f3ff;
+  outline: 2px dashed #409eff;
+  outline-offset: -4px;
+}
+.lc-canvas-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  color: #c0c4cc;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+/* ── Widget shell wrapper ──────────────────────────────────────────────── */
+/*
+ * display:contents makes this div generate NO box at all — it is completely
+ * invisible to layout.  Children render as if this div didn't exist.
+ *
+ * The element still exists in the DOM, so:
+ *  - data-lc-id attribute is queryable by the overlay
+ *  - click/hover events bubble through (event listeners still fire)
+ *
+ * Hover / selection highlights are drawn by CanvasOverlay using CSS outline
+ * on absolutely-positioned ring divs — zero layout impact.
+ */
+.lc-canvas-node {
+  display: contents;
+}
+
+.lc-canvas-node--missing {
+  /* Missing components need a visible box; restore display for them */
+  display: block;
+  padding: 6px 10px;
+  color: #f56c6c;
+  font-size: 12px;
+  border: 1px dashed #f56c6c;
+}
+
+/* ── Floating action bar (virtual chip nodes) ───────────────────────────── */
+/*
+ * These still use the old inline action-bar approach because they are
+ * compact chips in the virtual-slots panel (not full-size components),
+ * and the overlay can't easily reach inside the panel container.
+ */
+.lc-node-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #409eff;
+  border-radius: 4px 4px 0 0;
+  padding: 2px 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  line-height: 1;
+}
+.lc-canvas-node--virtual-item:hover > .lc-node-actions,
+.lc-canvas-node--selected > .lc-node-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lc-node-actions__name {
+  font-size: 10px;
+  color: #fff;
+  user-select: none;
+  padding: 0 4px 0 2px;
+  opacity: 0.9;
+  line-height: 1;
+}
+.lc-node-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.lc-node-actions__btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.lc-node-actions__btn--delete:hover {
+  background: #f56c6c;
+}
+
+/* ── Canvas slot zone ─────────────────────────────────────────────────── */
+.lc-canvas-slot {
+  box-sizing: border-box;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+/*
+ * Non-empty layout / widget slots: display:contents so slot children render
+ * directly inside the component's real slot area (100% WYSIWYG).
+ */
+.lc-canvas-slot--layout:not(.lc-canvas-slot--empty),
+.lc-canvas-slot--widget:not(.lc-canvas-slot--empty) {
+  display: contents;
+}
+
+/* Empty layout slot: visible drop target so users can drop into it */
+.lc-canvas-slot--layout.lc-canvas-slot--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  background: #fafbfc;
+}
+
+/* Empty widget slot (in panel): compact chip target */
+.lc-canvas-slot--widget.lc-canvas-slot--empty {
+  display: inline-flex;
+  align-items: center;
+  min-width: 32px;
+  min-height: 16px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  padding: 1px 4px;
+  background: #f5f7fa;
+}
+
+/* Drag-over highlight */
+.lc-canvas-slot--over {
+  background: #ecf5ff !important;
+  border-color: #409eff !important;
+}
+
+/* Drop blocked */
+.lc-canvas-slot--blocked {
+  background: #fef0f0 !important;
+  border-color: #f56c6c !important;
+  cursor: not-allowed;
+}
+.lc-canvas-slot--blocked .lc-canvas-slot__hint {
+  color: #f56c6c;
+}
+
+/*
+ * During drag mode: show ALL slot zones (including non-empty ones) as visible
+ * bordered drop targets.  The two-class selectors below have the same
+ * specificity as the display:contents rules above, so placing them after is
+ * enough to win — no !important needed.
+ */
+.lc-canvas-slot--dragging.lc-canvas-slot--layout,
+.lc-canvas-slot--dragging.lc-canvas-slot--widget {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 36px;
+  border: 2px dashed rgba(64, 158, 255, 0.5);
+  border-radius: 4px;
+  padding: 4px;
+  background: rgba(64, 158, 255, 0.03);
+  box-sizing: border-box;
+}
+.lc-canvas-slot--dragging.lc-canvas-slot--over {
+  background: rgba(64, 158, 255, 0.12) !important;
+  border-color: #409eff !important;
+}
+.lc-canvas-slot--dragging.lc-canvas-slot--blocked {
+  background: rgba(245, 108, 108, 0.05) !important;
+  border-color: rgba(245, 108, 108, 0.5) !important;
+}
+
+/* Empty slot hint text */
+.lc-canvas-slot__hint {
+  font-size: 10px;
+  color: #b8becc;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Virtual item chip (e.g. ElOption inside ElSelect's panel) ──────────── */
+.lc-canvas-node--virtual-item {
+  display: inline-flex;  /* overrides display:contents from .lc-canvas-node */
+  position: relative;    /* needed for the lc-node-actions absolute bar */
+  align-items: center;
+  padding: 4px 10px;
+  min-width: 60px;
+  min-height: 28px;
+  margin: 2px 0;
+  background: #f0f2f5;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+}
+.lc-canvas-node--virtual-item:hover {
+  border-color: #c0c4cc;
+}
+.lc-canvas-node--selected.lc-canvas-node--virtual-item {
+  border-color: #409eff;
+  background: #ecf5ff;
+}
+.lc-canvas-node__virtual-label {
+  font-size: 12px;
+  color: #606266;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Static layout slot placeholder (empty slot, no drag interaction) ─────── */
+.lc-canvas-slot-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 60px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 3px;
+  background: #f5f7fa;
+  font-size: 10px;
+  color: #c0c4cc;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Drag-host mode: component wrapper becomes visible ──────────────────── */
+/*
+ * When dragging, lc-canvas-node--dragging-host overrides display:contents so
+ * the shell div has a real box. This lets us position a name badge and draw
+ * a highlight ring relative to the component block.
+ */
+.lc-canvas-node--dragging-host {
+  display: block;
+  position: relative;
+}
+
+/* Component name badge — floats above top-right corner of the block */
+.lc-canvas-node__drag-name {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  background: #409eff;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px 3px 0 0;
+  line-height: 1.6;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Highlight the component block when one of its slot zones is being hovered */
+.lc-canvas-node--slot-hovered {
+  outline: 2px solid rgba(64, 158, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* === src/designer/canvas/CanvasOverlay.vue === */
+/* ── Overlay container ──────────────────────────────────────────────────────── */
+/*
+ * Absolutely fills the canvas scroll-area.  pointer-events: none by default
+ * so all mouse activity passes through to the actual components beneath.
+ */
+.lc-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: visible;
+}
+
+/* ── Ring frames ─────────────────────────────────────────────────────────────  */
+.lc-overlay__ring {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* Hover ring: thin 1px dashed */
+.lc-overlay__ring--hover {
+  outline: 1px dashed #409eff;
+  outline-offset: 1px;
+}
+
+/* Hover label — floats above top-left of hover ring */
+.lc-overlay__hover-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
+  font-size: 10px;
+  color: #409eff;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #409eff;
+  border-bottom: none;
+  padding: 1px 5px;
+  border-radius: 3px 3px 0 0;
+  white-space: nowrap;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+/* Selection ring: solid 2px */
+.lc-overlay__ring--selected {
+  outline: 2px solid #409eff;
+  outline-offset: 1px;
+}
+
+/* ── Action bar ─────────────────────────────────────────────────────────────── */
+/*
+ * Absolutely positioned at the top-right of the selection ring.
+ * translateY(-100%) floats it above the ring without consuming layout space.
+ * pointer-events: auto so the buttons can be clicked.
+ */
+.lc-overlay__actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #409eff;
+  border-radius: 4px 4px 0 0;
+  padding: 2px 4px;
+  pointer-events: auto;
+  white-space: nowrap;
+  line-height: 1;
+  z-index: 101;
+}
+
+.lc-overlay__actions__name {
+  font-size: 10px;
+  color: #fff;
+  user-select: none;
+  padding: 0 4px 0 2px;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+.lc-overlay__actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.lc-overlay__actions__btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.lc-overlay__actions__btn--drag {
+  cursor: grab;
+  font-size: 12px;
+  letter-spacing: -1px;
+}
+.lc-overlay__actions__btn--parent:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+.lc-overlay__actions__btn--delete:hover {
+  background: #f56c6c;
+}
+
+/* ── Slots panel (absolutely positioned below the selected component) ─────── */
+/*
+ * Positioned via inline style at selectRect.bottom.  pointer-events: auto
+ * so the drag/drop zones and chips inside are interactive.
+ */
+.lc-overlay__slots-panel {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 6px 5px;
+  border: 1px solid #dcdfe6;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: #fafbfc;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  z-index: 101;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+/* Each named slot group */
+.lc-overlay__slot-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 80px;
+}
+.lc-overlay__slot-group-label {
+  font-size: 10px;
+  color: #909399;
+  padding: 1px 2px;
+  user-select: none;
+}
+/* Chip slots inside the panel */
+.lc-overlay__slots-panel .lc-canvas-slot--widget {
+  flex: 0 0 auto;
+  min-width: 60px;
+  min-height: 28px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  padding: 3px 8px;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-overlay__slots-panel .lc-canvas-slot--widget.lc-canvas-slot--over {
+  background: #ecf5ff;
+  border-color: #409eff;
+}

@@ -1,6 +1,7 @@
 import type { App } from 'vue'
 import LcDesigner from './designer/index.vue'
 import LcRenderer from './renderer/index.vue'
+import './style.css'
 
 export { LcDesigner, LcRenderer }
 export type { ComponentConfig, ComponentGroup, GlobalConfig, WidgetSchema, FormSchema, SlotConfig } from './types'

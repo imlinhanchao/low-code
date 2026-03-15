@@ -18,17 +18,3 @@ const colCount = computed(() => Math.max(1, Number(props.cols) || 2))
   </table>
 </template>
 
-<style scoped>
-.lc-table-layout {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-.lc-table-layout td {
-  border: 1px solid #dcdfe6;
-  padding: 6px 8px;
-  vertical-align: top;
-  min-width: 60px;
-  min-height: 30px;
-}
-</style>

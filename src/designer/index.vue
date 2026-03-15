@@ -278,34 +278,3 @@ function updateGlobalConfig(global: GlobalConfig) {
   </article>
 </template>
 
-<style scoped>
-.lc-designer {
-  display: flex;
-  height: 100%;
-  min-height: 500px;
-  border: 1px solid #e0e3ea;
-  border-radius: 8px;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f2f7;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-.lc-designer-panel {
-  flex: 0 0 260px;
-  overflow: hidden;
-  background: #f8f9fc;
-}
-.lc-panel-left {
-  border-right: 1px solid #e0e3ea;
-}
-.lc-panel-right {
-  border-left: 1px solid #e0e3ea;
-  flex-basis: 260px;
-}
-.lc-designer-canvas {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  background: #f0f2f7;
-}
-</style>

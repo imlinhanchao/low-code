@@ -6,9 +6,3 @@ defineProps<{ content?: string }>()
   <span class="lc-static-text">{{ content ?? '静态文本' }}</span>
 </template>
 
-<style scoped>
-.lc-static-text {
-  display: inline;
-  white-space: pre-wrap;
-}
-</style>

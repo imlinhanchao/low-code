@@ -142,12 +142,3 @@ provide('lc:updateModel', updateModel)
   </div>
 </template>
 
-<style scoped>
-.lc-renderer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
-  width: 100%;
-}
-</style>
