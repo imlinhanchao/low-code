@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch, type Component } from 'vue'
 import type { ComponentConfig, EventParam, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
@@ -151,11 +151,12 @@ const configEvents = computed(() => Object.entries(props.config?.events ?? {}))
 
 // ── Type helpers for template use ────────────────────────────────────────────
 
-function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'string' {
+function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'string' {
   if (!isPropConfig(v)) return 'string'
   const cfg = v as PropConfig
   if (cfg.type === Boolean) return 'boolean'
   if (cfg.type === Function) return 'function'
+  if (cfg.type === Object) return 'object'
   if (cfg.type === Number) return 'number'
   if (cfg.options?.length) return 'select'
   return 'string'
@@ -227,6 +228,45 @@ function isFnPropSet(key: string): boolean {
 
 function isEventSet(eventName: string): boolean {
   return !!(props.widget?.events?.[eventName]?.trim())
+}
+
+// ── Object-prop dialog ────────────────────────────────────────────────────────
+
+interface ObjectDialogState {
+  title: string
+  dialogComponent: Component
+  modelValue: unknown
+  fullscreen: boolean
+  onApply: (value: unknown) => void
+}
+
+const objectDialog = ref<ObjectDialogState | null>(null)
+
+function openObjectPropDialog(key: string, v: unknown) {
+  const cfg = v as PropConfig
+  if (!cfg.dialog) return
+  objectDialog.value = {
+    title: `编辑: ${cfg.label ?? key}`,
+    dialogComponent: cfg.dialog as Component,
+    modelValue: props.widget?.props[key] ?? cfg.default ?? null,
+    fullscreen: false,
+    onApply: (value) => updateProp(key, value),
+  }
+}
+
+function applyObjectDialog() {
+  if (!objectDialog.value) return
+  objectDialog.value.onApply(objectDialog.value.modelValue)
+  objectDialog.value = null
+}
+
+function closeObjectDialog() {
+  objectDialog.value = null
+}
+
+function isObjectPropSet(key: string): boolean {
+  const v = props.widget?.props[key]
+  return v != null && (typeof v !== 'object' || Object.keys(v as object).length > 0)
 }
 </script>
 
@@ -302,6 +342,18 @@ function isEventSet(eventName: string): boolean {
             >
               <span v-if="isFnPropSet(key)" class="lc-fn-dot" />
               编辑函数
+            </button>
+          </template>
+
+          <!-- Object prop button (opens custom dialog component) -->
+          <template v-else-if="propKind(cfgVal) === 'object'">
+            <button
+              class="lc-fn-btn"
+              :class="{ 'lc-fn-btn--set': isObjectPropSet(key) }"
+              @click="openObjectPropDialog(key, cfgVal)"
+            >
+              <span v-if="isObjectPropSet(key)" class="lc-fn-dot" />
+              {{ isObjectPropSet(key) ? '已设置' : '设置' }}
             </button>
           </template>
 
@@ -470,6 +522,39 @@ function isEventSet(eventName: string): boolean {
         <div class="lc-code-footer">
           <button class="lc-code-btn-primary" @click="applyCode">确 定</button>
           <button class="lc-code-btn" @click="closeCodeDialog">取 消</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- Object prop dialog (teleported to body) -->
+  <Teleport to="body">
+    <div v-if="objectDialog" class="lc-code-backdrop" @click.self="closeObjectDialog">
+      <div
+        class="lc-code-dialog lc-object-dialog"
+        :class="{ 'lc-code-dialog--fs': objectDialog.fullscreen }"
+      >
+        <div class="lc-code-dialog-header">
+          <span class="lc-code-dialog-title">{{ objectDialog.title }}</span>
+          <div class="lc-code-dialog-header-btns">
+            <button
+              class="lc-code-hdr-btn"
+              :title="objectDialog.fullscreen ? '退出全屏' : '全屏编辑'"
+              @click="objectDialog.fullscreen = !objectDialog.fullscreen"
+            >{{ objectDialog.fullscreen ? '⊠' : '⊡' }}</button>
+            <button class="lc-code-hdr-btn" title="关闭" @click="closeObjectDialog">✕</button>
+          </div>
+        </div>
+        <div class="lc-object-dialog-body">
+          <component
+            :is="objectDialog.dialogComponent"
+            :model-value="objectDialog.modelValue"
+            @update:model-value="objectDialog.modelValue = $event"
+          />
+        </div>
+        <div class="lc-code-footer">
+          <button class="lc-code-btn-primary" @click="applyObjectDialog">确 定</button>
+          <button class="lc-code-btn" @click="closeObjectDialog">取 消</button>
         </div>
       </div>
     </div>
@@ -860,5 +945,14 @@ function isEventSet(eventName: string): boolean {
 .lc-code-btn:hover {
   border-color: #409eff;
   color: #409eff;
+}
+.lc-object-dialog {
+  width: 640px;
+}
+.lc-object-dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  min-height: 120px;
 }
 </style>

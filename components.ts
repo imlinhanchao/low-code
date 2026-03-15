@@ -11,6 +11,8 @@ import {
   ElColorPicker,
   ElColorPickerPanel,
   ElDatePicker,
+  ElForm,
+  ElFormItem,
   ElInputNumber,
   ElInputTag,
   ElMention,
@@ -26,6 +28,7 @@ import {
   ElUpload,
 } from 'element-plus'
 import type { ComponentGroup } from './src/types'
+import RulesEditor from './src/components/RulesEditor.vue'
 
 const components: ComponentGroup[] = [
   // ── 表单 ─────────────────────────────────────────────────────────────────────
@@ -745,6 +748,58 @@ const components: ComponentGroup[] = [
           { name: 'content', label: '自定义提示内容 (content)' },
         ],
       },
+    ],
+  },
+
+  // ── 表单容器 ──────────────────────────────────────────────────────────────────
+  {
+    group: '表单容器',
+    components: [
+
+      // ── ElForm ─────────────────────────────────────────────────────────────────
+      {
+        name: '表单',
+        component: ElForm,
+        category: 'layout',
+        props: {
+          labelPosition:  { type: String,  label: '标签位置',     options: ['left', 'right', 'top'], default: 'right' },
+          labelWidth:     { type: String,  label: '标签宽度',     default: '100px' },
+          labelSuffix:    { type: String,  label: '标签后缀' },
+          size:           { type: String,  label: '尺寸',         options: ['default', 'small', 'large'] },
+          disabled:       { type: Boolean, label: '禁用所有控件', default: false },
+          inline:         { type: Boolean, label: '行内模式',     default: false },
+          showMessage:    { type: Boolean, label: '显示验证信息', default: true },
+          inlineMessage:  { type: Boolean, label: '行内显示验证信息', default: false },
+          scrollToError:  { type: Boolean, label: '验证失败时滚动', default: false },
+          requireAsteriskPosition: { type: String, label: '必填星号位置', options: ['left', 'right'] },
+        },
+        slots: [
+          { name: 'default', label: '表单内容' },
+        ],
+      },
+
+      // ── ElFormItem ─────────────────────────────────────────────────────────────
+      {
+        name: '表单项',
+        component: ElFormItem,
+        category: 'layout',
+        props: {
+          label:         { type: String,  label: '标签文本' },
+          labelWidth:    { type: String,  label: '标签宽度' },
+          prop:          { type: String,  label: '字段名 (prop)' },
+          required:      { type: Boolean, label: '是否必填',     default: false },
+          showMessage:   { type: Boolean, label: '显示验证信息', default: true },
+          inlineMessage: { type: Boolean, label: '行内显示验证信息', default: false },
+          size:          { type: String,  label: '尺寸',         options: ['default', 'small', 'large'] },
+          rules:         { type: Object,  label: '验证规则',     dialog: RulesEditor },
+        },
+        slots: [
+          { name: 'default', label: '控件内容' },
+          { name: 'label',   label: '自定义标签 (label)' },
+          { name: 'error',   label: '自定义验证错误 (error)' },
+        ],
+      },
+
     ],
   },
 ]

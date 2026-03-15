@@ -1,4 +1,4 @@
-import type { Component } from 'vue'
+import type { Component, DefineComponent } from 'vue'
 
 /** Definition of a named slot that a component exposes */
 export interface SlotConfig {
@@ -28,8 +28,8 @@ export interface EventParam {
  * Used in ComponentConfig.props to describe the prop's type, label, default, etc.
  */
 export interface PropConfig {
-  /** JavaScript type constructor: String, Boolean, Number, Function */
-  type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor
+  /** JavaScript type constructor: String, Boolean, Number, Function, Object */
+  type: BooleanConstructor | StringConstructor | NumberConstructor | FunctionConstructor | ObjectConstructor
   /** Human-readable label shown in the designer */
   label?: string
   /** Default value; falls back to undefined when not set */
@@ -38,6 +38,14 @@ export interface PropConfig {
   options?: string[]
   /** For Function-type props: named parameters */
   params?: EventParam[]
+  /**
+   * For Object-type props: an optional Vue component used to edit the value.
+   * The component must accept a `modelValue` prop (the current JSON value) and
+   * emit `update:modelValue` with the new value.  It is rendered inside the
+   * standard prop-editor dialog.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dialog?: DefineComponent<any, any, any> | Component
 }
 
 /** Returns true when a ComponentConfig.props value is a PropConfig descriptor */
