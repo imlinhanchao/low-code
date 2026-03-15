@@ -790,7 +790,7 @@ const components: ComponentGroup[] = [
           label:         { type: String,  label: '标签文本' },
           labelWidth:    { type: String,  label: '标签宽度' },
           prop:          { type: String,  label: '字段名 (prop)' },
-          required:      { type: Boolean, label: '是否必填',     default: false },
+          required:      { type: Boolean, label: '是否必填',  },
           showMessage:   { type: Boolean, label: '显示验证信息', default: true },
           inlineMessage: { type: Boolean, label: '行内显示验证信息', default: false },
           size:          { type: String,  label: '尺寸',         options: ['default', 'small', 'large'] },
