@@ -118,7 +118,24 @@ export interface WidgetSchema {
   slots: Record<string, WidgetSchema[]>
 }
 
+/**
+ * Global configuration for the entire form.
+ * Contains CSS styles and function definitions (lifecycle hooks + custom helpers).
+ */
+export interface GlobalConfig {
+  /** Global CSS styles injected into the page when the form renders */
+  css?: string
+  /**
+   * Named function bodies.
+   * Built-in lifecycle keys: 'onMounted', 'onModelChange'.
+   * Any other key is treated as a named helper function available via the global scope.
+   */
+  functions?: Record<string, string>
+}
+
 /** The full form schema produced by the designer */
 export interface FormSchema {
   widgets: WidgetSchema[]
+  /** Global CSS and function definitions for the form */
+  global?: GlobalConfig
 }

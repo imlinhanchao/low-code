@@ -3,7 +3,7 @@ import LcDesigner from './designer/index.vue'
 import LcRenderer from './renderer/index.vue'
 
 export { LcDesigner, LcRenderer }
-export type { ComponentConfig, ComponentGroup, WidgetSchema, FormSchema, SlotConfig } from './types'
+export type { ComponentConfig, ComponentGroup, GlobalConfig, WidgetSchema, FormSchema, SlotConfig } from './types'
 export { builtinLayouts } from './layouts/index'
 
 export default {

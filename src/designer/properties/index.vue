@@ -1,17 +1,29 @@
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
-import type { ComponentConfig, EventParam, PropConfig, SlotConfig, WidgetSchema } from '../../types'
+import { computed, inject, ref, watch } from 'vue'
+import type { ComponentConfig, EventParam, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig } from '../../types'
+import GlobalConfigPanel from './GlobalConfigPanel.vue'
 
 const props = defineProps<{
   widget: WidgetSchema | null
   config: ComponentConfig | null
   effectiveSlots: SlotConfig[]
+  globalConfig: GlobalConfig
 }>()
 
 const emit = defineEmits<{
   'update:widget': [widget: WidgetSchema]
+  'update:globalConfig': [config: GlobalConfig]
 }>()
+
+// ── Tab state ────────────────────────────────────────────────────────────────
+
+const activeTab = ref<'props' | 'global'>('props')
+
+// Switch to properties tab when a new widget is selected
+watch(() => props.widget, (w) => {
+  if (w) activeTab.value = 'props'
+})
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
 
@@ -220,10 +232,24 @@ function isEventSet(eventName: string): boolean {
 
 <template>
   <div class="lc-properties">
-    <div class="lc-properties-title">属性设置</div>
+    <!-- Tab bar -->
+    <div class="lc-prop-tabs">
+      <button
+        class="lc-prop-tab"
+        :class="{ 'lc-prop-tab--active': activeTab === 'props' }"
+        @click="activeTab = 'props'"
+      >属性设置</button>
+      <button
+        class="lc-prop-tab"
+        :class="{ 'lc-prop-tab--active': activeTab === 'global' }"
+        @click="activeTab = 'global'"
+      >全局配置</button>
+    </div>
 
-    <template v-if="widget && config">
-      <div class="lc-properties-section">{{ config.name }}</div>
+    <!-- Properties tab -->
+    <template v-if="activeTab === 'props'">
+      <template v-if="widget && config">
+        <div class="lc-properties-section">{{ config.name }}</div>
 
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">
@@ -389,9 +415,18 @@ function isEventSet(eventName: string): boolean {
           </button>
         </div>
       </template>
+      </template>
+
+      <div v-else class="lc-properties-empty">请选择一个组件</div>
     </template>
 
-    <div v-else class="lc-properties-empty">请选择一个组件</div>
+    <!-- Global config tab -->
+    <GlobalConfigPanel
+      v-else
+      :global-config="globalConfig"
+      @update:global-config="emit('update:globalConfig', $event)"
+    />
+
   </div>
 
   <!-- Code editor dialog (teleported to body to escape overflow/z-index constraints) -->
@@ -437,16 +472,34 @@ function isEventSet(eventName: string): boolean {
   border-left: 1px solid #dcdfe6;
   box-sizing: border-box;
 }
-.lc-properties-title {
-  padding: 10px 14px 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #606266;
+/* Tab bar */
+.lc-prop-tabs {
+  display: flex;
   border-bottom: 1px solid #dcdfe6;
-  background: #fff;
+  background: #f5f7fa;
   position: sticky;
   top: 0;
   z-index: 1;
+}
+.lc-prop-tab {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 12px;
+  color: #606266;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s;
+}
+.lc-prop-tab:hover {
+  color: #409eff;
+}
+.lc-prop-tab--active {
+  color: #409eff;
+  border-bottom-color: #409eff;
+  background: #fff;
 }
 .lc-properties-section {
   padding: 8px 14px 4px;

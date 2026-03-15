@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, provide } from 'vue'
-import type { ComponentConfig, ComponentGroup, FormSchema, WidgetSchema, SlotConfig, PropConfig } from '../types'
+import type { ComponentConfig, ComponentGroup, FormSchema, GlobalConfig, WidgetSchema, SlotConfig, PropConfig } from '../types'
 import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
@@ -247,6 +247,12 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
   }
   return selectedConfig.value.slots ?? []
 })
+
+const globalConfig = computed<GlobalConfig>(() => schema.value.global ?? {})
+
+function updateGlobalConfig(global: GlobalConfig) {
+  schema.value = { ...schema.value, global }
+}
 </script>
 
 <template>
@@ -264,7 +270,9 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
         :widget="selectedWidget"
         :config="selectedConfig"
         :effective-slots="effectiveSelectedSlots"
+        :global-config="globalConfig"
         @update:widget="updateWidget"
+        @update:global-config="updateGlobalConfig"
       />
     </aside>
   </article>
