@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue'
-import type { ComponentConfig, FormSchema } from '../types'
+import type { ComponentConfig, ComponentGroup, FormSchema } from '../types'
 import { builtinLayouts } from '../layouts/index'
 import LcWidgetNode from './WidgetNode'
 
 const props = defineProps<{
   schema: FormSchema
-  components: ComponentConfig[]
+  components: ComponentGroup[]
   modelValue?: Record<string, unknown>
 }>()
 
@@ -18,9 +18,14 @@ const formData = computed(
   () => (props.modelValue ?? {}) as Record<string, unknown>,
 )
 
+/** Flatten ComponentGroup[] into a single ComponentConfig[] */
+const flatComponents = computed<ComponentConfig[]>(() =>
+  props.components.flatMap((g) => g.components),
+)
+
 /** All known configs: built-in layouts + user components + slot-specific components */
 const allConfigs = computed<ComponentConfig[]>(() => {
-  const base = [...builtinLayouts, ...props.components]
+  const base = [...builtinLayouts, ...flatComponents.value]
   const known = new Set(base.map((c) => c.name))
   const extra: ComponentConfig[] = []
   for (const cfg of base) {
