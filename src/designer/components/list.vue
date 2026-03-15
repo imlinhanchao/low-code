@@ -56,7 +56,17 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
         布局组件
       </div>
       <div v-show="!collapsed['\x00layouts']" class="lc-palette-items">
-        <PaletteItem v-for="cfg in layouts" :key="cfg.name" :config="cfg" />
+        <template v-for="cfg in layouts" :key="cfg.name">
+          <PaletteItem :config="cfg" :class="{ 'is-full': getSlotChildren(cfg).length > 0 }" />
+          <div v-if="getSlotChildren(cfg).length > 0" class="lc-palette-slot-children">
+            <PaletteItem
+              v-for="child in getSlotChildren(cfg)"
+              :key="child.name"
+              :config="child"
+              class="lc-palette-item--slot-child"
+            />
+          </div>
+        </template>
       </div>
     </div>
 
@@ -68,7 +78,7 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
       </div>
       <div v-show="!collapsed[`\x00g${idx}`]" class="lc-palette-items">
         <template v-for="cfg in grp.components" :key="cfg.name">
-          <PaletteItem :config="cfg" />
+          <PaletteItem :config="cfg" :class="{ 'is-full': getSlotChildren(cfg).length > 0 }" />
           <!-- Slot-only children: shown indented below their parent -->
           <div v-if="getSlotChildren(cfg).length > 0" class="lc-palette-slot-children">
             <PaletteItem
@@ -134,11 +144,22 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
   transform: rotate(0deg);
 }
 .lc-palette-items {
-  padding: 2px 0;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 .lc-palette-slot-children {
-  margin-left: 14px;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-left: 12px;
   border-left: 2px solid #e4e7ed;
-  padding-left: 2px;
+  padding-left: 12px;
+  margin-top: -4px;
+}
+:deep(.is-full) {
+  grid-column: 1 / -1;
 }
 </style>

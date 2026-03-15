@@ -40,8 +40,8 @@ function onDragEnd() {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 10px;
-  margin: 3px 8px;
+  padding: 8px 10px;
+  margin: 0;
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 6px;

@@ -291,7 +291,7 @@ function updateGlobalConfig(global: GlobalConfig) {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 .lc-designer-panel {
-  flex: 0 0 220px;
+  flex: 0 0 260px;
   overflow: hidden;
   background: #f8f9fc;
 }
