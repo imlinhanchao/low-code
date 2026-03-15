@@ -224,6 +224,7 @@ provide('lc:selectWidget', selectWidget)
 provide('lc:selectedId', selectedId)
 provide('lc:allConfigs', allConfigs)
 provide('lc:reorderSlotChildren', reorderSlotChildren)
+provide('lc:schema', schema)
 
 // ── Properties panel data ─────────────────────────────────────────────────────
 const selectedWidget = computed<WidgetSchema | null>(() =>

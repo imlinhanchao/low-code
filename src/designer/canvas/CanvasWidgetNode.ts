@@ -10,6 +10,7 @@ import {
 } from 'vue'
 import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
 import { draggingConfig, draggingWidget } from '../useDragState'
+import { hoveredId } from './useCanvasOverlay'
 
 // ── Canvas Slot Zone ──────────────────────────────────────────────────────────
 /**
@@ -205,39 +206,6 @@ export const LcCanvasWidgetNode = defineComponent({
       const isLayout   = props.widget.category === 'layout'
       const isDragging = draggingConfig.value !== null || draggingWidget.value !== null
 
-      // ── Floating action bar (shared between normal and virtual render modes) ─
-      const actionsBar = h('div', { class: 'lc-node-actions' }, [
-        h('span', { class: 'lc-node-actions__name' }, config.name),
-        h('span', {
-          class: 'lc-node-actions__btn lc-node-actions__btn--drag',
-          title: '拖拽',
-          draggable: true,
-          onDragstart: (e: DragEvent) => {
-            e.stopPropagation()
-            draggingWidget.value = props.widget
-            if (e.dataTransfer) {
-              e.dataTransfer.effectAllowed = 'move'
-              e.dataTransfer.setData('text/plain', props.widget.id)
-            }
-          },
-          onDragend: () => {
-            draggingWidget.value = null
-          },
-        }, '⠿'),
-        h(
-          'button',
-          {
-            class: 'lc-node-actions__btn lc-node-actions__btn--delete',
-            title: '删除',
-            onClick: (e: MouseEvent) => {
-              e.stopPropagation()
-              removeWidget(props.widget.id)
-            },
-          },
-          '✕',
-        ),
-      ])
-
       // ── Virtual chip rendering ────────────────────────────────────────────
       // Used for virtual-slot children (e.g. ElOption) shown in the panel.
       // Renders a simple named chip without mounting the actual component —
@@ -306,6 +274,7 @@ export const LcCanvasWidgetNode = defineComponent({
         return h(
           'div',
           {
+            'data-lc-id': props.widget.id,
             class: {
               'lc-canvas-node': true,
               'lc-canvas-node--selected': isSelected,
@@ -314,6 +283,13 @@ export const LcCanvasWidgetNode = defineComponent({
             onClick: (e: MouseEvent) => {
               e.stopPropagation()
               selectWidget(props.widget.id)
+            },
+            onMouseover: (e: MouseEvent) => {
+              e.stopPropagation()
+              hoveredId.value = props.widget.id
+            },
+            onMouseleave: () => {
+              if (hoveredId.value === props.widget.id) hoveredId.value = null
             },
           },
           [virtualActionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, config.name)],
@@ -484,22 +460,32 @@ export const LcCanvasWidgetNode = defineComponent({
         : null
 
       // ── Selection wrapper ───────────────────────────────────────────────
+      // The shell div is a thin layout-transparent wrapper.  It carries the
+      // data-lc-id attribute (used by CanvasOverlay for position tracking),
+      // click/hover event handlers, and position:relative (needed for the
+      // absolutely-positioned slots panel).  It has NO border, margin, or
+      // background so the wrapped component renders exactly as in production.
       return h(
         'div',
         {
+          'data-lc-id': props.widget.id,
           class: {
             'lc-canvas-node': true,
-            'lc-canvas-node--selected': isSelected,
             'lc-canvas-node--layout': isLayout,
           },
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
             selectWidget(props.widget.id)
           },
+          onMouseover: (e: MouseEvent) => {
+            e.stopPropagation()
+            hoveredId.value = props.widget.id
+          },
+          onMouseleave: () => {
+            if (hoveredId.value === props.widget.id) hoveredId.value = null
+          },
         },
         [
-          // Floating action bar — overlays the component, never pushes content down
-          actionsBar,
           componentVNode,
           slotsPanel,
         ],

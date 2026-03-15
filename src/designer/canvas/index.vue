@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { inject, ref, provide } from 'vue'
 import type { ComponentConfig, FormSchema } from '../../types'
 import { draggingConfig, draggingWidget } from '../useDragState'
+import { hoveredId } from './useCanvasOverlay'
 import { LcCanvasWidgetNode } from './CanvasWidgetNode'
+import CanvasOverlay from './CanvasOverlay.vue'
 
 const props = defineProps<{ schema: FormSchema }>()
 
@@ -15,6 +17,10 @@ const moveWidget =
     'lc:moveWidget',
   )
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')!
+
+// Provide a ref to the canvas DOM element so CanvasOverlay can compute positions
+const canvasRef = ref<HTMLElement | null>(null)
+provide('lc:canvasEl', canvasRef)
 
 const isOver = ref(false)
 
@@ -46,12 +52,14 @@ function onDrop(e: DragEvent) {
 
 <template>
   <div
+    ref="canvasRef"
     class="lc-canvas"
     :class="{ 'drag-over': isOver }"
     @dragover="onDragOver"
     @dragleave="onDragLeave"
     @drop="onDrop"
     @click.self="selectWidget(null)"
+    @mouseleave="hoveredId = null"
   >
     <div v-if="schema.widgets.length === 0" class="lc-canvas-empty">
       从左侧拖拽组件到此处
@@ -61,6 +69,8 @@ function onDrop(e: DragEvent) {
       :key="widget.id"
       :widget="widget"
     />
+    <!-- Global overlay: draws hover/selection rings and the action bar -->
+    <CanvasOverlay />
   </div>
 </template>
 
@@ -71,6 +81,7 @@ function onDrop(e: DragEvent) {
 <style>
 /* ── Canvas container ───────────────────────────────────────────────────── */
 .lc-canvas {
+  position: relative; /* needed so the overlay is positioned correctly */
   height: 100%;
   padding: 12px;
   overflow-y: auto;
@@ -94,39 +105,38 @@ function onDrop(e: DragEvent) {
   pointer-events: none;
 }
 
-/* ── Widget wrapper (selection ring) ──────────────────────────────────── */
+/* ── Widget shell wrapper ──────────────────────────────────────────────── */
+/*
+ * The shell is a layout-transparent container.  It has NO border, margin,
+ * or background so the wrapped component renders EXACTLY as it would in the
+ * live preview (true WYSIWYG).  position:relative is kept so the absolutely-
+ * positioned slots panel can attach to it.
+ *
+ * Hover / selection highlights are drawn by CanvasOverlay using outlines on
+ * absolutely-positioned overlay rings — those outlines live outside the box
+ * model and therefore do not affect layout.
+ */
 .lc-canvas-node {
   position: relative;
-  border: 1px dashed #c0c4cc;
-  border-radius: 4px;
-  margin: 6px 0;
-  background: #fff;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  overflow: visible;
 }
-.lc-canvas-node:hover {
-  border-color: #409eff;
-}
-.lc-canvas-node--selected {
-  border: 2px solid #409eff !important;
-}
+
 .lc-canvas-node--layout {
-  border-style: solid;
-  border-color: #dcdfe6;
+  /* Layout containers sometimes benefit from a subtle background to
+     show their extent, but we keep it very light so it is unobtrusive */
 }
 .lc-canvas-node--missing {
   padding: 6px 10px;
   color: #f56c6c;
   font-size: 12px;
+  border: 1px dashed #f56c6c;
 }
 
-/* ── Floating action bar ────────────────────────────────────────────────── */
+/* ── Floating action bar (virtual chip nodes) ───────────────────────────── */
 /*
- * Absolutely positioned at the top-right of the node wrapper.
- * Uses translateY(-100%) so it floats ABOVE the component border,
- * taking up zero layout space.  Invisible by default; fades in on
- * hover or when the node is selected.
+ * These still use the old inline action-bar approach because they are
+ * compact chips in the virtual-slots panel (not full-size components),
+ * and the overlay can't easily reach inside the panel container.
  */
 .lc-node-actions {
   position: absolute;
@@ -146,7 +156,7 @@ function onDrop(e: DragEvent) {
   white-space: nowrap;
   line-height: 1;
 }
-.lc-canvas-node:hover > .lc-node-actions,
+.lc-canvas-node--virtual-item:hover > .lc-node-actions,
 .lc-canvas-node--selected > .lc-node-actions {
   opacity: 1;
   pointer-events: auto;
@@ -180,21 +190,11 @@ function onDrop(e: DragEvent) {
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
 }
-.lc-node-actions__btn--drag {
-  cursor: grab;
-  font-size: 12px;
-  letter-spacing: -1px;
-}
 .lc-node-actions__btn--delete:hover {
   background: #f56c6c;
 }
 
 /* ── Canvas slot zone ─────────────────────────────────────────────────── */
-/*
- * This div is passed AS the slot content to the real component, so it
- * renders INSIDE the component's visual slot area — e.g. inside a card's
- * header, inside a grid column, inside ElInput's prefix area.
- */
 .lc-canvas-slot {
   box-sizing: border-box;
   transition: background 0.12s, border-color 0.12s;
@@ -257,13 +257,27 @@ function onDrop(e: DragEvent) {
 }
 
 /* ── Empty-slot chip panel (widget slots, shown on select / while dragging) */
+/*
+ * Rendered with position:absolute so it floats below the component without
+ * adding to the component's layout flow (true WYSIWYG for the component itself).
+ */
 .lc-canvas-node__slots-panel {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  min-width: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   padding: 4px 6px 5px;
-  border-top: 1px dashed #e4e7ed;
+  border: 1px solid #dcdfe6;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
   background: #fafbfc;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  z-index: 40;
+  /* Ensure the panel can extend beyond the canvas width if needed */
+  white-space: nowrap;
 }
 /* Chips inside the panel are always block-visible */
 .lc-canvas-node__slots-panel .lc-canvas-slot--widget {
@@ -284,11 +298,6 @@ function onDrop(e: DragEvent) {
 }
 
 /* ── Virtual item chip (e.g. ElOption inside ElSelect's panel) ──────────── */
-/*
- * Shown in the slots panel instead of being embedded in the component's
- * slot area.  Acts like a mini canvas node: position:relative so the
- * floating action bar can sit above it.
- */
 .lc-canvas-node--virtual-item {
   display: inline-flex;
   align-items: center;
@@ -297,6 +306,15 @@ function onDrop(e: DragEvent) {
   min-height: 28px;
   margin: 2px 0;
   background: #f0f2f5;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+}
+.lc-canvas-node--virtual-item:hover {
+  border-color: #c0c4cc;
+}
+.lc-canvas-node--selected.lc-canvas-node--virtual-item {
+  border-color: #409eff;
+  background: #ecf5ff;
 }
 .lc-canvas-node__virtual-label {
   font-size: 12px;
