@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
 import type { ComponentConfig } from '../../types'
 import { draggingConfig } from '../useDragState'
 
@@ -24,7 +25,13 @@ function onDragEnd() {
     @dragstart="onDragStart"
     @dragend="onDragEnd"
   >
-    {{ config.name }}
+    <span v-if="config.icon" class="lc-palette-item__icon">
+      <Icon :icon="config.icon" width="16" height="16" />
+    </span>
+    <span v-else class="lc-palette-item__icon lc-palette-item__icon--default">
+      <Icon icon="mdi:puzzle-outline" width="16" height="16" />
+    </span>
+    <span class="lc-palette-item__label">{{ config.name }}</span>
   </div>
 </template>
 
@@ -32,23 +39,43 @@ function onDragEnd() {
 .lc-palette-item {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  margin: 4px 6px;
+  gap: 7px;
+  padding: 7px 10px;
+  margin: 3px 8px;
   background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
   cursor: grab;
   user-select: none;
-  font-size: 13px;
+  font-size: 12px;
   color: #303133;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, color 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .lc-palette-item:hover {
   border-color: #409eff;
   background: #ecf5ff;
   color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.18);
 }
 .lc-palette-item:active {
   cursor: grabbing;
+}
+.lc-palette-item__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.75;
+}
+.lc-palette-item__icon--default {
+  opacity: 0.35;
+}
+.lc-palette-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

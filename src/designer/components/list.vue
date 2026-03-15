@@ -88,34 +88,38 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
 .lc-palette {
   height: 100%;
   overflow-y: auto;
-  background: #f5f7fa;
-  border-right: 1px solid #dcdfe6;
+  background: #f8f9fc;
+  display: flex;
+  flex-direction: column;
 }
 .lc-palette-title {
-  padding: 10px 14px 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #606266;
-  border-bottom: 1px solid #dcdfe6;
+  padding: 12px 14px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #303133;
+  letter-spacing: 0.3px;
   background: #fff;
+  border-bottom: 1px solid #e8eaf0;
+  flex-shrink: 0;
 }
 .lc-palette-section {
-  padding: 4px 0;
+  padding: 4px 0 2px;
 }
 .lc-palette-section-label {
-  padding: 6px 10px 2px;
+  padding: 8px 12px 4px;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   color: #909399;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   user-select: none;
 }
 .lc-palette-section-label--toggle {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  transition: color 0.15s;
 }
 .lc-palette-section-label--toggle:hover {
   color: #606266;
@@ -130,11 +134,11 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
   transform: rotate(0deg);
 }
 .lc-palette-items {
-  padding: 2px 6px;
+  padding: 2px 0;
 }
 .lc-palette-slot-children {
-  margin-left: 12px;
-  border-left: 2px solid #dcdfe6;
+  margin-left: 14px;
+  border-left: 2px solid #e4e7ed;
   padding-left: 2px;
 }
 </style>

@@ -628,21 +628,20 @@ function isObjectPropSet(key: string): boolean {
   height: 100%;
   overflow-y: auto;
   background: #fff;
-  border-left: 1px solid #dcdfe6;
   box-sizing: border-box;
 }
 /* Tab bar */
 .lc-prop-tabs {
   display: flex;
-  border-bottom: 1px solid #dcdfe6;
-  background: #f5f7fa;
+  border-bottom: 1px solid #e0e3ea;
+  background: #f8f9fc;
   position: sticky;
   top: 0;
   z-index: 1;
 }
 .lc-prop-tab {
   flex: 1;
-  padding: 8px 4px;
+  padding: 9px 4px;
   font-size: 12px;
   color: #606266;
   background: transparent;
@@ -661,18 +660,20 @@ function isObjectPropSet(key: string): boolean {
   background: #fff;
 }
 .lc-properties-section {
-  padding: 8px 14px 4px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 10px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
   color: #409eff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .lc-properties-group-label {
   padding: 6px 14px 2px;
   font-size: 10px;
-  font-weight: 600;
-  color: #909399;
+  font-weight: 700;
+  color: #b0b3bb;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 .lc-prop-row {
   display: flex;
@@ -692,8 +693,8 @@ function isObjectPropSet(key: string): boolean {
 .lc-prop-input {
   flex: 1;
   height: 28px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  border: 1px solid #e0e3ea;
+  border-radius: 5px;
   padding: 0 8px;
   font-size: 12px;
   color: #303133;
@@ -701,13 +702,15 @@ function isObjectPropSet(key: string): boolean {
   min-width: 0;
   box-sizing: border-box;
   background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .lc-prop-input:focus {
   border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.12);
 }
 .lc-model-row {
   padding: 4px 14px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f2f3f7;
 }
 .lc-model-key {
   font-size: 11px;
@@ -746,9 +749,9 @@ function isObjectPropSet(key: string): boolean {
   position: relative;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background: #f5f7fa;
+  border: 1px solid #e0e3ea;
+  border-radius: 5px;
+  background: #f8f9fc;
   color: #606266;
   font-size: 12px;
   cursor: pointer;
@@ -757,6 +760,7 @@ function isObjectPropSet(key: string): boolean {
   gap: 6px;
   min-width: 0;
   white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
 }
 .lc-fn-btn:hover {
   border-color: #409eff;
@@ -790,9 +794,9 @@ function isObjectPropSet(key: string): boolean {
   align-items: center;
   justify-content: space-between;
   padding: 3px 6px;
-  background: #f5f7fa;
-  border: 1px solid #ebeef5;
-  border-radius: 3px;
+  background: #f8f9fc;
+  border: 1px solid #e4e7ed;
+  border-radius: 5px;
   margin-bottom: 2px;
   cursor: default;
   user-select: none;
@@ -858,10 +862,10 @@ function isObjectPropSet(key: string): boolean {
   align-items: center;
   gap: 6px;
   padding: 5px 14px;
-  border: 1px dashed #dcdfe6;
-  border-radius: 3px;
+  border: 1px dashed #e0e3ea;
+  border-radius: 5px;
   margin: 2px 10px;
-  background: #f5f7fa;
+  background: #f8f9fc;
   cursor: default;
   transition: background 0.12s, border-color 0.12s;
 }

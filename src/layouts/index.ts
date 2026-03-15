@@ -10,6 +10,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: '栅格布局',
     category: 'layout',
+    icon: 'mdi:view-column-outline',
     component: GridLayout,
     props: { columns: 2 },
     computeSlots: (props): SlotConfig[] =>
@@ -21,6 +22,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: '卡片',
     category: 'layout',
+    icon: 'mdi:card-outline',
     component: CardLayout,
     props: { header: '卡片标题' },
     slots: [
@@ -31,6 +33,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: '标签页',
     category: 'layout',
+    icon: 'mdi:tab',
     component: TabsLayout,
     props: { tabLabels: '标签1,标签2' },
     computeSlots: (props): SlotConfig[] => {
@@ -42,6 +45,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: '表格布局',
     category: 'layout',
+    icon: 'mdi:table',
     component: TableLayout,
     props: { rows: 2, cols: 2 },
     computeSlots: (props): SlotConfig[] => {
@@ -59,6 +63,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: '静态文本',
     category: 'layout',
+    icon: 'mdi:format-text',
     component: StaticText,
     props: { content: '静态文本' },
     slots: [],
@@ -66,6 +71,7 @@ export const builtinLayouts: ComponentConfig[] = [
   {
     name: 'HTML 块',
     category: 'layout',
+    icon: 'mdi:language-html5',
     component: HtmlBlock,
     props: { html: '<p>自定义 HTML 内容</p>' },
     slots: [],

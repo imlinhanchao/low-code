@@ -83,9 +83,9 @@ function onDrop(e: DragEvent) {
 .lc-canvas {
   position: relative; /* needed so the overlay is positioned correctly */
   height: 100%;
-  padding: 12px;
+  padding: 20px;
   overflow-y: auto;
-  background: #f1f2f3;
+  background: #f0f2f7;
   transition: background 0.15s;
   box-sizing: border-box;
 }

@@ -39,6 +39,7 @@ const components: ComponentGroup[] = [
       // ── ElInput ────────────────────────────────────────────────────────────────
       {
         name: '文本框',
+        icon: 'mdi:form-textbox',
         component: ElInput,
         props: {
           type:          { type: String,  label: '输入框类型',   options: ['text', 'textarea', 'password', 'number', 'email', 'tel', 'url', 'search'] },
@@ -74,6 +75,7 @@ const components: ComponentGroup[] = [
       // ── ElAutocomplete ─────────────────────────────────────────────────────────
       {
         name: '自动补全',
+        icon: 'mdi:text-search',
         component: ElAutocomplete,
         props: {
           placeholder:        { type: String,   label: '占位文本' },
@@ -108,6 +110,7 @@ const components: ComponentGroup[] = [
       // ── ElInputNumber ──────────────────────────────────────────────────────────
       {
         name: '数字输入框',
+        icon: 'mdi:numeric',
         component: ElInputNumber,
         props: {
           min:           { type: Number,  label: '最小值' },
@@ -135,6 +138,7 @@ const components: ComponentGroup[] = [
       // ── ElInputTag ─────────────────────────────────────────────────────────────
       {
         name: '标签输入框',
+        icon: 'mdi:tag-multiple-outline',
         component: ElInputTag,
         props: {
           placeholder:    { type: String,  label: '占位文本' },
@@ -163,6 +167,7 @@ const components: ComponentGroup[] = [
       // ── ElSelect ───────────────────────────────────────────────────────────────
       {
         name: '下拉选择',
+        icon: 'mdi:form-dropdown',
         component: ElSelect,
         props: {
           placeholder:     { type: String,   label: '占位文本' },
@@ -221,6 +226,7 @@ const components: ComponentGroup[] = [
       // ── ElTreeSelect ───────────────────────────────────────────────────────────
       {
         name: '树形选择',
+        icon: 'mdi:file-tree-outline',
         component: ElTreeSelect,
         props: {
           placeholder:       { type: String,   label: '占位文本' },
@@ -254,6 +260,7 @@ const components: ComponentGroup[] = [
       // ── ElCascader ─────────────────────────────────────────────────────────────
       {
         name: '级联选择器',
+        icon: 'mdi:layers-outline',
         component: ElCascader,
         props: {
           placeholder:    { type: String,  label: '占位文本' },
@@ -284,6 +291,7 @@ const components: ComponentGroup[] = [
       // ── ElCheckbox ─────────────────────────────────────────────────────────────
       {
         name: '复选框',
+        icon: 'mdi:checkbox-outline',
         component: ElCheckbox,
         props: {
           label:         { type: String,  label: '标签文字' },
@@ -309,6 +317,7 @@ const components: ComponentGroup[] = [
       // ── ElCheckboxGroup ────────────────────────────────────────────────────────
       {
         name: '复选框组',
+        icon: 'mdi:checkbox-multiple-outline',
         component: ElCheckboxGroup,
         props: {
           size:          { type: String,  label: '尺寸',     options: ['default', 'small', 'large'] },
@@ -332,6 +341,7 @@ const components: ComponentGroup[] = [
       // ── ElRadio ────────────────────────────────────────────────────────────────
       {
         name: '单选框',
+        icon: 'mdi:radiobox-marked',
         component: ElRadio,
         props: {
           label:    { type: String,  label: '标签文字' },
@@ -355,6 +365,7 @@ const components: ComponentGroup[] = [
       // ── ElRadioGroup ───────────────────────────────────────────────────────────
       {
         name: '单选框组',
+        icon: 'mdi:radiobox-blank',
         component: ElRadioGroup,
         props: {
           size:      { type: String,  label: '尺寸',     options: ['default', 'small', 'large'] },
@@ -376,6 +387,7 @@ const components: ComponentGroup[] = [
       // ── ElSwitch ───────────────────────────────────────────────────────────────
       {
         name: '开关',
+        icon: 'mdi:toggle-switch-outline',
         component: ElSwitch,
         props: {
           activeText:       { type: String,  label: '开启时文字' },
@@ -402,6 +414,7 @@ const components: ComponentGroup[] = [
       // ── ElSlider ───────────────────────────────────────────────────────────────
       {
         name: '滑块',
+        icon: 'mdi:tune-vertical',
         component: ElSlider,
         props: {
           min:            { type: Number,  label: '最小值',     default: 0 },
@@ -431,6 +444,7 @@ const components: ComponentGroup[] = [
       // ── ElRate ─────────────────────────────────────────────────────────────────
       {
         name: '评分',
+        icon: 'mdi:star-outline',
         component: ElRate,
         props: {
           max:            { type: Number,  label: '最大分值',     default: 5 },
@@ -457,6 +471,7 @@ const components: ComponentGroup[] = [
       // ── ElColorPicker ──────────────────────────────────────────────────────────
       {
         name: '颜色选择器',
+        icon: 'mdi:palette-outline',
         component: ElColorPicker,
         props: {
           disabled:       { type: Boolean, label: '禁用',           default: false },
@@ -481,6 +496,7 @@ const components: ComponentGroup[] = [
       // ── ElColorPickerPanel ─────────────────────────────────────────────────────
       {
         name: '颜色面板',
+        icon: 'mdi:color-helper',
         component: ElColorPickerPanel,
         props: {
           disabled:    { type: Boolean, label: '禁用',       default: false },
@@ -501,6 +517,7 @@ const components: ComponentGroup[] = [
       // ── ElDatePicker ───────────────────────────────────────────────────────────
       {
         name: '日期选择器',
+        icon: 'mdi:calendar-outline',
         component: ElDatePicker,
         props: {
           type:         { type: String,  label: '选择器类型',   options: ['year', 'years', 'month', 'months', 'date', 'dates', 'datetime', 'week', 'daterange', 'monthrange', 'datetimerange', 'yearrange'] },
@@ -533,6 +550,7 @@ const components: ComponentGroup[] = [
       // ── ElTimePicker ───────────────────────────────────────────────────────────
       {
         name: '时间选择器',
+        icon: 'mdi:clock-outline',
         component: ElTimePicker,
         props: {
           placeholder:   { type: String,  label: '占位文本' },
@@ -566,6 +584,7 @@ const components: ComponentGroup[] = [
       // ── ElTimeSelect ───────────────────────────────────────────────────────────
       {
         name: '时间选择下拉',
+        icon: 'mdi:clock-time-eight-outline',
         component: ElTimeSelect,
         props: {
           placeholder:  { type: String,  label: '占位文本' },
@@ -595,6 +614,7 @@ const components: ComponentGroup[] = [
       // ── ElMention ─────────────────────────────────────────────────────────────
       {
         name: '提及',
+        icon: 'mdi:at',
         component: ElMention,
         props: {
           type:         { type: String,  label: '输入框类型',     options: ['text', 'textarea'] },
@@ -623,6 +643,7 @@ const components: ComponentGroup[] = [
       // ── ElTransfer ─────────────────────────────────────────────────────────────
       {
         name: '穿梭框',
+        icon: 'mdi:transfer',
         component: ElTransfer,
         props: {
           filterable:      { type: Boolean, label: '可搜索',         default: false },
@@ -651,6 +672,7 @@ const components: ComponentGroup[] = [
       // ── ElUpload ───────────────────────────────────────────────────────────────
       {
         name: '上传',
+        icon: 'mdi:upload-outline',
         component: ElUpload,
         props: {
           action:       { type: String,  label: '上传地址 (action)' },
@@ -694,6 +716,7 @@ const components: ComponentGroup[] = [
       // ── ElButton ───────────────────────────────────────────────────────────────
       {
         name: '按钮',
+        icon: 'mdi:button-cursor',
         component: ElButton,
         props: {
           type:       { type: String,  label: '按钮类型', options: ['', 'default', 'primary', 'success', 'warning', 'danger', 'info', 'text'] },
@@ -721,6 +744,7 @@ const components: ComponentGroup[] = [
       // ── ElTooltip ──────────────────────────────────────────────────────────────
       {
         name: '工具提示',
+        icon: 'mdi:tooltip-outline',
         component: ElTooltip,
         props: {
           content:    { type: String,  label: '提示内容' },
@@ -760,6 +784,7 @@ const components: ComponentGroup[] = [
       // ── ElForm ─────────────────────────────────────────────────────────────────
       {
         name: '表单',
+        icon: 'mdi:form-select',
         component: ElForm,
         category: 'layout',
         props: {
@@ -784,6 +809,7 @@ const components: ComponentGroup[] = [
       // ── ElFormItem ─────────────────────────────────────────────────────────────
       {
         name: '表单项',
+        icon: 'mdi:form-textbox-password',
         component: ElFormItem,
         category: 'layout',
         props: {

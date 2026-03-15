@@ -64,6 +64,11 @@ export interface ComponentConfig {
   /** Display name shown in the palette */
   name: string
   /**
+   * Iconify icon name (e.g. 'mdi:button-cursor').
+   * When provided, the palette renders the icon beside the component name.
+   */
+  icon?: string
+  /**
    * 'layout'  – built-in container (always shown in the 布局 section of the palette).
    * 'widget'  – user-configured component (default when omitted).
    */
