@@ -9,7 +9,7 @@ import {
   type VNode,
 } from 'vue'
 import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
-import { draggingConfig, draggingWidget, isDragging } from '../useDragState'
+import { draggingConfig, draggingWidget, isDragging, hoveredSlotParentId } from '../useDragState'
 import { hoveredId } from './useCanvasOverlay'
 
 // ── Canvas Slot Zone ──────────────────────────────────────────────────────────
@@ -131,6 +131,10 @@ export const CanvasSlotZone = defineComponent({
           onDragover: onDragOver,
           onDragleave: onDragLeave,
           onDrop,
+          onMouseenter: () => { hoveredSlotParentId.value = props.parentId },
+          onMouseleave: () => {
+            if (hoveredSlotParentId.value === props.parentId) hoveredSlotParentId.value = null
+          },
         },
         [
           ...childNodes,
@@ -396,10 +400,27 @@ export const LcCanvasWidgetNode = defineComponent({
         Object.keys(slotFns).length > 0 ? slotFns : undefined,
       )
 
+      // During drag mode (and not being the dragged widget), this node is a
+      // "slot host": it shows inline drop zones for each of its slots.
+      // We make the shell a real block container so we can attach a name badge
+      // and a highlight ring when one of its slot zones is hovered.
+      const isDraggingHost =
+        isDragging.value &&
+        draggingWidget.value?.id !== props.widget.id &&
+        normalSlots.length > 0
+      const isSlotHovered = isDraggingHost && hoveredSlotParentId.value === props.widget.id
+
+      // Name badge shown in top-right when this node is a drag slot host
+      const nameBadge = isDraggingHost
+        ? h('span', { class: 'lc-canvas-node__drag-name' }, config.name)
+        : null
+
       // ── Selection wrapper ───────────────────────────────────────────────
       // The shell is display:contents (via CSS) — it generates no box and has
       // zero layout impact.  data-lc-id lets the overlay locate the component;
       // click/hover handlers bubble up from the real component elements.
+      // In drag-host mode the CSS overrides display:contents → display:block
+      // so the name badge and highlight ring can be positioned relative to it.
       return h(
         'div',
         {
@@ -407,6 +428,8 @@ export const LcCanvasWidgetNode = defineComponent({
           class: {
             'lc-canvas-node': true,
             'lc-canvas-node--layout': isLayout,
+            'lc-canvas-node--dragging-host': isDraggingHost,
+            'lc-canvas-node--slot-hovered': isSlotHovered,
           },
           onClick: (e: MouseEvent) => {
             e.stopPropagation()
@@ -420,7 +443,7 @@ export const LcCanvasWidgetNode = defineComponent({
             if (hoveredId.value === props.widget.id) hoveredId.value = null
           },
         },
-        [componentVNode],
+        [nameBadge, componentVNode],
       )
     }
   },

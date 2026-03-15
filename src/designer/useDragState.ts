@@ -11,3 +11,9 @@ export const draggingWidget = ref<WidgetSchema | null>(null)
 export const isDragging = computed(
   () => draggingConfig.value !== null || draggingWidget.value !== null,
 )
+
+/**
+ * The parentId of the CanvasSlotZone currently under the pointer during drag.
+ * Used to highlight the parent component block when hovering over one of its slots.
+ */
+export const hoveredSlotParentId = ref<string | null>(null)

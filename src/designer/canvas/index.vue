@@ -325,4 +325,38 @@ function onDrop(e: DragEvent) {
   user-select: none;
   pointer-events: none;
 }
+
+/* ── Drag-host mode: component wrapper becomes visible ──────────────────── */
+/*
+ * When dragging, lc-canvas-node--dragging-host overrides display:contents so
+ * the shell div has a real box. This lets us position a name badge and draw
+ * a highlight ring relative to the component block.
+ */
+.lc-canvas-node--dragging-host {
+  display: block;
+  position: relative;
+}
+
+/* Component name badge — floats above top-right corner of the block */
+.lc-canvas-node__drag-name {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+  background: #409eff;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px 3px 0 0;
+  line-height: 1.6;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Highlight the component block when one of its slot zones is being hovered */
+.lc-canvas-node--slot-hovered {
+  outline: 2px solid rgba(64, 158, 255, 0.7);
+  outline-offset: 2px;
+}
 </style>
