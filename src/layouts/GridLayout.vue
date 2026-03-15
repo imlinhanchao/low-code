@@ -23,7 +23,6 @@ const gridStyle = computed(() => ({
 <style scoped>
 .lc-grid-col {
   min-height: 32px;
-  border: 1px dashed #e4e7ed;
   border-radius: 3px;
   padding: 4px;
   box-sizing: border-box;
