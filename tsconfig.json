@@ -15,7 +15,9 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@low-code/element-plus": ["./packages/element-plus/src/index.ts"],
+      "low-code": ["./src/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "*.ts", "*.vue", "env.d.ts"],

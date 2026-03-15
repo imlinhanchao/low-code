@@ -42,7 +42,7 @@ import { ref } from 'vue'
 import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer } from './src/index'
 import type { FormSchema } from './src/types'
-import componentList from './components'
+import componentList from '@low-code/element-plus'
 
 const components = componentList
 const mode = ref<'designer' | 'preview'>('designer')
