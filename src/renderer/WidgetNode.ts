@@ -7,7 +7,7 @@ import { isPropConfig } from '../types'
  *
  * Supported patterns:
  *   '$model'       → the entire form-data object
- *   '$model.key'   → formData[key]
+ *   '$model.key'   → formData[key]  (own property only)
  *
  * All other values are returned unchanged.
  */
@@ -17,7 +17,7 @@ function evalProp(value: unknown, formData: Record<string, unknown>): unknown {
   if (trimmed === '$model') return formData
   if (trimmed.startsWith('$model.')) {
     const key = trimmed.slice(7)
-    return formData[key]
+    return Object.hasOwn(formData, key) ? formData[key] : undefined
   }
   return value
 }

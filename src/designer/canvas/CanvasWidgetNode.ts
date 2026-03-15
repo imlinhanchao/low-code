@@ -360,12 +360,14 @@ export const LcCanvasWidgetNode = defineComponent({
 
       // Component props (no pointer-events suppression — we want real WYSIWYG)
       // In the canvas, $model evaluates to {} since no form data is available.
+      // A single empty object is shared across all $model references for consistency.
+      const canvasModel: Record<string, unknown> = {}
       const compProps: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(props.widget.props)) {
         if (typeof value === 'string') {
           const trimmed = value.trim()
           if (trimmed === '$model' || trimmed.startsWith('$model.')) {
-            compProps[key] = {}
+            compProps[key] = canvasModel
             continue
           }
         }
