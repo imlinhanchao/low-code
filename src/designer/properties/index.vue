@@ -251,6 +251,18 @@ function isEventSet(eventName: string): boolean {
       <template v-if="widget && config">
         <div class="lc-properties-section">{{ config.name }}</div>
 
+      <!-- Common attributes (always available for every widget) -->
+      <div class="lc-properties-group-label">公共</div>
+      <div class="lc-prop-row">
+        <label class="lc-prop-label" title="class">CSS类名</label>
+        <input
+          class="lc-prop-input"
+          :value="(widget.props['class'] as string) ?? ''"
+          placeholder="class1 class2"
+          @input="updateProp('class', ($event.target as HTMLInputElement).value || undefined)"
+        />
+      </div>
+
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">
         <div class="lc-properties-group-label">属性</div>

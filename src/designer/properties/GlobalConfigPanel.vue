@@ -12,8 +12,20 @@ const emit = defineEmits<{
 
 // ── CSS ─────────────────────────────────────────────────────────────────────
 
+const isCssSet = computed(() => !!(props.globalConfig.css?.trim()))
+
 function updateCss(css: string) {
   emit('update:globalConfig', { ...props.globalConfig, css })
+}
+
+function openCssDialog() {
+  codeDialog.value = {
+    title: '全局 CSS 样式',
+    noBraces: true,
+    code: props.globalConfig.css ?? '',
+    fullscreen: false,
+    onApply: (code) => updateCss(code),
+  }
 }
 
 // ── Functions ────────────────────────────────────────────────────────────────
@@ -68,7 +80,10 @@ function addCustomFunction() {
 
 interface CodeDialogState {
   title: string
-  signature: string
+  /** Displayed as the function signature line; omit (along with noBraces) for non-function editors */
+  signature?: string
+  /** When true, the function-brace decoration is hidden (used for CSS editor) */
+  noBraces?: boolean
   code: string
   fullscreen: boolean
   onApply: (code: string) => void
@@ -106,13 +121,16 @@ function isFnSet(name: string): boolean {
 
     <!-- CSS Section -->
     <div class="lc-global-section-label">CSS 样式</div>
-    <div class="lc-global-css-wrap">
-      <textarea
-        class="lc-global-css-editor"
-        placeholder="/* 在此输入全局 CSS */"
-        :value="globalConfig.css ?? ''"
-        @input="updateCss(($event.target as HTMLTextAreaElement).value)"
-      />
+    <div class="lc-global-fn-row">
+      <span class="lc-global-fn-name">全局 CSS</span>
+      <button
+        class="lc-fn-btn"
+        :class="{ 'lc-fn-btn--set': isCssSet }"
+        @click="openCssDialog"
+      >
+        <span v-if="isCssSet" class="lc-fn-dot" />
+        {{ isCssSet ? '已设置' : '设置' }}
+      </button>
     </div>
 
     <!-- Lifecycle hooks -->
@@ -187,14 +205,14 @@ function isFnSet(name: string): boolean {
             <button class="lc-code-hdr-btn" title="关闭" @click="closeCodeDialog">✕</button>
           </div>
         </div>
-        <div class="lc-code-signature">{{ codeDialog.signature }} {</div>
+        <div v-if="!codeDialog.noBraces && codeDialog.signature" class="lc-code-signature">{{ codeDialog.signature }} {</div>
         <textarea
           class="lc-code-editor"
-          placeholder="// 在此输入函数体"
+          :placeholder="codeDialog.noBraces ? '/* 在此输入全局 CSS */' : '// 在此输入函数体'"
           :value="codeDialog.code"
           @input="codeDialog.code = ($event.target as HTMLTextAreaElement).value"
         />
-        <div class="lc-code-closing">}</div>
+        <div v-if="!codeDialog.noBraces && codeDialog.signature" class="lc-code-closing">}</div>
         <div class="lc-code-footer">
           <button class="lc-code-btn-primary" @click="applyCode">确 定</button>
           <button class="lc-code-btn" @click="closeCodeDialog">取 消</button>
@@ -239,26 +257,6 @@ function isFnSet(name: string): boolean {
 }
 .lc-add-btn:hover {
   background: #ecf5ff;
-}
-.lc-global-css-wrap {
-  padding: 0 14px 4px;
-}
-.lc-global-css-editor {
-  width: 100%;
-  min-height: 120px;
-  box-sizing: border-box;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-family: 'Consolas', 'Monaco', monospace;
-  color: #303133;
-  resize: vertical;
-  outline: none;
-  line-height: 1.5;
-}
-.lc-global-css-editor:focus {
-  border-color: #409eff;
 }
 .lc-global-fn-row {
   display: flex;
