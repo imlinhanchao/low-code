@@ -5,6 +5,7 @@ const components: ComponentConfig[] = [
   // ── ElInput ──────────────────────────────────────────────────────────────────
   {
     name: '文本框',
+    group: '表单',
     component: ElInput,
     props: {
       type:          { type: String,  label: '输入框类型',   options: ['text', 'textarea', 'password', 'number', 'email', 'tel', 'url', 'search'] },
@@ -40,6 +41,7 @@ const components: ComponentConfig[] = [
   // ── ElButton ─────────────────────────────────────────────────────────────────
   {
     name: '按钮',
+    group: '通用',
     component: ElButton,
     props: {
       type:       { type: String,  label: '按钮类型', options: ['', 'default', 'primary', 'success', 'warning', 'danger', 'info', 'text'] },
@@ -67,6 +69,7 @@ const components: ComponentConfig[] = [
   // ── ElSelect ─────────────────────────────────────────────────────────────────
   {
     name: '下拉选择',
+    group: '表单',
     component: ElSelect,
     props: {
       placeholder:     { type: String,   label: '占位文本' },
@@ -125,6 +128,7 @@ const components: ComponentConfig[] = [
   // ── ElTooltip ────────────────────────────────────────────────────────────────
   {
     name: '工具提示',
+    group: '通用',
     component: ElTooltip,
     props: {
       content:    { type: String,  label: '提示内容' },
