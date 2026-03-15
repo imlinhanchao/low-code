@@ -8,11 +8,12 @@ import { LcCanvasWidgetNode, CanvasSlotZone } from './CanvasWidgetNode'
 interface Rect { left: number; top: number; width: number; height: number }
 
 // ── Injected state ────────────────────────────────────────────────────────────
-const selectedId   = inject<Ref<string | null>>('lc:selectedId')!
-const allConfigs   = inject<Ref<ComponentConfig[]>>('lc:allConfigs')!
-const removeWidget = inject<(id: string) => void>('lc:removeWidget')!
-const schema       = inject<Ref<FormSchema>>('lc:schema')!
-const canvasEl     = inject<Ref<HTMLElement | null>>('lc:canvasEl')!
+const selectedId    = inject<Ref<string | null>>('lc:selectedId')!
+const allConfigs    = inject<Ref<ComponentConfig[]>>('lc:allConfigs')!
+const removeWidget  = inject<(id: string) => void>('lc:removeWidget')!
+const selectWidget  = inject<(id: string | null) => void>('lc:selectWidget')!
+const schema        = inject<Ref<FormSchema>>('lc:schema')!
+const canvasEl      = inject<Ref<HTMLElement | null>>('lc:canvasEl')!
 const reorderSlotChildren = inject<
   (parentId: string, slotName: string, from: number, to: number) => void
 >('lc:reorderSlotChildren')
@@ -28,6 +29,28 @@ function findWidget(widgets: WidgetSchema[], id: string): WidgetSchema | null {
   }
   return null
 }
+
+/**
+ * Find the id of the direct parent of the widget with the given id.
+ * Returns null if the widget is a root-level widget (no parent).
+ * Returns undefined if the widget was not found in this subtree.
+ */
+function findParentId(widgets: WidgetSchema[], id: string, parentId: string | null = null): string | null | undefined {
+  for (const w of widgets) {
+    if (w.id === id) return parentId
+    for (const children of Object.values(w.slots)) {
+      const found = findParentId(children, id, w.id)
+      if (found !== undefined) return found
+    }
+  }
+  return undefined
+}
+
+const parentId = computed<string | null>(() => {
+  if (!selectedId.value) return null
+  const result = findParentId(schema.value?.widgets ?? [], selectedId.value)
+  return result ?? null
+})
 
 // ── Position calculation ──────────────────────────────────────────────────────
 /**
@@ -187,6 +210,12 @@ const showSlotsPanel = computed(() => {
     >
       <div class="lc-overlay__actions">
         <span class="lc-overlay__actions__name">{{ selectedConfig?.name }}</span>
+        <button
+          v-if="parentId"
+          class="lc-overlay__actions__btn lc-overlay__actions__btn--parent"
+          title="选择父组件"
+          @click.stop="selectWidget(parentId)"
+        >↑</button>
         <span
           class="lc-overlay__actions__btn lc-overlay__actions__btn--drag"
           draggable="true"
@@ -361,6 +390,9 @@ const showSlotsPanel = computed(() => {
   cursor: grab;
   font-size: 12px;
   letter-spacing: -1px;
+}
+.lc-overlay__actions__btn--parent:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 .lc-overlay__actions__btn--delete:hover {
   background: #f56c6c;
