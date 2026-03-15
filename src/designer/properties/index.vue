@@ -125,13 +125,17 @@ function resetDrag() {
 /** Track which slot row is being hovered during a palette drag */
 const slotDropOver = ref<string | null>(null)
 
-function onSlotRowDragOver(slotName: string, e: DragEvent) {
-  if (!draggingConfig.value) return
+/** Returns false when the dragged config is not accepted by the given slot */
+function isSlotAccepted(slotName: string): boolean {
+  if (!draggingConfig.value) return false
   const slot = props.effectiveSlots.find((s) => s.name === slotName)
-  if (!slot) return
-  // Check accept list
+  if (!slot) return false
   const accept = slot.components?.map((c) => c.name) ?? []
-  if (accept.length > 0 && !accept.includes(draggingConfig.value.name)) return
+  return accept.length === 0 || accept.includes(draggingConfig.value.name)
+}
+
+function onSlotRowDragOver(slotName: string, e: DragEvent) {
+  if (!isSlotAccepted(slotName)) return
   e.preventDefault()
   e.stopPropagation()
   slotDropOver.value = slotName
@@ -147,10 +151,7 @@ function onSlotRowDrop(slotName: string, e: DragEvent) {
   e.stopPropagation()
   slotDropOver.value = null
   if (!draggingConfig.value || !props.widget) return
-  const slot = props.effectiveSlots.find((s) => s.name === slotName)
-  if (!slot) return
-  const accept = slot.components?.map((c) => c.name) ?? []
-  if (accept.length > 0 && !accept.includes(draggingConfig.value.name)) return
+  if (!isSlotAccepted(slotName)) return
   addWidget?.(props.widget.id, slotName, draggingConfig.value)
   draggingConfig.value = null
 }
@@ -165,6 +166,12 @@ function updateEvent(key: string, value: string) {
 
 function valueToString(v: unknown): string {
   return v == null ? '' : String(v)
+}
+
+/** Returns the count label for a slot row ("N 项" or "空") */
+function slotCountLabel(slotName: string): string {
+  const count = (props.widget?.slots[slotName] ?? []).length
+  return count > 0 ? `${count} 项` : '空'
 }
 
 /** Slots that have at least one child in the schema (to show in the panel always) */
@@ -510,9 +517,7 @@ function isObjectPropSet(key: string): boolean {
           @drop="onSlotRowDrop(slot.name, $event)"
         >
           <span class="lc-slot-drop-name">{{ slot.label ?? slot.name }}</span>
-          <span class="lc-slot-drop-count">
-            {{ (widget.slots[slot.name] ?? []).length > 0 ? `${(widget.slots[slot.name] ?? []).length} 项` : '空' }}
-          </span>
+          <span class="lc-slot-drop-count">{{ slotCountLabel(slot.name) }}</span>
           <span class="lc-slot-drop-hint">拖拽组件到此处</span>
         </div>
       </template>
