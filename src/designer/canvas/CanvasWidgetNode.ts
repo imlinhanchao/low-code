@@ -359,10 +359,19 @@ export const LcCanvasWidgetNode = defineComponent({
       }
 
       // Component props (no pointer-events suppression — we want real WYSIWYG)
-      const compProps: Record<string, unknown> = {
-        ...props.widget.props,
-        ...props.widget.models,
+      // In the canvas, $model evaluates to {} since no form data is available.
+      const compProps: Record<string, unknown> = {}
+      for (const [key, value] of Object.entries(props.widget.props)) {
+        if (typeof value === 'string') {
+          const trimmed = value.trim()
+          if (trimmed === '$model' || trimmed.startsWith('$model.')) {
+            compProps[key] = {}
+            continue
+          }
+        }
+        compProps[key] = value
       }
+      Object.assign(compProps, props.widget.models)
 
       // ── The actual component (WYSIWYG rendering) ────────────────────────
       const componentVNode = h(

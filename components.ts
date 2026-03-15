@@ -762,6 +762,7 @@ const components: ComponentGroup[] = [
         component: ElForm,
         category: 'layout',
         props: {
+          model:          { type: String,  label: '表单数据 (model)', default: '$model' },
           labelPosition:  { type: String,  label: '标签位置',     options: ['left', 'right', 'top'], default: 'right' },
           labelWidth:     { type: String,  label: '标签宽度',     default: '100px' },
           labelSuffix:    { type: String,  label: '标签后缀' },

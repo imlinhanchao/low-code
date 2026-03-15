@@ -100,11 +100,12 @@ function execGlobalFn(name: string, ...args: unknown[]) {
         }
       }
     }
-    // Inject helpers as named params followed by lifecycle params
+    // Inject helpers as named params followed by $model and lifecycle params.
+    // $model gives global functions reactive access to the current form data.
     const paramNames = LIFECYCLE_PARAMS[name] ?? []
     // eslint-disable-next-line no-new-func
-    const fn = new Function(...helperNames, ...paramNames, body)
-    fn(...helperValues, ...args)
+    const fn = new Function(...helperNames, '$model', ...paramNames, body)
+    fn(...helperValues, formData.value, ...args)
   } catch (e) {
     console.error(`[lc-renderer] ${name} error:`, e)
   }
