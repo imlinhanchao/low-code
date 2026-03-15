@@ -252,7 +252,7 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
 <template>
   <article class="lc-designer">
     <aside class="lc-designer-panel lc-panel-left">
-      <PaletteList :layouts="builtinLayouts" :groups="components" :slot-only-components="slotOnlyComponents" />
+      <PaletteList :layouts="builtinLayouts" :groups="components" />
     </aside>
 
     <section class="lc-designer-canvas">

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ComponentConfig, ComponentGroup } from '../../types'
 import PaletteItem from './item.vue'
 
-defineProps<{
+const props = defineProps<{
   layouts: ComponentConfig[]
   groups: ComponentGroup[]
-  /** Components valid only inside specific slots (e.g. ElOption for ElSelect) */
-  slotOnlyComponents?: ComponentConfig[]
 }>()
 
 // ── Collapse state ─────────────────────────────────────────────────────────────
@@ -17,6 +15,34 @@ function toggle(key: string) {
 }
 
 const DEFAULT_GROUP_LABEL = '自定义组件'
+
+// ── Slot-child resolution ──────────────────────────────────────────────────────
+// Build the set of all top-level component names (layouts + group components).
+// Any component that appears in a slot's whitelist but NOT in this set is a
+// "slot-only" child and should be displayed beneath its parent.
+const topLevelNames = computed<Set<string>>(() => {
+  const names = new Set<string>()
+  for (const cfg of props.layouts) names.add(cfg.name)
+  for (const grp of props.groups) {
+    for (const cfg of grp.components) names.add(cfg.name)
+  }
+  return names
+})
+
+/** Returns the unique slot-only child configs for a given component config. */
+function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
+  const children: ComponentConfig[] = []
+  const seen = new Set<string>()
+  for (const slot of cfg.slots ?? []) {
+    for (const sc of slot.components ?? []) {
+      if (!topLevelNames.value.has(sc.name) && !seen.has(sc.name)) {
+        seen.add(sc.name)
+        children.push(sc)
+      }
+    }
+  }
+  return children
+}
 </script>
 
 <template>
@@ -41,18 +67,18 @@ const DEFAULT_GROUP_LABEL = '自定义组件'
         {{ grp.group || DEFAULT_GROUP_LABEL }}
       </div>
       <div v-show="!collapsed[`\x00g${idx}`]" class="lc-palette-items">
-        <PaletteItem v-for="cfg in grp.components" :key="cfg.name" :config="cfg" />
-      </div>
-    </div>
-
-    <!-- Slot-specific components (e.g. ElOption for ElSelect) -->
-    <div v-if="slotOnlyComponents && slotOnlyComponents.length > 0" class="lc-palette-section">
-      <div class="lc-palette-section-label lc-palette-section-label--toggle" @click="toggle('\x00slots')">
-        <span class="lc-palette-section-arrow" :class="{ 'is-collapsed': collapsed['\x00slots'] }">▶</span>
-        插槽组件
-      </div>
-      <div v-show="!collapsed['\x00slots']" class="lc-palette-items">
-        <PaletteItem v-for="cfg in slotOnlyComponents" :key="cfg.name" :config="cfg" />
+        <template v-for="cfg in grp.components" :key="cfg.name">
+          <PaletteItem :config="cfg" />
+          <!-- Slot-only children: shown indented below their parent -->
+          <div v-if="getSlotChildren(cfg).length > 0" class="lc-palette-slot-children">
+            <PaletteItem
+              v-for="child in getSlotChildren(cfg)"
+              :key="child.name"
+              :config="child"
+              class="lc-palette-item--slot-child"
+            />
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -105,5 +131,10 @@ const DEFAULT_GROUP_LABEL = '自定义组件'
 }
 .lc-palette-items {
   padding: 2px 6px;
+}
+.lc-palette-slot-children {
+  margin-left: 12px;
+  border-left: 2px solid #dcdfe6;
+  padding-left: 2px;
 }
 </style>
