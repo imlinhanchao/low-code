@@ -107,25 +107,23 @@ function onDrop(e: DragEvent) {
 
 /* ── Widget shell wrapper ──────────────────────────────────────────────── */
 /*
- * The shell is a layout-transparent container.  It has NO border, margin,
- * or background so the wrapped component renders EXACTLY as it would in the
- * live preview (true WYSIWYG).  position:relative is kept so the absolutely-
- * positioned slots panel can attach to it.
+ * display:contents makes this div generate NO box at all — it is completely
+ * invisible to layout.  Children render as if this div didn't exist.
  *
- * Hover / selection highlights are drawn by CanvasOverlay using outlines on
- * absolutely-positioned overlay rings — those outlines live outside the box
- * model and therefore do not affect layout.
+ * The element still exists in the DOM, so:
+ *  - data-lc-id attribute is queryable by the overlay
+ *  - click/hover events bubble through (event listeners still fire)
+ *
+ * Hover / selection highlights are drawn by CanvasOverlay using CSS outline
+ * on absolutely-positioned ring divs — zero layout impact.
  */
 .lc-canvas-node {
-  position: relative;
-  cursor: pointer;
+  display: contents;
 }
 
-.lc-canvas-node--layout {
-  /* Layout containers sometimes benefit from a subtle background to
-     show their extent, but we keep it very light so it is unobtrusive */
-}
 .lc-canvas-node--missing {
+  /* Missing components need a visible box; restore display for them */
+  display: block;
   padding: 6px 10px;
   color: #f56c6c;
   font-size: 12px;
@@ -200,29 +198,30 @@ function onDrop(e: DragEvent) {
   transition: background 0.12s, border-color 0.12s;
 }
 
-/* Layout slot: block, takes full width of the parent cell */
-.lc-canvas-slot--layout {
-  display: block;
-  min-height: 56px;
-  padding: 4px;
-  border: 1px dashed #c0c4cc;
-  border-radius: 3px;
-  background: #fafbfc;
+/*
+ * Non-empty layout / widget slots: display:contents so slot children render
+ * directly inside the component's real slot area (100% WYSIWYG).
+ */
+.lc-canvas-slot--layout:not(.lc-canvas-slot--empty),
+.lc-canvas-slot--widget:not(.lc-canvas-slot--empty) {
+  display: contents;
 }
+
+/* Empty layout slot: visible drop target so users can drop into it */
 .lc-canvas-slot--layout.lc-canvas-slot--empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
+  min-height: 40px;
+  border: 1px dashed #c0c4cc;
+  border-radius: 3px;
+  background: #fafbfc;
 }
 
-/* Widget slot: compact, wraps slot children (e.g. inside ElInput prefix) */
-.lc-canvas-slot--widget {
+/* Empty widget slot (in panel): compact chip target */
+.lc-canvas-slot--widget.lc-canvas-slot--empty {
   display: inline-flex;
   align-items: center;
-  min-width: 10px;
-}
-.lc-canvas-slot--widget.lc-canvas-slot--empty {
   min-width: 32px;
   min-height: 16px;
   border: 1px dashed #c0c4cc;
@@ -231,13 +230,13 @@ function onDrop(e: DragEvent) {
   background: #f5f7fa;
 }
 
-/* Drag-over highlight for any slot */
+/* Drag-over highlight */
 .lc-canvas-slot--over {
   background: #ecf5ff !important;
   border-color: #409eff !important;
 }
 
-/* Drop blocked — dragged component not allowed in this slot */
+/* Drop blocked */
 .lc-canvas-slot--blocked {
   background: #fef0f0 !important;
   border-color: #f56c6c !important;
@@ -256,50 +255,10 @@ function onDrop(e: DragEvent) {
   white-space: nowrap;
 }
 
-/* ── Empty-slot chip panel (widget slots, shown on select / while dragging) */
-/*
- * Rendered with position:absolute so it floats below the component without
- * adding to the component's layout flow (true WYSIWYG for the component itself).
- */
-.lc-canvas-node__slots-panel {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  min-width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 4px 6px 5px;
-  border: 1px solid #dcdfe6;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  background: #fafbfc;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  z-index: 40;
-  /* Ensure the panel can extend beyond the canvas width if needed */
-  white-space: nowrap;
-}
-/* Chips inside the panel are always block-visible */
-.lc-canvas-node__slots-panel .lc-canvas-slot--widget {
-  flex: 0 0 auto;
-  min-width: 60px;
-  min-height: 28px;
-  border: 1px dashed #c0c4cc;
-  border-radius: 3px;
-  padding: 3px 8px;
-  background: #f0f2f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.lc-canvas-node__slots-panel .lc-canvas-slot--widget.lc-canvas-slot--over {
-  background: #ecf5ff;
-  border-color: #409eff;
-}
-
 /* ── Virtual item chip (e.g. ElOption inside ElSelect's panel) ──────────── */
 .lc-canvas-node--virtual-item {
-  display: inline-flex;
+  display: inline-flex;  /* overrides display:contents from .lc-canvas-node */
+  position: relative;    /* needed for the lc-node-actions absolute bar */
   align-items: center;
   padding: 4px 10px;
   min-width: 60px;

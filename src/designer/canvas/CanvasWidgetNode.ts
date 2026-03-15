@@ -24,7 +24,7 @@ import { hoveredId } from './useCanvasOverlay'
  *    correct visual position inside the host component (WYSIWYG)
  *  - widget slot (empty): compact chip-sized indicator shown inline
  */
-const CanvasSlotZone = defineComponent({
+export const CanvasSlotZone = defineComponent({
   name: 'LcCanvasSlotZone',
 
   props: {
@@ -394,77 +394,10 @@ export const LcCanvasWidgetNode = defineComponent({
         Object.keys(slotFns).length > 0 ? slotFns : undefined,
       )
 
-      // ── Unified slots panel ──────────────────────────────────────────────
-      // Shown when selected or dragging.  Contains:
-      //  a) Regular (non-virtual) empty widget slots as droppable chip hints
-      //  b) Virtual slot contents — existing children as clickable virtual chips
-      //     plus a drop zone for adding more items
-      //
-      // The panel also stays open while a virtual-slot child is selected so the
-      // user can click another sibling chip without having to re-select the parent.
-      const hasVirtualChildSelected = virtualSlots.some((s) =>
-        (props.widget.slots[s.name] ?? []).some((c) => c.id === selectedId.value),
-      )
-      const showPanel = !isLayout && (
-        (widgetEmptySlots.length > 0 || virtualSlots.length > 0) &&
-        (isSelected || isDragging || hasVirtualChildSelected)
-      )
-      const slotsPanel = showPanel
-        ? h(
-            'div',
-            { class: 'lc-canvas-node__slots-panel' },
-            [
-              // (a) Regular empty widget slots
-              ...widgetEmptySlots.map((s) =>
-                h(CanvasSlotZone, {
-                  key: `empty-${s.name}`,
-                  parentId: props.widget.id,
-                  slotName: s.name,
-                  slotLabel: s.label ?? s.name,
-                  children: [],
-                  isLayout: false,
-                  accept: s.components?.map((c) => c.name) ?? [],
-                }),
-              ),
-              // (b) Virtual slot children + drop zone
-              ...virtualSlots.flatMap((s) => {
-                const children = props.widget.slots[s.name] ?? []
-                const accept = s.components?.map((c) => c.name) ?? []
-                return [
-                  // Existing children as selectable virtual-mode chips
-                  ...children.map((c, i) =>
-                    h(LcCanvasWidgetNode, {
-                      key: c.id,
-                      widget: c,
-                      virtual: true,
-                      slotParentId: props.widget.id,
-                      slotName: s.name,
-                      slotIndex: i,
-                      slotTotal: children.length,
-                    }),
-                  ),
-                  // Drop zone for adding more items to this virtual slot
-                  h(CanvasSlotZone, {
-                    key: `vslot-${s.name}`,
-                    parentId: props.widget.id,
-                    slotName: s.name,
-                    slotLabel: s.label ?? s.name,
-                    children: [],
-                    isLayout: false,
-                    accept,
-                  }),
-                ]
-              }),
-            ],
-          )
-        : null
-
       // ── Selection wrapper ───────────────────────────────────────────────
-      // The shell div is a thin layout-transparent wrapper.  It carries the
-      // data-lc-id attribute (used by CanvasOverlay for position tracking),
-      // click/hover event handlers, and position:relative (needed for the
-      // absolutely-positioned slots panel).  It has NO border, margin, or
-      // background so the wrapped component renders exactly as in production.
+      // The shell is display:contents (via CSS) — it generates no box and has
+      // zero layout impact.  data-lc-id lets the overlay locate the component;
+      // click/hover handlers bubble up from the real component elements.
       return h(
         'div',
         {
@@ -485,10 +418,7 @@ export const LcCanvasWidgetNode = defineComponent({
             if (hoveredId.value === props.widget.id) hoveredId.value = null
           },
         },
-        [
-          componentVNode,
-          slotsPanel,
-        ],
+        [componentVNode],
       )
     }
   },
