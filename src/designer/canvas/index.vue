@@ -246,6 +246,34 @@ function onDrop(e: DragEvent) {
   color: #f56c6c;
 }
 
+/*
+ * During drag mode: show ALL slot zones (including non-empty ones) as visible
+ * bordered drop targets.  The two-class selectors below have the same
+ * specificity as the display:contents rules above, so placing them after is
+ * enough to win — no !important needed.
+ */
+.lc-canvas-slot--dragging.lc-canvas-slot--layout,
+.lc-canvas-slot--dragging.lc-canvas-slot--widget {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 36px;
+  border: 2px dashed rgba(64, 158, 255, 0.5);
+  border-radius: 4px;
+  padding: 4px;
+  background: rgba(64, 158, 255, 0.03);
+  box-sizing: border-box;
+}
+.lc-canvas-slot--dragging.lc-canvas-slot--over {
+  background: rgba(64, 158, 255, 0.12) !important;
+  border-color: #409eff !important;
+}
+.lc-canvas-slot--dragging.lc-canvas-slot--blocked {
+  background: rgba(245, 108, 108, 0.05) !important;
+  border-color: rgba(245, 108, 108, 0.5) !important;
+}
+
 /* Empty slot hint text */
 .lc-canvas-slot__hint {
   font-size: 10px;

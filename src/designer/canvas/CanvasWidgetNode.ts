@@ -9,7 +9,7 @@ import {
   type VNode,
 } from 'vue'
 import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
-import { draggingConfig, draggingWidget } from '../useDragState'
+import { draggingConfig, draggingWidget, isDragging } from '../useDragState'
 import { hoveredId } from './useCanvasOverlay'
 
 // ── Canvas Slot Zone ──────────────────────────────────────────────────────────
@@ -315,7 +315,21 @@ export const LcCanvasWidgetNode = defineComponent({
         const sn = slotCfg.name
         const children = props.widget.slots[sn] ?? []
 
-        if (children.length > 0) {
+        // During drag mode: render an inline CanvasSlotZone for every slot so
+        // any component can be dropped directly into the slot inside the widget.
+        // The dragged widget itself is excluded to avoid a self-referential zone.
+        if (isDragging.value && (!draggingWidget.value || draggingWidget.value.id !== props.widget.id)) {
+          const acceptList = slotCfg.components?.map((c) => c.name) ?? []
+          slotFns[sn] = () =>
+            h(CanvasSlotZone, {
+              parentId: props.widget.id,
+              slotName: sn,
+              slotLabel: slotCfg.label ?? sn,
+              children,
+              isLayout,
+              accept: acceptList,
+            })
+        } else if (children.length > 0) {
           // Render children WYSIWYG, without an interactive drop zone wrapper.
           // Dropping is done via the overlay panel, not inside the component.
           const childNodes = children.map((c) =>

@@ -2,7 +2,7 @@
 import { inject, ref, computed, onMounted, onUnmounted, type Ref } from 'vue'
 import type { ComponentConfig, WidgetSchema, FormSchema, SlotConfig } from '../../types'
 import { hoveredId } from './useCanvasOverlay'
-import { draggingConfig, draggingWidget } from '../useDragState'
+import { draggingConfig, draggingWidget, isDragging } from '../useDragState'
 import { LcCanvasWidgetNode, CanvasSlotZone } from './CanvasWidgetNode'
 
 interface Rect { left: number; top: number; width: number; height: number }
@@ -169,6 +169,7 @@ const virtualSlots = computed<SlotConfig[]>(() => {
 
 const showSlotsPanel = computed(() => {
   if (!selectedWidget.value) return false
+  if (isDragging.value) return false
   return effectiveSelectedSlots.value.length > 0 && !!selectedId.value
 })
 </script>
