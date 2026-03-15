@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, provide } from 'vue'
-import type { ComponentConfig, FormSchema, WidgetSchema, SlotConfig, PropConfig } from '../types'
+import type { ComponentConfig, ComponentGroup, FormSchema, WidgetSchema, SlotConfig, PropConfig } from '../types'
 import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
@@ -9,7 +9,7 @@ import { builtinLayouts } from '../layouts/index'
 
 // ── Props / emits ────────────────────────────────────────────────────────────
 const props = defineProps<{
-  components: ComponentConfig[]
+  components: ComponentGroup[]
   modelValue?: FormSchema
 }>()
 
@@ -26,9 +26,14 @@ const schema = computed<FormSchema>({
 // ── Selection ────────────────────────────────────────────────────────────────
 const selectedId = ref<string | null>(null)
 
+/** Flat list of all user-supplied components (in group order) */
+const flatComponents = computed<ComponentConfig[]>(() =>
+  props.components.flatMap((g) => g.components),
+)
+
 // ── All configs: built-in layouts + user components + slot-specific components ─
 const allConfigs = computed<ComponentConfig[]>(() => {
-  const base = [...builtinLayouts, ...props.components]
+  const base = [...builtinLayouts, ...flatComponents.value]
   const known = new Set(base.map((c) => c.name))
   const extra: ComponentConfig[] = []
   for (const cfg of base) {
@@ -46,7 +51,7 @@ const allConfigs = computed<ComponentConfig[]>(() => {
 
 /** Components that only appear inside specific slots (e.g. ElOption inside ElSelect) */
 const slotOnlyComponents = computed<ComponentConfig[]>(() => {
-  const topNames = new Set([...builtinLayouts, ...props.components].map((c) => c.name))
+  const topNames = new Set([...builtinLayouts, ...flatComponents.value].map((c) => c.name))
   return allConfigs.value.filter((c) => !topNames.has(c.name))
 })
 
@@ -247,7 +252,7 @@ const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
 <template>
   <article class="lc-designer">
     <aside class="lc-designer-panel lc-panel-left">
-      <PaletteList :layouts="builtinLayouts" :components="components" :slot-only-components="slotOnlyComponents" />
+      <PaletteList :layouts="builtinLayouts" :groups="components" :slot-only-components="slotOnlyComponents" />
     </aside>
 
     <section class="lc-designer-canvas">

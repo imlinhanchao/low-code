@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { ComponentConfig } from '../../types'
+import { ref } from 'vue'
+import type { ComponentConfig, ComponentGroup } from '../../types'
 import PaletteItem from './item.vue'
 
-const props = defineProps<{
+defineProps<{
   layouts: ComponentConfig[]
-  components: ComponentConfig[]
+  groups: ComponentGroup[]
   /** Components valid only inside specific slots (e.g. ElOption for ElSelect) */
   slotOnlyComponents?: ComponentConfig[]
 }>()
@@ -16,23 +16,7 @@ function toggle(key: string) {
   collapsed.value[key] = !collapsed.value[key]
 }
 
-// ── Group custom components by their `group` field ─────────────────────────────
-// Components without a `group` go into the DEFAULT_GROUP bucket.
-// We preserve insertion order of group names.
-const DEFAULT_GROUP = '自定义组件'
-const componentGroups = computed<{ key: string; label: string; items: ComponentConfig[] }[]>(() => {
-  const map = new Map<string, ComponentConfig[]>()
-  for (const cfg of props.components) {
-    const key = cfg.group ?? DEFAULT_GROUP
-    if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(cfg)
-  }
-  return Array.from(map.entries()).map(([key, items]) => ({
-    key,
-    label: key,
-    items,
-  }))
-})
+const DEFAULT_GROUP_LABEL = '自定义组件'
 </script>
 
 <template>
@@ -51,13 +35,13 @@ const componentGroups = computed<{ key: string; label: string; items: ComponentC
     </div>
 
     <!-- User-configured component sections (one per group, all collapsible) -->
-    <div v-for="group in componentGroups" :key="group.key" class="lc-palette-section">
-      <div class="lc-palette-section-label lc-palette-section-label--toggle" @click="toggle(group.key)">
-        <span class="lc-palette-section-arrow" :class="{ 'is-collapsed': collapsed[group.key] }">▶</span>
-        {{ group.label }}
+    <div v-for="(grp, idx) in groups" :key="idx" class="lc-palette-section">
+      <div class="lc-palette-section-label lc-palette-section-label--toggle" @click="toggle(`\x00g${idx}`)">
+        <span class="lc-palette-section-arrow" :class="{ 'is-collapsed': collapsed[`\x00g${idx}`] }">▶</span>
+        {{ grp.group || DEFAULT_GROUP_LABEL }}
       </div>
-      <div v-show="!collapsed[group.key]" class="lc-palette-items">
-        <PaletteItem v-for="cfg in group.items" :key="cfg.name" :config="cfg" />
+      <div v-show="!collapsed[`\x00g${idx}`]" class="lc-palette-items">
+        <PaletteItem v-for="cfg in grp.components" :key="cfg.name" :config="cfg" />
       </div>
     </div>
 

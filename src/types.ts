@@ -54,13 +54,6 @@ export interface ComponentConfig {
    * 'widget'  – user-configured component (default when omitted).
    */
   category?: 'layout' | 'widget'
-  /**
-   * Optional group name for user-configured components.
-   * Components sharing the same group are displayed under a collapsible
-   * section with that name in the palette.  Components without a group
-   * fall into a default "自定义组件" section.
-   */
-  group?: string
   /** The actual Vue component constructor */
   component: Component
   /** Default static prop values */
@@ -80,6 +73,18 @@ export interface ComponentConfig {
    * Takes precedence over the static `slots` array when provided.
    */
   computeSlots?: (props: Record<string, unknown>) => SlotConfig[]
+}
+
+/**
+ * A named group of components shown as a collapsible palette section.
+ * Groups are displayed in array order, which makes the group order explicit.
+ * Use an empty string for `group` to create an ungrouped (default) section.
+ */
+export interface ComponentGroup {
+  /** Section heading shown in the palette (empty string → "自定义组件") */
+  group: string
+  /** Components belonging to this group */
+  components: ComponentConfig[]
 }
 
 /** One widget instance placed on the canvas */
