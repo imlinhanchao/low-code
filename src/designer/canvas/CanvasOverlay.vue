@@ -64,11 +64,17 @@ function getRect(id: string | null): Rect | null {
   if (!id || !canvasEl.value) return null
   const el = canvasEl.value.querySelector(`[data-lc-id="${id}"]`) as HTMLElement | null
   if (!el) return null
-  // display:contents elements have no box — measure the first child instead
-  const cs = window.getComputedStyle(el)
-  const target = cs.display === 'contents'
-    ? (el.firstElementChild as HTMLElement | null)
-    : el
+  // display:contents elements have no box.
+  // Some components (e.g. ElTooltip via ElOnlyChild) render their slot child
+  // directly without a wrapper, so the firstElementChild may also be
+  // display:contents.  Walk down the chain until we reach a boxed element.
+  // A depth limit guards against malformed/circular DOM structures.
+  let target: HTMLElement | null = el
+  let depth = 0
+  while (target && depth < 10 && window.getComputedStyle(target).display === 'contents') {
+    target = target.firstElementChild as HTMLElement | null
+    depth++
+  }
   if (!target) return null
   const er = target.getBoundingClientRect()
   const cr = canvasEl.value.getBoundingClientRect()
