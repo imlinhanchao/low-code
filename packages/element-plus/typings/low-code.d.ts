@@ -31,12 +31,23 @@ declare module 'low-code' {
     dialog?: DefineComponent<any, any, any> | Component
   }
 
+  export interface ComponentProp {
+    type: any;
+    label?: string;
+    item?: ComponentProp; // For array types, defines the type of items
+    props?: Record<string, ComponentProp>; // For object types, defines the shape of the object
+    default?: any;
+    options?: any[];  // For enum types, defines the possible values
+    params?: EventParam[]; // For function types, defines the parameters of the function
+    dialog?: DefineComponent<any, any, any> | Component;
+  }
+
   export interface ComponentConfig {
     name: string
     icon?: string
     category?: 'layout' | 'widget'
     component: Component
-    props?: Record<string, unknown>
+    props?: Record<string, ComponentProp>
     models?: Record<string, unknown>
     events?: Record<string, EventParam[]>
     slots?: SlotConfig[]
