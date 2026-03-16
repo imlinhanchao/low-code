@@ -320,6 +320,16 @@
   cursor: default;
   user-select: all;
 }
+.lc-prop-input--error {
+  border-color: #f56c6c;
+  box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.12);
+}
+.lc-prop-error {
+  font-size: 11px;
+  color: #f56c6c;
+  padding: 2px 14px 4px;
+  line-height: 1.4;
+}
 .lc-model-row {
   padding: 4px 14px;
   border-bottom: 1px solid #f2f3f7;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Component } from 'vue'
-import type { ComponentConfig, EventParam, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
+import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
+import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import { draggingConfig } from '../useDragState'
@@ -24,10 +24,50 @@ const activeTab = ref<'props' | 'global'>('props')
 // Switch to properties tab when a new widget is selected
 watch(() => props.widget, (w) => {
   if (w) activeTab.value = 'props'
+  idError.value = ''
 })
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
 const addWidget = inject<(parentId: string | null, slotName: string | null, cfg: ComponentConfig) => void>('lc:addWidget')
+const schema = inject<Ref<FormSchema>>('lc:schema')
+
+// ── Widget ID editing ─────────────────────────────────────────────────────────
+
+const idError = ref('')
+
+function collectWidgetIds(widgets: WidgetSchema[]): Set<string> {
+  const ids = new Set<string>()
+  for (const w of widgets) {
+    ids.add(w.id)
+    for (const children of Object.values(w.slots)) {
+      for (const id of collectWidgetIds(children)) ids.add(id)
+    }
+  }
+  return ids
+}
+
+const allWidgetIds = computed<Set<string>>(() =>
+  collectWidgetIds(schema?.value?.widgets ?? []),
+)
+
+function handleIdChange(newId: string) {
+  if (!props.widget) return
+  const trimmed = newId.trim()
+  if (!trimmed) {
+    idError.value = 'ID 不能为空'
+    return
+  }
+  if (trimmed === props.widget.id) {
+    idError.value = ''
+    return
+  }
+  if (allWidgetIds.value.has(trimmed)) {
+    idError.value = `ID "${trimmed}" 已被占用`
+    return
+  }
+  idError.value = ''
+  emit('update:widget', { ...props.widget, id: trimmed })
+}
 
 function updateModelField(modelKey: string, fieldName: string) {
   if (!props.widget) return
@@ -340,12 +380,15 @@ function isObjectPropSet(key: string): boolean {
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="id">组件ID</label>
         <input
-          class="lc-prop-input lc-prop-input--readonly"
+          class="lc-prop-input"
+          :class="{ 'lc-prop-input--error': idError }"
           :value="widget.id"
-          readonly
           title="在事件/全局方法中通过 $getRefs(id) 访问此组件实例"
+          @change="handleIdChange(($event.target as HTMLInputElement).value)"
+          @input="idError = ''"
         />
       </div>
+      <div v-if="idError" class="lc-prop-error">{{ idError }}</div>
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="class">CSS类名</label>
         <input

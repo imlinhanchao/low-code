@@ -173,8 +173,17 @@ function selectWidget(widgetId: string | null): void {
 }
 
 function updateWidget(updated: WidgetSchema): void {
+  // Use selectedId as the "find" key so that ID renames work correctly:
+  // if the user changed widget.id, the tree still holds the old id.
+  // If there is no current selection, there is nothing to update.
+  if (!selectedId.value) return
+  const oldId = selectedId.value
   schema.value = {
-    widgets: updateInTree(schema.value.widgets, updated.id, () => updated),
+    widgets: updateInTree(schema.value.widgets, oldId, () => updated),
+  }
+  // Keep the selection pointing to the (possibly renamed) widget
+  if (oldId !== updated.id) {
+    selectedId.value = updated.id
   }
 }
 
