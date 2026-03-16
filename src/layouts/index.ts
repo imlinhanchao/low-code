@@ -6,6 +6,8 @@ import TableLayout from './TableLayout.vue'
 import StaticText from './StaticText.vue'
 import HtmlBlock from './HtmlBlock.vue'
 
+const HTML_PROP = { type: String, label: 'HTML 内容', default: '', multiline: true }
+
 export const builtinLayouts: ComponentConfig[] = [
   {
     name: '栅格布局',
@@ -65,15 +67,15 @@ export const builtinLayouts: ComponentConfig[] = [
     category: 'layout',
     icon: 'mdi:format-text',
     component: StaticText,
-    props: { content: '静态文本' },
-    slots: [],
+    props: { html: { ...HTML_PROP, default: '静态文本', label: 'HTML 内容' } },
+    slots: [{ name: 'default', label: '内容' }],
   },
   {
     name: 'HTML 块',
     category: 'layout',
     icon: 'mdi:language-html5',
     component: HtmlBlock,
-    props: { html: '<p>自定义 HTML 内容</p>' },
-    slots: [],
+    props: { html: { ...HTML_PROP, default: '<p>自定义 HTML 内容</p>', label: 'HTML 内容' } },
+    slots: [{ name: 'default', label: '内容' }],
   },
 ]

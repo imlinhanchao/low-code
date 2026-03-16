@@ -235,7 +235,7 @@ const configEvents = computed(() => Object.entries(props.config?.events ?? {}))
 
 // ── Type helpers for template use ────────────────────────────────────────────
 
-function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'string' {
+function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'multiline' | 'string' {
   if (!isPropConfig(v)) return 'string'
   const cfg = v as PropConfig
   if (cfg.type === Boolean) return 'boolean'
@@ -243,6 +243,7 @@ function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'o
   if (cfg.type === Object) return 'object'
   if (cfg.type === Number) return 'number'
   if (cfg.options?.length) return 'select'
+  if (cfg.multiline) return 'multiline'
   return 'string'
 }
 
@@ -460,6 +461,15 @@ function isObjectPropSet(key: string): boolean {
             type="number"
             :value="widget.props[key] ?? ''"
             @input="updateProp(key, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+          />
+
+          <!-- Multiline string (e.g. HTML content) -->
+          <textarea
+            v-else-if="propKind(cfgVal) === 'multiline'"
+            class="lc-prop-input lc-prop-textarea"
+            :value="valueToString(widget.props[key])"
+            rows="4"
+            @input="updateProp(key, ($event.target as HTMLTextAreaElement).value)"
           />
 
           <!-- String / plain text (default) -->

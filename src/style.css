@@ -310,6 +310,13 @@
   background: #fff;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
+.lc-prop-textarea {
+  height: auto;
+  padding: 4px 8px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
+}
 .lc-prop-input:focus {
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.12);

@@ -44,8 +44,9 @@ export interface PropConfig {
   options?: string[]
   /** For Function-type props: named parameters */
   params?: EventParam[]
+  /** If true, renders a multiline textarea in the designer instead of a single-line input */
+  multiline?: boolean
   /**
-   * For Object-type props: an optional Vue component used to edit the value.
    * The component must accept a `modelValue` prop (the current JSON value) and
    * emit `update:modelValue` with the new value.  It is rendered inside the
    * standard prop-editor dialog.
