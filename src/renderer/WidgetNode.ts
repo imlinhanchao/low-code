@@ -3,21 +3,33 @@ import type { ComponentConfig, WidgetSchema } from '../types'
 import { isPropConfig } from '../types'
 
 /**
- * Evaluate a prop value that may reference the built-in `$model` variable.
+ * Evaluate a prop value that may reference the built-in `$model` or `$scope`
+ * variables.
  *
  * Supported patterns:
  *   '$model'       → the entire form-data object
  *   '$model.key'   → formData[key]  (own property only)
+ *   '$scope'       → the scoped-slot props object passed by the parent slot
+ *   '$scope.key'   → scope[key]  (own property only)
  *
  * All other values are returned unchanged.
  */
-function evalProp(value: unknown, formData: Record<string, unknown>): unknown {
+function evalProp(
+  value: unknown,
+  formData: Record<string, unknown>,
+  scope: Record<string, unknown>,
+): unknown {
   if (typeof value !== 'string') return value
   const trimmed = value.trim()
   if (trimmed === '$model') return formData
   if (trimmed.startsWith('$model.')) {
     const key = trimmed.slice(7)
     return Object.hasOwn(formData, key) ? formData[key] : undefined
+  }
+  if (trimmed === '$scope') return scope
+  if (trimmed.startsWith('$scope.')) {
+    const key = trimmed.slice(7)
+    return Object.hasOwn(scope, key) ? scope[key] : undefined
   }
   return value
 }
@@ -35,6 +47,15 @@ const LcWidgetNode = defineComponent({
       type: Object as PropType<WidgetSchema>,
       required: true,
     },
+    /**
+     * Scoped-slot props passed by the parent slot.
+     * Accessible as `$scope` in widget prop expressions, event handlers,
+     * and Function-typed props.
+     */
+    scope: {
+      type: Object as PropType<Record<string, unknown>>,
+      default: () => ({}),
+    },
   },
 
   setup(props) {
@@ -48,11 +69,12 @@ const LcWidgetNode = defineComponent({
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const formData = getFormData()
+      const scope = props.scope as Record<string, unknown>
 
-      // Start with static props, evaluating any $model expressions
+      // Start with static props, evaluating any $model/$scope expressions
       const result: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(props.widget.props)) {
-        result[key] = evalProp(value, formData)
+        result[key] = evalProp(value, formData, scope)
       }
 
       for (const key of Object.keys(props.widget.models)) {
@@ -76,13 +98,13 @@ const LcWidgetNode = defineComponent({
         const handlerKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
         const paramNames = config.events?.[eventName]?.map((p) => p.name) ?? []
         try {
-          // Compile handler with $model and $getRefs injected as named parameters.
-          // The handler is wrapped so $model always reflects the current formData
-          // at the time the event fires rather than when the handler was compiled.
+          // Compile handler with $model, $getRefs and $scope injected as named
+          // parameters. $model and $scope always reflect their current values at
+          // the time the event fires rather than when the handler was compiled.
           // $getRefs allows handlers to access component instances by widget id.
           // eslint-disable-next-line no-new-func
-          const compiled = new Function('$model', '$getRefs', ...paramNames, code)
-          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getRefs, ...args)
+          const compiled = new Function('$model', '$getRefs', '$scope', ...paramNames, code)
+          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getRefs, scope, ...args)
         } catch (err) {
           if (import.meta.env?.DEV) {
             console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
@@ -97,11 +119,12 @@ const LcWidgetNode = defineComponent({
         if (typeof code === 'string' && code.trim()) {
           const paramNames = propCfg.params?.map((p) => p.name) ?? []
           try {
-            // Inject $model and $getRefs as named parameters so Function-typed props
-            // (e.g. validator callbacks) can reference form data and component refs.
+            // Inject $model, $getRefs and $scope as named parameters so
+            // Function-typed props (e.g. validator callbacks) can reference
+            // form data, component refs and scoped-slot data.
             // eslint-disable-next-line no-new-func
-            const compiled = new Function('$model', '$getRefs', ...paramNames, code)
-            result[key] = (...args: unknown[]) => compiled(getFormData(), getRefs, ...args)
+            const compiled = new Function('$model', '$getRefs', '$scope', ...paramNames, code)
+            result[key] = (...args: unknown[]) => compiled(getFormData(), getRefs, scope, ...args)
           } catch (err) {
             if (import.meta.env?.DEV) {
               console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)
@@ -122,8 +145,11 @@ const LcWidgetNode = defineComponent({
         return h('div', { class: 'lc-missing-widget' }, `?? ${props.widget.name}`)
       }
 
-      // Build slot functions from stored children
-      const slotFns: Record<string, () => VNode | VNode[] | string> = {}
+      // Build slot functions from stored children.
+      // Each slot function receives the scoped-slot props emitted by the parent
+      // component and forwards them to child LcWidgetNode instances as `scope`,
+      // making them available via the `$scope` variable in prop expressions.
+      const slotFns: Record<string, (slotProps?: Record<string, unknown>) => VNode | VNode[] | string> = {}
 
       // Identify virtual slots (e.g. ElOption inside ElSelect) — their children
       // must be rendered as raw component vnodes so Vue's provide/inject chain
@@ -151,8 +177,8 @@ const LcWidgetNode = defineComponent({
               })
               .filter(Boolean) as VNode[]
         } else {
-          slotFns[slotName] = () =>
-            capturedChildren.map((c) => h(LcWidgetNode, { widget: c, key: c.id }))
+          slotFns[slotName] = (slotProps: Record<string, unknown> = {}) =>
+            capturedChildren.map((c) => h(LcWidgetNode, { widget: c, key: c.id, scope: slotProps }))
         }
       }
 

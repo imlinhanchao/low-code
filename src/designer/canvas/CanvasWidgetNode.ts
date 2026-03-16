@@ -190,6 +190,11 @@ export const LcCanvasWidgetNode = defineComponent({
     slotIndex: { type: Number, default: -1 },
     /** Total number of children in the slot — supplied when virtual=true */
     slotTotal: { type: Number, default: 0 },
+    /**
+     * Scoped-slot props passed by the parent slot.
+     * Accessible as `$scope` in widget prop expressions in the canvas preview.
+     */
+    scope: { type: Object as PropType<Record<string, unknown>>, default: () => ({}) },
   },
 
   setup(props) {
@@ -313,7 +318,9 @@ export const LcCanvasWidgetNode = defineComponent({
       // ── Build slot functions ────────────────────────────────────────────
       // Slot management (drag-drop, reorder) is handled entirely via the overlay
       // slots panel (below the component) and the properties sidebar — NOT inline.
-      const slotFns: Record<string, () => VNode | VNode[] | string> = {}
+      // Each slot function receives scoped-slot props from the parent component
+      // and passes them to child LcCanvasWidgetNode instances as `scope`.
+      const slotFns: Record<string, (slotProps?: Record<string, unknown>) => VNode | VNode[] | string> = {}
 
       for (const slotCfg of normalSlots) {
         const sn = slotCfg.name
@@ -336,10 +343,9 @@ export const LcCanvasWidgetNode = defineComponent({
         } else if (children.length > 0) {
           // Render children WYSIWYG, without an interactive drop zone wrapper.
           // Dropping is done via the overlay panel, not inside the component.
-          const childNodes = children.map((c) =>
-            h(LcCanvasWidgetNode, { key: c.id, widget: c }),
-          )
-          slotFns[sn] = () => childNodes
+          // Scoped-slot props (slotProps) are forwarded to children as `scope`.
+          slotFns[sn] = (slotProps: Record<string, unknown> = {}) =>
+            children.map((c) => h(LcCanvasWidgetNode, { key: c.id, widget: c, scope: slotProps }))
         } else if (isLayout && !slotCfg.noPlaceholder) {
           // For layout components (grid/card/tabs), show a static visual
           // placeholder so the empty slot cells remain visible. No drop events.
@@ -378,14 +384,25 @@ export const LcCanvasWidgetNode = defineComponent({
 
       // Component props (no pointer-events suppression — we want real WYSIWYG)
       // In the canvas, $model evaluates to {} since no form data is available.
-      // A single empty object is shared across all $model references for consistency.
+      // $scope evaluates to the scoped-slot props passed by the parent slot
+      // (or {} when the widget is at the root level).
       const canvasModel: Record<string, unknown> = {}
+      const canvasScope = props.scope as Record<string, unknown>
       const compProps: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(props.widget.props)) {
         if (typeof value === 'string') {
           const trimmed = value.trim()
           if (trimmed === '$model' || trimmed.startsWith('$model.')) {
             compProps[key] = canvasModel
+            continue
+          }
+          if (trimmed === '$scope') {
+            compProps[key] = canvasScope
+            continue
+          }
+          if (trimmed.startsWith('$scope.')) {
+            const scopeKey = trimmed.slice(7)
+            compProps[key] = Object.hasOwn(canvasScope, scopeKey) ? canvasScope[scopeKey] : undefined
             continue
           }
         }
