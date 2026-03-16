@@ -53,6 +53,18 @@ export interface PropConfig {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dialog?: DefineComponent<any, any, any> | Component
+  /**
+   * For Array type: describes the schema of each array item.
+   * When present the designer shows an inline collapsible list with add/delete buttons.
+   * When absent the array is edited as raw JSON.
+   */
+  item?: PropConfig
+  /**
+   * For Object type: named sub-properties shown as an inline collapsible editor.
+   * When present the designer renders each sub-prop with its own type-aware UI.
+   * When absent (and no `dialog`) the object is edited as raw JSON.
+   */
+  props?: Record<string, PropConfig>
 }
 
 /** Returns true when a ComponentConfig.props value is a PropConfig descriptor */

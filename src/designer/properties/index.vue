@@ -235,12 +235,18 @@ const configEvents = computed(() => Object.entries(props.config?.events ?? {}))
 
 // ── Type helpers for template use ────────────────────────────────────────────
 
-function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'multiline' | 'string' {
+function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'object-sub' | 'object-json' | 'array-items' | 'array-json' | 'multiline' | 'string' {
   if (!isPropConfig(v)) return 'string'
   const cfg = v as PropConfig
   if (cfg.type === Boolean) return 'boolean'
   if (cfg.type === Function) return 'function'
-  if (cfg.type === Object) return 'object'
+  if (cfg.type === Object) {
+    if (cfg.dialog) return 'object'
+    return cfg.props ? 'object-sub' : 'object-json'
+  }
+  if (cfg.type === Array) {
+    return cfg.item ? 'array-items' : 'array-json'
+  }
   if (cfg.type === Number) return 'number'
   if (cfg.options?.length) return 'select'
   if (cfg.multiline) return 'multiline'
@@ -353,6 +359,143 @@ function isObjectPropSet(key: string): boolean {
   const v = props.widget?.props[key]
   return v != null && (typeof v !== 'object' || Object.keys(v as object).length > 0)
 }
+
+// ── JSON editor dialog (for Object/Array props without schema) ─────────────────
+
+interface JsonDialogState {
+  title: string
+  text: string
+  fullscreen: boolean
+  onApply: (value: unknown) => void
+  error: string
+}
+
+const jsonDialog = ref<JsonDialogState | null>(null)
+
+function openJsonPropDialog(key: string, cfg: PropConfig) {
+  const current = props.widget?.props[key] ?? cfg.default ?? (cfg.type === Array ? [] : {})
+  jsonDialog.value = {
+    title: `编辑: ${cfg.label ?? key}`,
+    text: JSON.stringify(current, null, 2),
+    fullscreen: false,
+    onApply: (value) => updateProp(key, value),
+    error: '',
+  }
+}
+
+function openArrayItemJsonDialog(key: string, idx: number, item: unknown) {
+  jsonDialog.value = {
+    title: `编辑项目 ${idx + 1}`,
+    text: JSON.stringify(item ?? {}, null, 2),
+    fullscreen: false,
+    onApply: (value) => updateArrayItem(key, idx, value),
+    error: '',
+  }
+}
+
+function applyJsonDialog() {
+  if (!jsonDialog.value) return
+  try {
+    const value = JSON.parse(jsonDialog.value.text)
+    jsonDialog.value.onApply(value)
+    jsonDialog.value = null
+  } catch (e) {
+    jsonDialog.value.error = `无效的 JSON 格式: ${(e as Error).message}`
+  }
+}
+
+function closeJsonDialog() {
+  jsonDialog.value = null
+}
+
+function isComplexPropSet(key: string): boolean {
+  const v = props.widget?.props[key]
+  if (v == null) return false
+  if (Array.isArray(v)) return v.length > 0
+  if (typeof v === 'object') return Object.keys(v as object).length > 0
+  return false
+}
+
+// ── Object sub-prop helpers ───────────────────────────────────────────────────
+
+function getSubPropValue(key: string, subKey: string): unknown {
+  const obj = props.widget?.props[key]
+  if (obj != null && typeof obj === 'object' && !Array.isArray(obj)) {
+    return (obj as Record<string, unknown>)[subKey]
+  }
+  return undefined
+}
+
+function updateSubProp(key: string, subKey: string, value: unknown) {
+  const current = (props.widget?.props[key] as Record<string, unknown>) ?? {}
+  const updated = { ...current }
+  if (value === undefined || value === '') {
+    delete updated[subKey]
+  } else {
+    updated[subKey] = value
+  }
+  updateProp(key, updated)
+}
+
+// ── Array item helpers ────────────────────────────────────────────────────────
+
+function getArrayItems(key: string): unknown[] {
+  const v = props.widget?.props[key]
+  return Array.isArray(v) ? v : []
+}
+
+function addArrayItem(key: string, cfg: PropConfig) {
+  const items = [...getArrayItems(key)]
+  const itemCfg = cfg.item
+  if (!itemCfg || itemCfg.type === Object) {
+    const defaultItem: Record<string, unknown> = {}
+    if (itemCfg?.props) {
+      for (const [k, v] of Object.entries(itemCfg.props)) {
+        if (v.default !== undefined) defaultItem[k] = v.default
+      }
+    }
+    items.push(defaultItem)
+  } else if (itemCfg.type === Boolean) {
+    items.push(false)
+  } else if (itemCfg.type === Number) {
+    items.push(itemCfg.default ?? 0)
+  } else {
+    items.push(itemCfg.default ?? '')
+  }
+  updateProp(key, items)
+}
+
+function removeArrayItem(key: string, idx: number) {
+  const items = [...getArrayItems(key)]
+  items.splice(idx, 1)
+  updateProp(key, items)
+}
+
+function updateArrayItem(key: string, idx: number, value: unknown) {
+  const items = [...getArrayItems(key)]
+  items[idx] = value
+  updateProp(key, items)
+}
+
+function updateArrayItemField(key: string, idx: number, fieldKey: string, value: unknown) {
+  const items = [...getArrayItems(key)]
+  const item =
+    typeof items[idx] === 'object' && items[idx] !== null
+      ? { ...(items[idx] as Record<string, unknown>) }
+      : {}
+  if (value === undefined || value === '') {
+    delete item[fieldKey]
+  } else {
+    item[fieldKey] = value
+  }
+  items[idx] = item
+  updateProp(key, items)
+}
+
+/** Safely casts an unknown value to a Record for use in template expressions */
+function asRecord(v: unknown): Record<string, unknown> {
+  return (typeof v === 'object' && v !== null ? v : {}) as Record<string, unknown>
+}
 </script>
 
 <template>
@@ -403,83 +546,242 @@ function isObjectPropSet(key: string): boolean {
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">
         <div class="lc-properties-group-label">属性</div>
-        <div
+        <template
           v-for="[key, cfgVal] in configPropEntries"
           :key="'prop-' + key"
-          class="lc-prop-row"
         >
-          <label class="lc-prop-label" :title="key">{{ propLabel(key, cfgVal) }}</label>
+          <!-- Object with sub-props: collapsible inline editor -->
+          <details v-if="propKind(cfgVal) === 'object-sub'" class="lc-prop-block-group">
+            <summary class="lc-prop-block-header">
+              <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
+            </summary>
+            <div class="lc-prop-block-body">
+              <div
+                v-for="[sk, sv] in Object.entries((cfgVal as PropConfig).props!)"
+                :key="sk"
+                class="lc-prop-row"
+              >
+                <label class="lc-prop-label lc-prop-label--sub" :title="sk">{{ propLabel(sk, sv) }}</label>
+                <label v-if="propKind(sv) === 'boolean'" class="lc-prop-checkbox-wrap">
+                  <input
+                    type="checkbox"
+                    :checked="!!getSubPropValue(key, sk)"
+                    @change="updateSubProp(key, sk, ($event.target as HTMLInputElement).checked)"
+                  />
+                </label>
+                <select
+                  v-else-if="propKind(sv) === 'select'"
+                  class="lc-prop-input"
+                  :value="valueToString(getSubPropValue(key, sk))"
+                  @change="updateSubProp(key, sk, ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="">-- 请选择 --</option>
+                  <option v-for="opt in propOptions(sv)" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+                <input
+                  v-else-if="propKind(sv) === 'number'"
+                  class="lc-prop-input"
+                  type="number"
+                  :value="getSubPropValue(key, sk) ?? ''"
+                  @input="updateSubProp(key, sk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+                />
+                <textarea
+                  v-else-if="propKind(sv) === 'multiline'"
+                  class="lc-prop-input lc-prop-textarea"
+                  :value="valueToString(getSubPropValue(key, sk))"
+                  rows="3"
+                  @input="updateSubProp(key, sk, ($event.target as HTMLTextAreaElement).value)"
+                />
+                <input
+                  v-else
+                  class="lc-prop-input"
+                  :value="valueToString(getSubPropValue(key, sk))"
+                  @input="updateSubProp(key, sk, ($event.target as HTMLInputElement).value)"
+                />
+              </div>
+            </div>
+          </details>
 
-          <!-- Boolean checkbox -->
-          <label v-if="propKind(cfgVal) === 'boolean'" class="lc-prop-checkbox-wrap">
+          <!-- Array with item type: collapsible list of items -->
+          <details v-else-if="propKind(cfgVal) === 'array-items'" class="lc-prop-block-group">
+            <summary class="lc-prop-block-header">
+              <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
+              <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as PropConfig)">＋</button>
+            </summary>
+            <div class="lc-prop-block-body">
+              <div v-if="!getArrayItems(key).length" class="lc-arr-empty">暂无项目</div>
+              <div
+                v-for="(arrItem, idx) in getArrayItems(key)"
+                :key="idx"
+                class="lc-arr-item"
+              >
+                <!-- Primitive item (Boolean / Number / String) -->
+                <template v-if="(cfgVal as PropConfig).item!.type !== Object">
+                  <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
+                  <label v-if="(cfgVal as PropConfig).item!.type === Boolean" class="lc-prop-checkbox-wrap">
+                    <input
+                      type="checkbox"
+                      :checked="!!arrItem"
+                      @change="updateArrayItem(key, idx, ($event.target as HTMLInputElement).checked)"
+                    />
+                  </label>
+                  <input
+                    v-else-if="(cfgVal as PropConfig).item!.type === Number"
+                    class="lc-prop-input"
+                    type="number"
+                    :value="(arrItem as number) ?? ''"
+                    @input="updateArrayItem(key, idx, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+                  />
+                  <input
+                    v-else
+                    class="lc-prop-input"
+                    :value="valueToString(arrItem)"
+                    @input="updateArrayItem(key, idx, ($event.target as HTMLInputElement).value)"
+                  />
+                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                </template>
+
+                <!-- Object item with sub-props: inline sub-fields -->
+                <template v-else-if="(cfgVal as PropConfig).item!.props">
+                  <div class="lc-arr-item-header">
+                    <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
+                    <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                  </div>
+                  <div
+                    v-for="[fk, fv] in Object.entries((cfgVal as PropConfig).item!.props!)"
+                    :key="fk"
+                    class="lc-prop-row"
+                  >
+                    <label class="lc-prop-label lc-prop-label--sub" :title="fk">{{ propLabel(fk, fv) }}</label>
+                    <label v-if="propKind(fv) === 'boolean'" class="lc-prop-checkbox-wrap">
+                      <input
+                        type="checkbox"
+                        :checked="!!asRecord(arrItem)[fk]"
+                        @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).checked)"
+                      />
+                    </label>
+                    <select
+                      v-else-if="propKind(fv) === 'select'"
+                      class="lc-prop-input"
+                      :value="valueToString(asRecord(arrItem)[fk])"
+                      @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option value="">-- 请选择 --</option>
+                      <option v-for="opt in propOptions(fv)" :key="opt" :value="opt">{{ opt }}</option>
+                    </select>
+                    <input
+                      v-else-if="propKind(fv) === 'number'"
+                      class="lc-prop-input"
+                      type="number"
+                      :value="asRecord(arrItem)[fk] ?? ''"
+                      @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+                    />
+                    <input
+                      v-else
+                      class="lc-prop-input"
+                      :value="valueToString(asRecord(arrItem)[fk])"
+                      @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value)"
+                    />
+                  </div>
+                </template>
+
+                <!-- Object item without props: JSON edit button -->
+                <template v-else>
+                  <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
+                  <button class="lc-fn-btn lc-fn-btn--set" @click="openArrayItemJsonDialog(key, idx, arrItem)">编辑 JSON</button>
+                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                </template>
+              </div>
+            </div>
+          </details>
+
+          <!-- Normal prop row for all other types (boolean, select, function, object, number, multiline, string, object-json, array-json) -->
+          <div v-else class="lc-prop-row">
+            <label class="lc-prop-label" :title="key">{{ propLabel(key, cfgVal) }}</label>
+
+            <!-- Boolean checkbox -->
+            <label v-if="propKind(cfgVal) === 'boolean'" class="lc-prop-checkbox-wrap">
+              <input
+                type="checkbox"
+                :checked="!!widget.props[key]"
+                @change="updateProp(key, ($event.target as HTMLInputElement).checked)"
+              />
+            </label>
+
+            <!-- Enum select -->
+            <select
+              v-else-if="propKind(cfgVal) === 'select'"
+              class="lc-prop-input"
+              :value="valueToString(widget.props[key])"
+              @change="updateProp(key, ($event.target as HTMLSelectElement).value)"
+            >
+              <option value="">-- 请选择 --</option>
+              <option v-for="opt in propOptions(cfgVal)" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
+
+            <!-- Function prop button -->
+            <template v-else-if="propKind(cfgVal) === 'function'">
+              <button
+                class="lc-fn-btn"
+                :class="{ 'lc-fn-btn--set': isFnPropSet(key) }"
+                @click="openFunctionPropDialog(key, cfgVal)"
+              >
+                <span v-if="isFnPropSet(key)" class="lc-fn-dot" />
+                编辑函数
+              </button>
+            </template>
+
+            <!-- Object prop button (opens custom dialog component) -->
+            <template v-else-if="propKind(cfgVal) === 'object'">
+              <button
+                class="lc-fn-btn"
+                :class="{ 'lc-fn-btn--set': isObjectPropSet(key) }"
+                @click="openObjectPropDialog(key, cfgVal)"
+              >
+                <span v-if="isObjectPropSet(key)" class="lc-fn-dot" />
+                {{ isObjectPropSet(key) ? '已设置' : '设置' }}
+              </button>
+            </template>
+
+            <!-- Object/Array without schema: JSON edit button -->
+            <template v-else-if="propKind(cfgVal) === 'object-json' || propKind(cfgVal) === 'array-json'">
+              <button
+                class="lc-fn-btn"
+                :class="{ 'lc-fn-btn--set': isComplexPropSet(key) }"
+                @click="openJsonPropDialog(key, cfgVal as PropConfig)"
+              >
+                <span v-if="isComplexPropSet(key)" class="lc-fn-dot" />
+                {{ isComplexPropSet(key) ? '已设置' : '编辑 JSON' }}
+              </button>
+            </template>
+
+            <!-- Number input -->
             <input
-              type="checkbox"
-              :checked="!!widget.props[key]"
-              @change="updateProp(key, ($event.target as HTMLInputElement).checked)"
+              v-else-if="propKind(cfgVal) === 'number'"
+              class="lc-prop-input"
+              type="number"
+              :value="widget.props[key] ?? ''"
+              @input="updateProp(key, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
             />
-          </label>
 
-          <!-- Enum select -->
-          <select
-            v-else-if="propKind(cfgVal) === 'select'"
-            class="lc-prop-input"
-            :value="valueToString(widget.props[key])"
-            @change="updateProp(key, ($event.target as HTMLSelectElement).value)"
-          >
-            <option value="">-- 请选择 --</option>
-            <option v-for="opt in propOptions(cfgVal)" :key="opt" :value="opt">{{ opt }}</option>
-          </select>
+            <!-- Multiline string (e.g. HTML content) -->
+            <textarea
+              v-else-if="propKind(cfgVal) === 'multiline'"
+              class="lc-prop-input lc-prop-textarea"
+              :value="valueToString(widget.props[key])"
+              rows="4"
+              @input="updateProp(key, ($event.target as HTMLTextAreaElement).value)"
+            />
 
-          <!-- Function prop button -->
-          <template v-else-if="propKind(cfgVal) === 'function'">
-            <button
-              class="lc-fn-btn"
-              :class="{ 'lc-fn-btn--set': isFnPropSet(key) }"
-              @click="openFunctionPropDialog(key, cfgVal)"
-            >
-              <span v-if="isFnPropSet(key)" class="lc-fn-dot" />
-              编辑函数
-            </button>
-          </template>
-
-          <!-- Object prop button (opens custom dialog component) -->
-          <template v-else-if="propKind(cfgVal) === 'object'">
-            <button
-              class="lc-fn-btn"
-              :class="{ 'lc-fn-btn--set': isObjectPropSet(key) }"
-              @click="openObjectPropDialog(key, cfgVal)"
-            >
-              <span v-if="isObjectPropSet(key)" class="lc-fn-dot" />
-              {{ isObjectPropSet(key) ? '已设置' : '设置' }}
-            </button>
-          </template>
-
-          <!-- Number input -->
-          <input
-            v-else-if="propKind(cfgVal) === 'number'"
-            class="lc-prop-input"
-            type="number"
-            :value="widget.props[key] ?? ''"
-            @input="updateProp(key, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-          />
-
-          <!-- Multiline string (e.g. HTML content) -->
-          <textarea
-            v-else-if="propKind(cfgVal) === 'multiline'"
-            class="lc-prop-input lc-prop-textarea"
-            :value="valueToString(widget.props[key])"
-            rows="4"
-            @input="updateProp(key, ($event.target as HTMLTextAreaElement).value)"
-          />
-
-          <!-- String / plain text (default) -->
-          <input
-            v-else
-            class="lc-prop-input"
-            :value="valueToString(widget.props[key])"
-            @input="updateProp(key, ($event.target as HTMLInputElement).value)"
-          />
-        </div>
+            <!-- String / plain text (default) -->
+            <input
+              v-else
+              class="lc-prop-input"
+              :value="valueToString(widget.props[key])"
+              @input="updateProp(key, ($event.target as HTMLInputElement).value)"
+            />
+          </div>
+        </template>
       </template>
 
       <!-- Models (v-model bindings) — each model has a field name + default value -->
@@ -679,6 +981,39 @@ function isObjectPropSet(key: string): boolean {
         <div class="lc-code-footer">
           <button class="lc-code-btn-primary" @click="applyObjectDialog">确 定</button>
           <button class="lc-code-btn" @click="closeObjectDialog">取 消</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- JSON editor dialog (for unstructured Object / Array props) -->
+  <Teleport to="body">
+    <div v-if="jsonDialog" class="lc-code-backdrop" @click.self="closeJsonDialog">
+      <div
+        class="lc-code-dialog"
+        :class="{ 'lc-code-dialog--fs': jsonDialog.fullscreen }"
+      >
+        <div class="lc-code-dialog-header">
+          <span class="lc-code-dialog-title">{{ jsonDialog.title }}</span>
+          <div class="lc-code-dialog-header-btns">
+            <button
+              class="lc-code-hdr-btn"
+              :title="jsonDialog.fullscreen ? '退出全屏' : '全屏编辑'"
+              @click="jsonDialog.fullscreen = !jsonDialog.fullscreen"
+            >{{ jsonDialog.fullscreen ? '⊠' : '⊡' }}</button>
+            <button class="lc-code-hdr-btn" title="关闭" @click="closeJsonDialog">✕</button>
+          </div>
+        </div>
+        <textarea
+          class="lc-code-editor"
+          placeholder='{"key": "value"}'
+          :value="jsonDialog.text"
+          @input="jsonDialog.text = ($event.target as HTMLTextAreaElement).value; jsonDialog.error = ''"
+        />
+        <div v-if="jsonDialog.error" class="lc-prop-error" style="padding: 4px 14px;">{{ jsonDialog.error }}</div>
+        <div class="lc-code-footer">
+          <button class="lc-code-btn-primary" @click="applyJsonDialog">确 定</button>
+          <button class="lc-code-btn" @click="closeJsonDialog">取 消</button>
         </div>
       </div>
     </div>

@@ -409,6 +409,116 @@
   flex-shrink: 0;
 }
 
+/* Collapsible prop group (Object with props / Array with item) */
+.lc-prop-block-group {
+  border-top: 1px solid #f2f3f7;
+  border-bottom: 1px solid #f2f3f7;
+  margin-bottom: 2px;
+}
+.lc-prop-block-header {
+  display: flex;
+  align-items: center;
+  padding: 5px 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  gap: 8px;
+}
+.lc-prop-block-header::-webkit-details-marker {
+  display: none;
+}
+.lc-prop-block-header::before {
+  content: '▶';
+  font-size: 9px;
+  color: #c0c4cc;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+details[open] > .lc-prop-block-header::before {
+  transform: rotate(90deg);
+}
+.lc-prop-block-header .lc-prop-label {
+  flex: 1;
+  text-align: left;
+}
+.lc-prop-block-body {
+  background: #fafbfc;
+  border-top: 1px solid #f2f3f7;
+  padding: 4px 0;
+}
+
+/* Array add / delete buttons */
+.lc-arr-add-btn {
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid #409eff;
+  border-radius: 4px;
+  background: #ecf5ff;
+  color: #409eff;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+.lc-arr-add-btn:hover {
+  background: #409eff;
+  color: #fff;
+}
+.lc-arr-del-btn {
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  border: 1px solid #fbc4c4;
+  border-radius: 4px;
+  background: #fef0f0;
+  color: #f56c6c;
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-arr-del-btn:hover {
+  background: #f56c6c;
+  color: #fff;
+  border-color: #f56c6c;
+}
+.lc-arr-empty {
+  font-size: 11px;
+  color: #c0c4cc;
+  padding: 4px 14px 6px;
+  font-style: italic;
+}
+.lc-arr-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 14px;
+  gap: 6px;
+  border-bottom: 1px solid #f2f3f7;
+}
+.lc-arr-item:last-child {
+  border-bottom: none;
+}
+.lc-arr-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 14px 2px;
+  gap: 6px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+}
+.lc-arr-item-idx {
+  font-size: 11px;
+  color: #909399;
+  flex-shrink: 0;
+  min-width: 16px;
+  text-align: right;
+}
+
 /* Slot children */
 .lc-slot-section {
   padding: 2px 14px 4px;
