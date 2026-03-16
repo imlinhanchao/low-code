@@ -314,6 +314,12 @@
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.12);
 }
+.lc-prop-input--readonly {
+  background: #f5f7fa;
+  color: #909399;
+  cursor: default;
+  user-select: all;
+}
 .lc-model-row {
   padding: 4px 14px;
   border-bottom: 1px solid #f2f3f7;

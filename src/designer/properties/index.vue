@@ -338,6 +338,15 @@ function isObjectPropSet(key: string): boolean {
       <!-- Common attributes (always available for every widget) -->
       <div class="lc-properties-group-label">公共</div>
       <div class="lc-prop-row">
+        <label class="lc-prop-label" title="id">组件ID</label>
+        <input
+          class="lc-prop-input lc-prop-input--readonly"
+          :value="widget.id"
+          readonly
+          title="在事件/全局方法中通过 $getRefs(id) 访问此组件实例"
+        />
+      </div>
+      <div class="lc-prop-row">
         <label class="lc-prop-label" title="class">CSS类名</label>
         <input
           class="lc-prop-input"

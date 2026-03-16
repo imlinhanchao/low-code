@@ -43,6 +43,8 @@ const LcWidgetNode = defineComponent({
       inject<() => Record<string, unknown>>('lc:getFormData')!
     const updateModel =
       inject<(fieldName: string, val: unknown) => void>('lc:updateModel')!
+    const widgetRefs = inject<Map<string, unknown>>('lc:widgetRefs')
+    const getRefs = inject<(id: string) => unknown>('lc:getRefs') ?? ((_id: string) => undefined)
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const formData = getFormData()
@@ -74,12 +76,13 @@ const LcWidgetNode = defineComponent({
         const handlerKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
         const paramNames = config.events?.[eventName]?.map((p) => p.name) ?? []
         try {
-          // Compile handler with $model injected as the first named parameter.
+          // Compile handler with $model and $getRefs injected as named parameters.
           // The handler is wrapped so $model always reflects the current formData
           // at the time the event fires rather than when the handler was compiled.
+          // $getRefs allows handlers to access component instances by widget id.
           // eslint-disable-next-line no-new-func
-          const compiled = new Function('$model', ...paramNames, code)
-          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), ...args)
+          const compiled = new Function('$model', '$getRefs', ...paramNames, code)
+          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getRefs, ...args)
         } catch (err) {
           if (import.meta.env?.DEV) {
             console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
@@ -94,11 +97,11 @@ const LcWidgetNode = defineComponent({
         if (typeof code === 'string' && code.trim()) {
           const paramNames = propCfg.params?.map((p) => p.name) ?? []
           try {
-            // Inject $model as the first named parameter so Function-typed props
-            // (e.g. validator callbacks) can reference the full form data.
+            // Inject $model and $getRefs as named parameters so Function-typed props
+            // (e.g. validator callbacks) can reference form data and component refs.
             // eslint-disable-next-line no-new-func
-            const compiled = new Function('$model', ...paramNames, code)
-            result[key] = (...args: unknown[]) => compiled(getFormData(), ...args)
+            const compiled = new Function('$model', '$getRefs', ...paramNames, code)
+            result[key] = (...args: unknown[]) => compiled(getFormData(), getRefs, ...args)
           } catch (err) {
             if (import.meta.env?.DEV) {
               console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)
@@ -159,9 +162,23 @@ const LcWidgetNode = defineComponent({
         slotFns['default'] = () => text
       }
 
+      // Build the component props, then add a callback ref that keeps the
+      // widgetRefs registry in sync with the component's mounted/unmounted state.
+      const builtProps = buildProps(config)
+      const widgetId = props.widget.id
+      if (widgetRefs) {
+        builtProps.ref = (el: unknown) => {
+          if (el != null) {
+            widgetRefs.set(widgetId, el)
+          } else {
+            widgetRefs.delete(widgetId)
+          }
+        }
+      }
+
       return h(
         config.component as Parameters<typeof h>[0],
-        buildProps(config),
+        builtProps,
         Object.keys(slotFns).length > 0 ? slotFns : undefined,
       )
     }

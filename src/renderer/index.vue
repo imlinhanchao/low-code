@@ -4,6 +4,12 @@ import type { ComponentConfig, ComponentGroup, FormSchema } from '../types'
 import { builtinLayouts } from '../layouts/index'
 import LcWidgetNode from './WidgetNode'
 
+/**
+ * Registry that maps widget id → the component's Vue ref (element or component instance).
+ * WidgetNode registers/unregisters each component here via callback refs.
+ */
+const widgetRefs = new Map<string, unknown>()
+
 const props = defineProps<{
   schema: FormSchema
   components: ComponentGroup[]
@@ -80,6 +86,11 @@ const LIFECYCLE_PARAMS: Record<string, string[]> = {
   onModelChange: ['fieldName', 'value', 'formData'],
 }
 
+/** Retrieve a component ref instance by widget id (used via $getRefs in user code) */
+function getRefs(id: string): unknown {
+  return widgetRefs.get(id)
+}
+
 function execGlobalFn(name: string, ...args: unknown[]) {
   const body = props.schema.global?.functions?.[name]
   if (!body?.trim()) return
@@ -100,12 +111,13 @@ function execGlobalFn(name: string, ...args: unknown[]) {
         }
       }
     }
-    // Inject helpers as named params followed by $model and lifecycle params.
+    // Inject helpers as named params followed by $model, $getRefs and lifecycle params.
     // $model gives global functions reactive access to the current form data.
+    // $getRefs allows global functions to access component instances by widget id.
     const paramNames = LIFECYCLE_PARAMS[name] ?? []
     // eslint-disable-next-line no-new-func
-    const fn = new Function(...helperNames, '$model', ...paramNames, body)
-    fn(...helperValues, formData.value, ...args)
+    const fn = new Function(...helperNames, '$model', '$getRefs', ...paramNames, body)
+    fn(...helperValues, formData.value, getRefs, ...args)
   } catch (e) {
     console.error(`[lc-renderer] ${name} error:`, e)
   }
@@ -130,6 +142,8 @@ function updateModel(fieldName: string, value: unknown) {
 provide('lc:getConfig', getConfig)
 provide('lc:getFormData', getFormData)
 provide('lc:updateModel', updateModel)
+provide('lc:widgetRefs', widgetRefs)
+provide('lc:getRefs', getRefs)
 </script>
 
 <template>
