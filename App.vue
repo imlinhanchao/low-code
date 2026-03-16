@@ -40,11 +40,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import 'element-plus/dist/index.css'
-import { LcDesigner, LcRenderer } from 'low-code'
+import { LcDesigner, LcRenderer, layoutComponents } from 'low-code'
 import type { FormSchema } from 'low-code'
 import componentList from '@low-code/element-plus'
 
-const components = componentList
+const components = [
+  {
+    group: '布局',
+    components: layoutComponents 
+  }, ...componentList
+]
 const mode = ref<'designer' | 'preview'>('designer')
 
 const schema = ref<FormSchema>({ widgets: [] })

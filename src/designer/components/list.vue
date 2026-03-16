@@ -4,7 +4,6 @@ import type { ComponentConfig, ComponentGroup } from '../../types'
 import PaletteItem from './item.vue'
 
 const props = defineProps<{
-  layouts: ComponentConfig[]
   groups: ComponentGroup[]
 }>()
 
@@ -22,7 +21,6 @@ const DEFAULT_GROUP_LABEL = '自定义组件'
 // "slot-only" child and should be displayed beneath its parent.
 const topLevelNames = computed<Set<string>>(() => {
   const names = new Set<string>()
-  for (const cfg of props.layouts) names.add(cfg.name)
   for (const grp of props.groups) {
     for (const cfg of grp.components) names.add(cfg.name)
   }
@@ -48,27 +46,6 @@ function getSlotChildren(cfg: ComponentConfig): ComponentConfig[] {
 <template>
   <div class="lc-palette">
     <div class="lc-palette-title">组件列表</div>
-
-    <!-- Built-in layout section (collapsible) -->
-    <div class="lc-palette-section">
-      <div class="lc-palette-section-label lc-palette-section-label--toggle" @click="toggle('\x00layouts')">
-        <span class="lc-palette-section-arrow" :class="{ 'is-collapsed': collapsed['\x00layouts'] }">▶</span>
-        布局组件
-      </div>
-      <div v-show="!collapsed['\x00layouts']" class="lc-palette-items">
-        <template v-for="cfg in layouts" :key="cfg.name">
-          <PaletteItem :config="cfg" :class="{ 'is-full': getSlotChildren(cfg).length > 0 }" />
-          <div v-if="getSlotChildren(cfg).length > 0" class="lc-palette-slot-children">
-            <PaletteItem
-              v-for="child in getSlotChildren(cfg)"
-              :key="child.name"
-              :config="child"
-              class="lc-palette-item--slot-child"
-            />
-          </div>
-        </template>
-      </div>
-    </div>
 
     <!-- User-configured component sections (one per group, all collapsible) -->
     <div v-for="(grp, idx) in groups" :key="idx" class="lc-palette-section">

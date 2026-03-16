@@ -5,7 +5,6 @@ import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
 import PropertiesPanel from './properties/index.vue'
-import { builtinLayouts } from '../layouts/index'
 
 // ── Props / emits ────────────────────────────────────────────────────────────
 const props = defineProps<{
@@ -33,7 +32,7 @@ const flatComponents = computed<ComponentConfig[]>(() =>
 
 // ── All configs: built-in layouts + user components + slot-specific components ─
 const allConfigs = computed<ComponentConfig[]>(() => {
-  const base = [...builtinLayouts, ...flatComponents.value]
+  const base = [...flatComponents.value]
   const known = new Set(base.map((c) => c.name))
   const extra: ComponentConfig[] = []
   for (const cfg of base) {
@@ -51,7 +50,7 @@ const allConfigs = computed<ComponentConfig[]>(() => {
 
 /** Components that only appear inside specific slots (e.g. ElOption inside ElSelect) */
 const slotOnlyComponents = computed<ComponentConfig[]>(() => {
-  const topNames = new Set([...builtinLayouts, ...flatComponents.value].map((c) => c.name))
+  const topNames = new Set([...flatComponents.value].map((c) => c.name))
   return allConfigs.value.filter((c) => !topNames.has(c.name))
 })
 
@@ -267,7 +266,7 @@ function updateGlobalConfig(global: GlobalConfig) {
 <template>
   <article class="lc-designer">
     <aside class="lc-designer-panel lc-panel-left">
-      <PaletteList :layouts="builtinLayouts" :groups="components" />
+      <PaletteList :groups="components" />
     </aside>
 
     <section class="lc-designer-canvas">

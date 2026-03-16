@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, provide, onMounted, onUnmounted, watch } from 'vue'
 import type { ComponentConfig, ComponentGroup, FormSchema } from '../types'
-import { builtinLayouts } from '../layouts/index'
+import { layoutComponents } from '../layouts/index'
 import LcWidgetNode from './WidgetNode'
 
 /**
@@ -31,7 +31,7 @@ const flatComponents = computed<ComponentConfig[]>(() =>
 
 /** All known configs: built-in layouts + user components + slot-specific components */
 const allConfigs = computed<ComponentConfig[]>(() => {
-  const base = [...builtinLayouts, ...flatComponents.value]
+  const base = [...layoutComponents, ...flatComponents.value]
   const known = new Set(base.map((c) => c.name))
   const extra: ComponentConfig[] = []
   for (const cfg of base) {
