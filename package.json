@@ -19,16 +19,15 @@
     "dist"
   ],
   "scripts": {
-    "play": "vite",
-    "dev": "tsdown --watch",
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite --host",
+    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitejs/plugin-vue-jsx": "^5.1.4",
     "element-plus": "^2.13.5",

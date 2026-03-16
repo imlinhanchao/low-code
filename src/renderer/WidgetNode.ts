@@ -81,7 +81,7 @@ const LcWidgetNode = defineComponent({
           const compiled = new Function('$model', ...paramNames, code)
           result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), ...args)
         } catch (err) {
-          if (import.meta.env.DEV) {
+          if (import.meta.env?.DEV) {
             console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
           }
         }
@@ -100,7 +100,7 @@ const LcWidgetNode = defineComponent({
             const compiled = new Function('$model', ...paramNames, code)
             result[key] = (...args: unknown[]) => compiled(getFormData(), ...args)
           } catch (err) {
-            if (import.meta.env.DEV) {
+            if (import.meta.env?.DEV) {
               console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)
             }
             delete result[key]

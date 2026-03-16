@@ -11,7 +11,4 @@ export default defineConfig({
       '@low-code/element-plus': fileURLToPath(new URL('./packages/element-plus/src/index.ts', import.meta.url)),
     },
   },
-  server: {
-    port: 3000
-  }
 })
