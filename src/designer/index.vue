@@ -159,7 +159,11 @@ function addWidget(
       })),
     }
   }
-  selectedId.value = widget.id
+  // Only switch selection to the new widget when it is NOT being added into
+  // the currently focused component's slot — keep the parent focused in that case.
+  if (parentId !== selectedId.value) {
+    selectedId.value = widget.id
+  }
 }
 
 function removeWidget(widgetId: string): void {
@@ -226,7 +230,11 @@ function moveWidget(
       })),
     }
   }
-  selectedId.value = widget.id
+  // Only switch selection to the moved widget when it is NOT being moved into
+  // the currently focused component's slot — keep the parent focused in that case.
+  if (newParentId !== selectedId.value) {
+    selectedId.value = widget.id
+  }
 }
 
 
