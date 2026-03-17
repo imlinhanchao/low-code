@@ -6,6 +6,8 @@ import { isPropConfig } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import { draggingConfig } from '../useDragState'
 
+const allConfigs = inject<Ref<ComponentConfig[]>>('lc:allConfigs')
+
 const props = defineProps<{
   widget: WidgetSchema | null
   config: ComponentConfig | null
@@ -186,6 +188,22 @@ function resetDrag() {
   dragFromIdx.value  = -1
   dragOverSlot.value = null
   dragOverIdx.value  = -1
+}
+
+/**
+ * Computes the display name for a slot child widget using the ComponentConfig.slotName
+ * field.  Falls back to `child.name` when slotName is not defined or returns a falsy value.
+ */
+function getSlotChildDisplayName(child: WidgetSchema): string {
+  const cfg = allConfigs?.value?.find((c) => c.name === child.name)
+  if (!cfg || cfg.slotName === undefined) return child.name
+  if (typeof cfg.slotName === 'function') {
+    try {
+      const result = cfg.slotName(child.props)
+      return (result != null && result !== '') ? String(result) : child.name
+    } catch { return child.name }
+  }
+  return cfg.slotName || child.name
 }
 
 // ── Slot section drag handlers (palette drops + cross-slot appends) ───────────
@@ -932,7 +950,7 @@ function asRecord(v: unknown): Record<string, unknown> {
             @dragend="resetDrag"
           >
             <span class="lc-slot-child-drag-handle" title="拖拽排序">⠿</span>
-            <span class="lc-slot-child-name">{{ child.name }}</span>
+            <span class="lc-slot-child-name">{{ getSlotChildDisplayName(child) }}</span>
             <button
               class="lc-slot-child-btn lc-slot-child-configure"
               title="组件设置"

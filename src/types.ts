@@ -105,6 +105,14 @@ export interface ComponentConfig {
    * Takes precedence over the static `slots` array when provided.
    */
   computeSlots?: (props: Record<string, unknown>) => SlotConfig[]
+  /**
+   * Display name used when this component appears as a slot child in the designer's
+   * slot panel.  Can be:
+   *  - a plain string (shown as-is), or
+   *  - a function that receives the component's current prop values and returns a string.
+   * Falls back to `name` when not provided.
+   */
+  slotName?: string | ((props: Record<string, unknown>) => string)
 }
 
 /**
