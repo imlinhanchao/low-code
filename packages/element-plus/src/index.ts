@@ -343,7 +343,7 @@ const components: ComponentGroup[] = [
           loadingText:     { type: String,   label: '加载中文字' },
           noMatchText:     { type: String,   label: '无匹配时文字' },
           noDataText:      { type: String,   label: '无数据时文字' },
-          multipleLimit:   { type: Number,   label: '多选上限 (0=不限)' },
+          multipleLimit:   { type: Number,   label: '多选上限' },
           effect:          { type: String,   label: 'tooltip 主题',     options: ['dark', 'light'] },
           options:         { type: Array,    label: '选项列表', item: { 
               type: Object, 
@@ -423,7 +423,12 @@ const components: ComponentGroup[] = [
           maxCollapseTagsTooltipHeight: { type: Number,  label: '折叠标签工具提示最大高度 (px)' },
           debounce:       { type: Number,  label: '防抖延迟 (ms)', default: 300 },
           filterMethod:   { type: Function, label: '自定义过滤方法', params: [{ name: 'node', type: Object }, { name: 'keyword', type: String }] },
-          options:        { type: Array, label: '选项数据' },
+          options:        { type: Array, label: '选项数据', item: { 
+              type: Object, 
+              label: '选项',
+              props: { value: { type: String, label: '选项值' }, label: { type: String, label: '选项标签' } }
+            } 
+          },
           props:          { type: Object, label: '配置选项' },
           beforeFilter:   { type: Function, label: '过滤前的钩子方法', params: [{ name: 'value', type: String }] },
           popperClass:    { type: String,  label: '下拉列表类名' },

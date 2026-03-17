@@ -449,6 +449,9 @@ details[open] > .lc-prop-block-header::before {
 
 /* Array add / delete buttons */
 .lc-arr-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 22px;
   padding: 0 8px;
   border: 1px solid #409eff;
@@ -467,6 +470,9 @@ details[open] > .lc-prop-block-header::before {
   color: #fff;
 }
 .lc-arr-del-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 20px;
   width: 20px;
   padding: 0;
@@ -495,20 +501,29 @@ details[open] > .lc-prop-block-header::before {
 .lc-arr-item {
   display: flex;
   align-items: center;
-  padding: 3px 14px;
+  padding: 4px 14px;
   gap: 6px;
   border-bottom: 1px solid #f2f3f7;
 }
 .lc-arr-item:last-child {
   border-bottom: none;
 }
+.lc-arr-item--complex {
+  display: block;
+  padding: 0;
+  background: #fcfcfd;
+  border-bottom: 1px solid #ebeef5;
+}
+.lc-arr-item-body {
+  padding: 4px 0 8px;
+}
 .lc-arr-item-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 14px 2px;
+  padding: 4px 14px;
   gap: 6px;
-  background: #f5f7fa;
+  background: #f0f2f5;
   border-bottom: 1px solid #ebeef5;
 }
 .lc-arr-item-idx {

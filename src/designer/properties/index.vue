@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
+import { Icon } from '@iconify/vue'
 import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
@@ -400,7 +401,7 @@ function applyJsonDialog() {
     jsonDialog.value.onApply(value)
     jsonDialog.value = null
   } catch (e) {
-    jsonDialog.value.error = `无效的 JSON 格式: ${(e as Error).message}`
+    jsonDialog.value!.error = `无效的 JSON 格式: ${(e as Error).message}`
   }
 }
 
@@ -606,14 +607,14 @@ function asRecord(v: unknown): Record<string, unknown> {
           <details v-else-if="propKind(cfgVal) === 'array-items'" class="lc-prop-block-group">
             <summary class="lc-prop-block-header">
               <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
-              <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as PropConfig)">＋</button>
+              <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as PropConfig)"><Icon icon="mdi:plus" /></button>
             </summary>
             <div class="lc-prop-block-body">
               <div v-if="!getArrayItems(key).length" class="lc-arr-empty">暂无项目</div>
               <div
                 v-for="(arrItem, idx) in getArrayItems(key)"
                 :key="idx"
-                class="lc-arr-item"
+                class="lc-arr-item" :class="{ 'lc-arr-item--complex': (cfgVal as PropConfig).item?.props }"
               >
                 <!-- Primitive item (Boolean / Number / String) -->
                 <template v-if="(cfgVal as PropConfig).item!.type !== Object">
@@ -638,50 +639,52 @@ function asRecord(v: unknown): Record<string, unknown> {
                     :value="valueToString(arrItem)"
                     @input="updateArrayItem(key, idx, ($event.target as HTMLInputElement).value)"
                   />
-                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)"><Icon icon="mdi:close" /></button>
                 </template>
 
                 <!-- Object item with sub-props: inline sub-fields -->
                 <template v-else-if="(cfgVal as PropConfig).item!.props">
                   <div class="lc-arr-item-header">
                     <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
-                    <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                    <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)"><Icon icon="mdi:close" /></button>
                   </div>
-                  <div
-                    v-for="[fk, fv] in Object.entries((cfgVal as PropConfig).item!.props!)"
-                    :key="fk"
-                    class="lc-prop-row"
-                  >
-                    <label class="lc-prop-label lc-prop-label--sub" :title="fk">{{ propLabel(fk, fv) }}</label>
-                    <label v-if="propKind(fv) === 'boolean'" class="lc-prop-checkbox-wrap">
-                      <input
-                        type="checkbox"
-                        :checked="!!asRecord(arrItem)[fk]"
-                        @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).checked)"
-                      />
-                    </label>
-                    <select
-                      v-else-if="propKind(fv) === 'select'"
-                      class="lc-prop-input"
-                      :value="valueToString(asRecord(arrItem)[fk])"
-                      @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLSelectElement).value)"
+                  <div class="lc-arr-item-body">
+                    <div
+                      v-for="[fk, fv] in Object.entries((cfgVal as PropConfig).item!.props!)"
+                      :key="fk"
+                      class="lc-prop-row"
                     >
-                      <option value="">-- 请选择 --</option>
-                      <option v-for="opt in propOptions(fv)" :key="opt" :value="opt">{{ opt }}</option>
-                    </select>
-                    <input
-                      v-else-if="propKind(fv) === 'number'"
-                      class="lc-prop-input"
-                      type="number"
-                      :value="asRecord(arrItem)[fk] ?? ''"
-                      @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-                    />
-                    <input
-                      v-else
-                      class="lc-prop-input"
-                      :value="valueToString(asRecord(arrItem)[fk])"
-                      @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value)"
-                    />
+                      <label class="lc-prop-label lc-prop-label--sub" :title="fk">{{ propLabel(fk, fv) }}</label>
+                      <label v-if="propKind(fv) === 'boolean'" class="lc-prop-checkbox-wrap">
+                        <input
+                          type="checkbox"
+                          :checked="!!asRecord(arrItem)[fk]"
+                          @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).checked)"
+                        />
+                      </label>
+                      <select
+                        v-else-if="propKind(fv) === 'select'"
+                        class="lc-prop-input"
+                        :value="valueToString(asRecord(arrItem)[fk])"
+                        @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLSelectElement).value)"
+                      >
+                        <option value="">-- 请选择 --</option>
+                        <option v-for="opt in propOptions(fv)" :key="opt" :value="opt">{{ opt }}</option>
+                      </select>
+                      <input
+                        v-else-if="propKind(fv) === 'number'"
+                        class="lc-prop-input"
+                        type="number"
+                        :value="asRecord(arrItem)[fk] ?? ''"
+                        @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+                      />
+                      <input
+                        v-else
+                        class="lc-prop-input"
+                        :value="valueToString(asRecord(arrItem)[fk])"
+                        @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value)"
+                      />
+                    </div>
                   </div>
                 </template>
 
@@ -689,7 +692,7 @@ function asRecord(v: unknown): Record<string, unknown> {
                 <template v-else>
                   <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
                   <button class="lc-fn-btn lc-fn-btn--set" @click="openArrayItemJsonDialog(key, idx, arrItem)">编辑 JSON</button>
-                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)">✕</button>
+                  <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)"><Icon icon="mdi:close" /></button>
                 </template>
               </div>
             </div>
