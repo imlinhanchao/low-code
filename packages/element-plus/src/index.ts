@@ -393,7 +393,7 @@ const components: ComponentGroup[] = [
                   value:    { type: String,  label: '选项值' },
                   disabled: { type: Boolean, label: '禁用', default: false },
                 },
-                slotName: (option: any) => option.label, // 使用选项值作为插槽名称
+                slotName: (option: any) => option.label || option.value || '选项', // 使用选项值作为插槽名称
                 slots: [],
               },
             ],
@@ -424,12 +424,7 @@ const components: ComponentGroup[] = [
           maxCollapseTagsTooltipHeight: { type: Number,  label: '折叠标签工具提示最大高度 (px)' },
           debounce:       { type: Number,  label: '防抖延迟 (ms)', default: 300 },
           filterMethod:   { type: Function, label: '自定义过滤方法', params: [{ name: 'node', type: Object }, { name: 'keyword', type: String }] },
-          options:        { type: Array, label: '选项数据', item: { 
-              type: Object, 
-              label: '选项',
-              props: { value: { type: String, label: '选项值' }, label: { type: String, label: '选项标签' } }
-            } 
-          },
+          options:        { type: Array, label: '选项数据' },
           props:          { type: Object, label: '配置选项' },
           beforeFilter:   { type: Function, label: '过滤前的钩子方法', params: [{ name: 'value', type: String }] },
           popperClass:    { type: String,  label: '下拉列表类名' },
