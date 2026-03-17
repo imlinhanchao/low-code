@@ -117,7 +117,7 @@ function removeSlotChild(slotName: string, childId: string) {
   })
 }
 
-// ── Drag-to-reorder state for slot children ───────────────────────────────────
+// ── Drag-to-reorder / cross-slot state for slot children ─────────────────────
 const dragFromSlot = ref<string | null>(null)
 const dragFromIdx  = ref(-1)
 const dragOverSlot = ref<string | null>(null)
@@ -131,27 +131,54 @@ function onSlotChildDragStart(slotName: string, idx: number, e: DragEvent) {
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
 }
 
+/**
+ * Dragover on a specific child row.
+ * For slot-child drags: accept and update drop position (supports cross-slot).
+ * For palette drags: do nothing so the event bubbles to the slot section.
+ */
 function onSlotChildDragOver(slotName: string, idx: number, e: DragEvent) {
-  if (dragFromSlot.value !== slotName) return
+  if (dragFromSlot.value === null) return
   e.preventDefault()
+  e.stopPropagation()
   if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
   dragOverSlot.value = slotName
   dragOverIdx.value  = idx
 }
 
+/**
+ * Drop on a specific child row.
+ * For slot-child drags: reorder within slot or move across slots.
+ * For palette drags: do nothing (let it bubble to slot section).
+ */
 function onSlotChildDrop(slotName: string, idx: number, e: DragEvent) {
+  if (dragFromSlot.value === null) return
   e.preventDefault()
+  e.stopPropagation()
   const from     = dragFromIdx.value
   const fromSlot = dragFromSlot.value
   resetDrag()
-  if (fromSlot !== slotName || from === idx || !props.widget) return
-  const children = [...(props.widget.slots[slotName] ?? [])]
-  const [item] = children.splice(from, 1)
-  children.splice(idx, 0, item)
-  emit('update:widget', {
-    ...props.widget,
-    slots: { ...props.widget.slots, [slotName]: children },
-  })
+  if (!props.widget) return
+  if (fromSlot === slotName) {
+    // Same-slot reorder
+    if (from === idx) return
+    const children = [...(props.widget.slots[slotName] ?? [])]
+    const [item] = children.splice(from, 1)
+    children.splice(idx, 0, item)
+    emit('update:widget', {
+      ...props.widget,
+      slots: { ...props.widget.slots, [slotName]: children },
+    })
+  } else {
+    // Cross-slot move: insert before idx in target slot
+    const fromChildren = [...(props.widget.slots[fromSlot] ?? [])]
+    const [item] = fromChildren.splice(from, 1)
+    const toChildren = [...(props.widget.slots[slotName] ?? [])]
+    toChildren.splice(idx, 0, item)
+    emit('update:widget', {
+      ...props.widget,
+      slots: { ...props.widget.slots, [fromSlot]: fromChildren, [slotName]: toChildren },
+    })
+  }
 }
 
 function resetDrag() {
@@ -161,9 +188,9 @@ function resetDrag() {
   dragOverIdx.value  = -1
 }
 
-// ── Slot drop targets (right sidebar) ────────────────────────────────────────
+// ── Slot section drag handlers (palette drops + cross-slot appends) ───────────
 
-/** Track which slot row is being hovered during a palette drag */
+/** Track which slot section is being hovered during a palette drag */
 const slotDropOver = ref<string | null>(null)
 
 /** Returns false when the dragged config is not accepted by the given slot */
@@ -175,21 +202,70 @@ function isSlotAccepted(slotName: string): boolean {
   return accept.length === 0 || accept.includes(draggingConfig.value.name)
 }
 
-function onSlotRowDragOver(slotName: string, e: DragEvent) {
+/**
+ * Dragover on the slot section container.
+ * Fires when hovering over the section area itself (child rows stop propagation).
+ */
+function onSlotSectionDragOver(slotName: string, e: DragEvent) {
+  if (dragFromSlot.value !== null) {
+    // Slot-child drag: accept append-to-end
+    e.preventDefault()
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+    dragOverSlot.value = slotName
+    dragOverIdx.value = (props.widget?.slots[slotName] ?? []).length
+    return
+  }
+  // Palette drag
   if (!isSlotAccepted(slotName)) return
   e.preventDefault()
-  e.stopPropagation()
   slotDropOver.value = slotName
   if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
 }
 
-function onSlotRowDragLeave(slotName: string) {
-  if (slotDropOver.value === slotName) slotDropOver.value = null
+function onSlotSectionDragLeave(slotName: string, e: DragEvent) {
+  const rel = e.relatedTarget as HTMLElement | null
+  const cur = e.currentTarget as HTMLElement | null
+  if (cur && rel && cur.contains(rel)) return
+  if (dragFromSlot.value !== null) {
+    if (dragOverSlot.value === slotName) {
+      dragOverSlot.value = null
+      dragOverIdx.value  = -1
+    }
+  } else {
+    if (slotDropOver.value === slotName) slotDropOver.value = null
+  }
 }
 
-function onSlotRowDrop(slotName: string, e: DragEvent) {
+function onSlotSectionDrop(slotName: string, e: DragEvent) {
+  if (dragFromSlot.value !== null) {
+    // Slot-child drag: append to end of target slot
+    e.preventDefault()
+    const from     = dragFromIdx.value
+    const fromSlot = dragFromSlot.value
+    resetDrag()
+    if (!props.widget) return
+    // Allow same-slot append (move to end) only when item is not already last
+    const sameSlot = fromSlot === slotName
+    const lastIdx = (props.widget.slots[fromSlot] ?? []).length - 1
+    if (sameSlot && from === lastIdx) return
+    const fromChildren = [...(props.widget.slots[fromSlot] ?? [])]
+    const [item] = fromChildren.splice(from, 1)
+    if (sameSlot) {
+      emit('update:widget', {
+        ...props.widget,
+        slots: { ...props.widget.slots, [slotName]: [...fromChildren, item] },
+      })
+    } else {
+      const toChildren = [...(props.widget.slots[slotName] ?? []), item]
+      emit('update:widget', {
+        ...props.widget,
+        slots: { ...props.widget.slots, [fromSlot]: fromChildren, [slotName]: toChildren },
+      })
+    }
+    return
+  }
+  // Palette drop
   e.preventDefault()
-  e.stopPropagation()
   slotDropOver.value = null
   if (!draggingConfig.value || !props.widget) return
   if (!isSlotAccepted(slotName)) return
@@ -208,17 +284,6 @@ function updateEvent(key: string, value: string) {
 function valueToString(v: unknown): string {
   return v == null ? '' : String(v)
 }
-
-/** Returns the count label for a slot row ("N 项" or "空") */
-function slotCountLabel(slotName: string): string {
-  const count = (props.widget?.slots[slotName] ?? []).length
-  return count > 0 ? `${count} 项` : '空'
-}
-
-/** Slots that have at least one child in the schema (to show in the panel always) */
-const populatedSlots = computed(() =>
-  props.effectiveSlots.filter((s) => (props.widget?.slots[s.name] ?? []).length > 0),
-)
 
 /** Show the slotContent editor for leaf widgets that still use slotContent */
 const showSlotContent = computed(
@@ -831,23 +896,34 @@ function asRecord(v: unknown): Record<string, unknown> {
         </div>
       </template>
 
-      <!-- Slot children management (slots that already have children) -->
-      <template v-if="populatedSlots.length > 0">
-        <div class="lc-properties-group-label">插槽内容</div>
+      <!-- Unified slot management: all slots, showing component blocks + drag support -->
+      <template v-if="effectiveSlots.length > 0">
+        <div class="lc-properties-group-label">插槽</div>
         <div
-          v-for="slot in populatedSlots"
+          v-for="slot in effectiveSlots"
           :key="'slot-' + slot.name"
           class="lc-slot-section"
+          :class="{
+            'lc-slot-section--palette-over': slotDropOver === slot.name,
+            'lc-slot-section--child-over':   dragOverSlot === slot.name && dragFromSlot !== null,
+          }"
+          @dragover="onSlotSectionDragOver(slot.name, $event)"
+          @dragleave="onSlotSectionDragLeave(slot.name, $event)"
+          @drop="onSlotSectionDrop(slot.name, $event)"
         >
-          <div class="lc-slot-section-label">{{ slot.label ?? slot.name }}</div>
+          <div class="lc-slot-section-header">
+            <span class="lc-slot-section-label">{{ slot.label ?? slot.name }}</span>
+            <span class="lc-slot-section-count">{{ (widget.slots[slot.name] ?? []).length ? (widget.slots[slot.name] ?? []).length : '空' }}</span>
+          </div>
+          <!-- Children blocks (draggable within slot and across slots) -->
           <div
-            v-for="(child, idx) in widget.slots[slot.name]"
+            v-for="(child, idx) in (widget.slots[slot.name] ?? [])"
             :key="child.id"
             class="lc-slot-child-row"
             :class="{
               'lc-slot-child-row--dragging':    dragFromSlot === slot.name && dragFromIdx === idx,
-              'lc-slot-child-row--drop-before': dragOverSlot === slot.name && dragOverIdx === idx && dragFromIdx > idx,
-              'lc-slot-child-row--drop-after':  dragOverSlot === slot.name && dragOverIdx === idx && dragFromIdx < idx,
+              'lc-slot-child-row--drop-before': dragOverSlot === slot.name && dragOverIdx === idx && (dragFromSlot !== slot.name || dragFromIdx > idx),
+              'lc-slot-child-row--drop-after':  dragOverSlot === slot.name && dragOverIdx === idx && dragFromSlot === slot.name && dragFromIdx < idx,
             }"
             draggable="true"
             @dragstart="onSlotChildDragStart(slot.name, idx, $event)"
@@ -868,24 +944,11 @@ function asRecord(v: unknown): Record<string, unknown> {
               @click="removeSlotChild(slot.name, child.id)"
             >✕</button>
           </div>
-        </div>
-      </template>
-
-      <!-- Slot drop targets: all available slots (drag palette items here) -->
-      <template v-if="effectiveSlots.length > 0">
-        <div class="lc-properties-group-label">插槽列表</div>
-        <div
-          v-for="slot in effectiveSlots"
-          :key="'slotdrop-' + slot.name"
-          class="lc-slot-drop-row"
-          :class="{ 'lc-slot-drop-row--over': slotDropOver === slot.name }"
-          @dragover="onSlotRowDragOver(slot.name, $event)"
-          @dragleave="onSlotRowDragLeave(slot.name)"
-          @drop="onSlotRowDrop(slot.name, $event)"
-        >
-          <span class="lc-slot-drop-name">{{ slot.label ?? slot.name }}</span>
-          <span class="lc-slot-drop-count">{{ slotCountLabel(slot.name) }}</span>
-          <span class="lc-slot-drop-hint">拖拽组件到此处</span>
+          <!-- Empty slot hint when no children -->
+          <div
+            v-if="!(widget.slots[slot.name] ?? []).length"
+            class="lc-slot-empty-hint"
+          >拖拽组件到此处</div>
         </div>
       </template>
 

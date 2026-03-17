@@ -534,21 +534,56 @@ details[open] > .lc-prop-block-header::before {
   text-align: right;
 }
 
-/* Slot children */
+/* Slot section (unified slot management) */
 .lc-slot-section {
-  padding: 2px 14px 4px;
+  padding: 4px 10px 6px;
+  border: 1px dashed #e0e3ea;
+  border-radius: 5px;
+  margin: 2px 10px;
+  background: #f8f9fc;
+  transition: background 0.12s, border-color 0.12s;
+}
+.lc-slot-section--palette-over {
+  background: #ecf5ff;
+  border-color: #409eff;
+}
+.lc-slot-section--child-over {
+  background: #f0f9eb;
+  border-color: #67c23a;
+}
+.lc-slot-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 .lc-slot-section-label {
+  flex: 1;
   font-size: 11px;
   color: #909399;
-  margin-bottom: 2px;
+  font-weight: 500;
+}
+.lc-slot-section-count {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: #909399;
+  background: #e9ecef;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.lc-slot-empty-hint {
+  font-size: 10px;
+  color: #c0c4cc;
+  text-align: center;
+  padding: 4px 0 2px;
+  user-select: none;
 }
 .lc-slot-child-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 3px 6px;
-  background: #f8f9fc;
+  background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 5px;
   margin-bottom: 2px;
@@ -608,45 +643,6 @@ details[open] > .lc-prop-block-header::before {
 }
 .lc-slot-child-remove:hover {
   background: #f78989;
-}
-
-/* ── Slot drop target rows (in right sidebar) ──────────────────────────────── */
-.lc-slot-drop-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border: 1px dashed #e0e3ea;
-  border-radius: 5px;
-  margin: 2px 10px;
-  background: #f8f9fc;
-  cursor: default;
-  transition: background 0.12s, border-color 0.12s;
-}
-.lc-slot-drop-row--over {
-  background: #ecf5ff;
-  border-color: #409eff;
-}
-.lc-slot-drop-name {
-  flex: 0 0 auto;
-  font-size: 11px;
-  color: #303133;
-  min-width: 50px;
-}
-.lc-slot-drop-count {
-  flex: 0 0 auto;
-  font-size: 10px;
-  color: #909399;
-  background: #e9ecef;
-  border-radius: 10px;
-  padding: 1px 6px;
-}
-.lc-slot-drop-hint {
-  flex: 1;
-  font-size: 10px;
-  color: #c0c4cc;
-  text-align: right;
-  user-select: none;
 }
 
 /* Events row */
