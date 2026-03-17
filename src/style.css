@@ -1690,3 +1690,193 @@ details[open] > .lc-prop-block-header::before {
   background: #ecf5ff;
   border-color: #409eff;
 }
+
+/* === src/layouts/DetailTable.vue === */
+.lc-detail-table {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  font-size: 13px;
+}
+.lc-detail-table__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #fafafa;
+  border-bottom: 1px solid #dcdfe6;
+}
+.lc-detail-table__title {
+  font-weight: 600;
+  color: #303133;
+  font-size: 13px;
+}
+.lc-detail-table__actions {
+  display: flex;
+  gap: 4px;
+}
+.lc-detail-table__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  color: #409eff;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+.lc-detail-table__btn:hover:not(:disabled) {
+  background: #ecf5ff;
+  border-color: #409eff;
+}
+.lc-detail-table__btn--danger { color: #f56c6c; }
+.lc-detail-table__btn--danger:hover:not(:disabled) {
+  background: #fef0f0;
+  border-color: #f56c6c;
+}
+.lc-detail-table__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Table mode */
+.lc-detail-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.lc-detail-table__table th,
+.lc-detail-table__table td {
+  border: 1px solid #ebeef5;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+.lc-detail-table__table thead th {
+  background: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+  font-size: 12px;
+}
+.lc-detail-table__check-col {
+  width: 36px;
+  text-align: center !important;
+}
+.lc-detail-table__index-col {
+  width: 40px;
+  text-align: center !important;
+  color: #909399;
+}
+.lc-detail-table__th,
+.lc-detail-table__td {
+  min-width: 80px;
+}
+.lc-detail-table__row.is-checked td {
+  background: #f0f7ff;
+}
+.lc-detail-table__empty {
+  text-align: center;
+  color: #909399;
+  padding: 20px;
+  font-size: 12px;
+}
+
+/* List mode */
+.lc-detail-table__list {
+  width: 100%;
+}
+.lc-detail-table__list-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ebeef5;
+  background: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+  font-size: 12px;
+  gap: 8px;
+}
+.lc-detail-table__list-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ebeef5;
+  gap: 8px;
+  transition: background 0.15s;
+}
+.lc-detail-table__list-row:last-child { border-bottom: none; }
+.lc-detail-table__list-row.is-checked { background: #f0f7ff; }
+.lc-detail-table__list-row:hover:not(.is-checked) { background: #fafafa; }
+.lc-detail-table__list-content-col { flex: 1; }
+.lc-detail-table__list-content {
+  flex: 1;
+  min-height: 28px;
+}
+
+/* Confirm dialog */
+.lc-detail-table__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-detail-table__dialog {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  padding: 24px;
+  min-width: 320px;
+  max-width: 480px;
+}
+.lc-detail-table__dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+.lc-detail-table__dialog-icon {
+  color: #e6a23c;
+  font-size: 20px;
+}
+.lc-detail-table__dialog-body {
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.lc-detail-table__dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.lc-detail-table__dialog-btn {
+  padding: 6px 16px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  color: #606266;
+  transition: all 0.15s;
+}
+.lc-detail-table__dialog-btn:hover { border-color: #409eff; color: #409eff; }
+.lc-detail-table__dialog-btn--danger {
+  background: #f56c6c;
+  color: #fff;
+  border-color: #f56c6c;
+}
+.lc-detail-table__dialog-btn--danger:hover {
+  background: #f78989;
+  border-color: #f78989;
+}

@@ -5,6 +5,7 @@ import TabsLayout from './TabsLayout.vue'
 import TableLayout from './TableLayout.vue'
 import StaticText from './StaticText.vue'
 import HtmlBlock from './HtmlBlock.vue'
+import DetailTable from './DetailTable.vue'
 
 const HTML_PROP = { type: String, label: 'HTML 内容', default: '', multiline: true }
 
@@ -83,6 +84,30 @@ export const BlockComponent: ComponentConfig = {
   slots: [{ name: 'default', label: '内容' }],
 }
 
+export const DetailTableComponent: ComponentConfig = {
+  name: '明细表',
+  category: 'layout',
+  icon: 'mdi:table-edit',
+  component: DetailTable,
+  props: {
+    showIndex: { type: Boolean, label: '显示序号', default: true },
+    mode: { type: String, label: '显示模式', default: 'list', options: ['list', 'table'] },
+    headers: { type: Array, label: '表头列表', default: [], item: { type: String, label: '列标题' } },
+  },
+  models: { modelValue: [] },
+  computeSlots: (props): SlotConfig[] => {
+    if (props.mode === 'table') {
+      const headers = (props.headers as string[]) ?? []
+      if (headers.length === 0) return [{ name: 'col-0', label: '列 1' }]
+      return headers.map((h: string, i: number) => ({
+        name: `col-${i}`,
+        label: h || `列 ${i + 1}`,
+      }))
+    }
+    return [{ name: 'default', label: '内容' }]
+  },
+}
+
 export const layoutComponents: ComponentConfig[] = [
   GridComponent,
   CardComponent,
@@ -90,4 +115,5 @@ export const layoutComponents: ComponentConfig[] = [
   TableComponent,
   InlineComponent,
   BlockComponent,
+  DetailTableComponent,
 ]
