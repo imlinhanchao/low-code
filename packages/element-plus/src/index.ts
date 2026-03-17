@@ -393,6 +393,7 @@ const components: ComponentGroup[] = [
                   value:    { type: String,  label: '选项值' },
                   disabled: { type: Boolean, label: '禁用', default: false },
                 },
+                slotName: (option: any) => option.label, // 使用选项值作为插槽名称
                 slots: [],
               },
             ],

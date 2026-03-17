@@ -50,6 +50,7 @@ declare module 'low-code' {
     props?: Record<string, ComponentProp>
     models?: Record<string, unknown>
     events?: Record<string, EventParam[]>
+    slotName?: string | ((props: unknown) => string)
     slots?: SlotConfig[]
     computeSlots?: (props: Record<string, unknown>) => SlotConfig[]
   }
