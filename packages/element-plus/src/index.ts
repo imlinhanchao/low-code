@@ -26,6 +26,9 @@ import {
   ElTransfer,
   ElTreeSelect,
   ElUpload,
+  ElAlert,
+  ElSteps,
+  ElStep,
 } from 'element-plus'
 import type { ComponentGroup } from 'low-code'
 import RulesEditor from './components/RulesEditor.vue'
@@ -96,6 +99,75 @@ const components: ComponentGroup[] = [
           { name: 'content', label: '自定义提示内容 (content)' },
         ],
       },
+
+      // ── ElAlert ────────────────────────────────────────────────────────────────
+      {
+        name: '提示',
+        icon: 'mdi:alert-circle-outline',
+        component: ElAlert,
+        props: {
+          title:       { type: String,  label: '标题' },
+          type:        { type: String,  label: '类型',         options: ['success', 'warning', 'info', 'error'], default: 'info' },
+          description: { type: String,  label: '描述文字' },
+          closable:    { type: Boolean, label: '可关闭',       default: true },
+          center:      { type: Boolean, label: '文字居中',     default: false },
+          closeText:   { type: String,  label: '关闭按钮文字' },
+          showIcon:    { type: Boolean, label: '显示图标',     default: false },
+          effect:      { type: String,  label: '主题',         options: ['light', 'dark'], default: 'light' },
+        },
+        events: {
+          close: [],
+        },
+        slots: [
+          { name: 'default',     label: '描述内容' },
+          { name: 'title',       label: '自定义标题 (title)', noPlaceholder: true },
+        ],
+      },
+    ],
+  },
+
+  // ── 展示 ──────────────────────────────────────────────────────────────────────
+  {
+    group: '展示',
+    components: [
+
+      // ── ElSteps ────────────────────────────────────────────────────────────────
+      {
+        name: '步骤条',
+        icon: 'mdi:dots-horizontal-circle-outline',
+        component: ElSteps,
+        props: {
+          active:          { type: Number,  label: '当前激活步骤',   default: 0 },
+          direction:       { type: String,  label: '方向',           options: ['horizontal', 'vertical'], default: 'horizontal' },
+          space:           { type: Number,  label: '步骤间距 (px)' },
+          alignCenter:     { type: Boolean, label: '居中对齐',       default: false },
+          simple:          { type: Boolean, label: '简洁风格',       default: false },
+          finishStatus:    { type: String,  label: '完成步骤状态',   options: ['wait', 'process', 'finish', 'error', 'success'], default: 'finish' },
+          processStatus:   { type: String,  label: '进行中步骤状态', options: ['wait', 'process', 'finish', 'error', 'success'], default: 'process' },
+        },
+        slots: [
+          {
+            name: 'default',
+            label: '步骤列表',
+            virtual: true,
+            components: [
+              {
+                name: '步骤',
+                component: ElStep,
+                props: {
+                  title:       { type: String, label: '标题' },
+                  description: { type: String, label: '描述文字' },
+                  icon:        { type: String, label: '图标 (类名)' },
+                  status:      { type: String, label: '当前状态', options: ['wait', 'process', 'finish', 'error', 'success'] },
+                },
+                slotName: (step: any) => (step.title as string) || '步骤',
+                slots: [],
+              },
+            ],
+          },
+        ],
+      },
+
     ],
   },
 

@@ -71,9 +71,12 @@ const LcWidgetNode = defineComponent({
       const formData = getFormData()
       const scope = props.scope as Record<string, unknown>
 
-      // Start with static props, evaluating any $model/$scope expressions
+      // Start with static props, evaluating any $model/$scope expressions.
+      // Exclude the special 'hidden' prop — it's handled by LcWidgetNode itself
+      // and must not be forwarded to the actual component.
       const result: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(props.widget.props)) {
+        if (key === 'hidden') continue
         result[key] = evalProp(value, formData, scope)
       }
 
@@ -144,6 +147,9 @@ const LcWidgetNode = defineComponent({
       if (!config) {
         return h('div', { class: 'lc-missing-widget' }, `?? ${props.widget.name}`)
       }
+
+      // If the widget is marked as hidden, skip rendering entirely.
+      if (props.widget.props.hidden === true) return null
 
       // Build slot functions from stored children.
       // Each slot function receives the scoped-slot props emitted by the parent

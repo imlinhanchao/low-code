@@ -391,10 +391,14 @@ export const LcCanvasWidgetNode = defineComponent({
       // In the canvas, $model evaluates to {} since no form data is available.
       // $scope evaluates to the scoped-slot props passed by the parent slot
       // (or {} when the widget is at the root level).
+      // The special 'hidden' prop is excluded — it is a designer meta-prop and
+      // must not be forwarded to the actual component.
       const canvasModel: Record<string, unknown> = {}
       const canvasScope = props.scope as Record<string, unknown>
       const compProps: Record<string, unknown> = {}
+      const isHidden = props.widget.props['hidden'] === true
       for (const [key, value] of Object.entries(props.widget.props)) {
+        if (key === 'hidden') continue
         if (typeof value === 'string') {
           const trimmed = value.trim()
           if (trimmed === '$model' || trimmed.startsWith('$model.')) {
@@ -452,6 +456,7 @@ export const LcCanvasWidgetNode = defineComponent({
             'lc-canvas-node--layout': isLayout,
             'lc-canvas-node--dragging-host': isDraggingHost,
             'lc-canvas-node--slot-hovered': isSlotHovered,
+            'lc-canvas-node--hidden': isHidden,
           },
           onClick: (e: MouseEvent) => {
             e.stopPropagation()

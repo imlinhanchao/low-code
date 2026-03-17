@@ -632,6 +632,16 @@ function asRecord(v: unknown): Record<string, unknown> {
           @input="updateProp('class', ($event.target as HTMLInputElement).value || undefined)"
         />
       </div>
+      <div class="lc-prop-row">
+        <label class="lc-prop-label" title="hidden">隐藏</label>
+        <label class="lc-prop-checkbox-wrap">
+          <input
+            type="checkbox"
+            :checked="!!widget.props['hidden']"
+            @change="updateProp('hidden', ($event.target as HTMLInputElement).checked || undefined)"
+          />
+        </label>
+      </div>
 
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">

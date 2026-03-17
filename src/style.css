@@ -1519,6 +1519,11 @@ details[open] > .lc-prop-block-header::before {
   outline-offset: 2px;
 }
 
+/* Visual indicator for components marked as hidden (隐藏) */
+.lc-canvas-node--hidden {
+  opacity: 0.4;
+}
+
 /* === src/designer/canvas/CanvasOverlay.vue === */
 /* ── Overlay container ──────────────────────────────────────────────────────── */
 /*
