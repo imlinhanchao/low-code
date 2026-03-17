@@ -2,7 +2,7 @@
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
-import { isPropConfig } from '../../types'
+import { isPropConfig, resolveSlotName } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import { draggingConfig } from '../useDragState'
 
@@ -13,6 +13,7 @@ const props = defineProps<{
   config: ComponentConfig | null
   effectiveSlots: SlotConfig[]
   globalConfig: GlobalConfig
+  hasBackButton?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -31,6 +32,8 @@ watch(() => props.widget, (w) => {
 })
 
 const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')
+const viewWidget = inject<(id: string) => void>('lc:viewWidget')
+const viewBack = inject<() => void>('lc:viewBack')
 const addWidget = inject<(parentId: string | null, slotName: string | null, cfg: ComponentConfig) => void>('lc:addWidget')
 const schema = inject<Ref<FormSchema>>('lc:schema')
 
@@ -196,14 +199,8 @@ function resetDrag() {
  */
 function getSlotChildDisplayName(child: WidgetSchema): string {
   const cfg = allConfigs?.value?.find((c) => c.name === child.name)
-  if (!cfg || cfg.slotName === undefined) return child.name
-  if (typeof cfg.slotName === 'function') {
-    try {
-      const result = cfg.slotName(child.props)
-      return (result != null && result !== '') ? String(result) : child.name
-    } catch { return child.name }
-  }
-  return cfg.slotName || child.name
+  if (!cfg) return child.name
+  return resolveSlotName(cfg, child.props)
 }
 
 // ── Slot section drag handlers (palette drops + cross-slot appends) ───────────
@@ -584,6 +581,10 @@ function asRecord(v: unknown): Record<string, unknown> {
 
 <template>
   <div class="lc-properties">
+    <!-- Back button: shown when viewing a slot child's properties -->
+    <div v-if="hasBackButton" class="lc-prop-back-row">
+      <button class="lc-prop-back-btn" title="返回" @click="viewBack?.()">← 返回</button>
+    </div>
     <!-- Tab bar -->
     <div class="lc-prop-tabs">
       <button
@@ -954,7 +955,7 @@ function asRecord(v: unknown): Record<string, unknown> {
             <button
               class="lc-slot-child-btn lc-slot-child-configure"
               title="组件设置"
-              @click="selectWidget?.(child.id)"
+              @click="viewWidget?.(child.id)"
             >⚙</button>
             <button
               class="lc-slot-child-btn lc-slot-child-remove"

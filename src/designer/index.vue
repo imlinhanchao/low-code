@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, provide } from 'vue'
+import { ref, computed, provide, watch } from 'vue'
 import type { ComponentConfig, ComponentGroup, FormSchema, GlobalConfig, WidgetSchema, SlotConfig, PropConfig } from '../types'
 import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
@@ -24,6 +24,22 @@ const schema = computed<FormSchema>({
 
 // ── Selection ────────────────────────────────────────────────────────────────
 const selectedId = ref<string | null>(null)
+
+// ── Properties-panel view state (independent of canvas selection) ─────────────
+/**
+ * The widget id currently displayed in the properties panel.
+ * Normally mirrors selectedId, but can be a slot-child id when the user
+ * clicks "configure" on a slot child without moving the canvas focus.
+ */
+const viewingId = ref<string | null>(null)
+/** History stack for the back-button in the properties panel */
+const viewHistory = ref<string[]>([])
+
+// Sync viewingId whenever the canvas selection changes
+watch(selectedId, (id) => {
+  viewHistory.value = []
+  viewingId.value = id
+})
 
 /** Flat list of all user-supplied components (in group order) */
 const flatComponents = computed<ComponentConfig[]>(() =>
@@ -176,17 +192,18 @@ function selectWidget(widgetId: string | null): void {
 }
 
 function updateWidget(updated: WidgetSchema): void {
-  // Use selectedId as the "find" key so that ID renames work correctly:
-  // if the user changed widget.id, the tree still holds the old id.
-  // If there is no current selection, there is nothing to update.
-  if (!selectedId.value) return
-  const oldId = selectedId.value
+  // Use viewingId as the "find" key so slot-child edits work correctly.
+  const currentId = viewingId.value ?? selectedId.value
+  if (!currentId) return
+  const oldId = currentId
   schema.value = {
     widgets: updateInTree(schema.value.widgets, oldId, () => updated),
   }
-  // Keep the selection pointing to the (possibly renamed) widget
+  // Keep all view pointers updated when the widget id is renamed
   if (oldId !== updated.id) {
-    selectedId.value = updated.id
+    if (viewingId.value === oldId) viewingId.value = updated.id
+    if (selectedId.value === oldId) selectedId.value = updated.id
+    viewHistory.value = viewHistory.value.map((hId) => (hId === oldId ? updated.id : hId))
   }
 }
 
@@ -247,6 +264,34 @@ provide('lc:allConfigs', allConfigs)
 provide('lc:reorderSlotChildren', reorderSlotChildren)
 provide('lc:schema', schema)
 
+// ── Properties-panel navigation (slot-child view without canvas focus change) ─
+/**
+ * Open the properties panel for a widget without changing the canvas selection.
+ * Pushes the current viewingId onto the history stack so the back button works.
+ */
+function viewWidget(widgetId: string): void {
+  if (viewingId.value !== null) {
+    viewHistory.value = [...viewHistory.value, viewingId.value]
+  }
+  viewingId.value = widgetId
+}
+
+/** Navigate back to the previously-viewed widget (or to the canvas selection). */
+function viewBack(): void {
+  const history = viewHistory.value
+  if (history.length === 0) {
+    viewingId.value = selectedId.value
+    return
+  }
+  viewingId.value = history[history.length - 1]
+  viewHistory.value = history.slice(0, -1)
+}
+
+const hasViewHistory = computed(() => viewHistory.value.length > 0)
+
+provide('lc:viewWidget', viewWidget)
+provide('lc:viewBack', viewBack)
+
 // ── Properties panel data ─────────────────────────────────────────────────────
 const selectedWidget = computed<WidgetSchema | null>(() =>
   selectedId.value ? findInTree(schema.value.widgets, selectedId.value) : null,
@@ -256,12 +301,21 @@ const selectedConfig = computed<ComponentConfig | null>(
   () => allConfigs.value.find((c) => c.name === selectedWidget.value?.name) ?? null,
 )
 
-const effectiveSelectedSlots = computed<SlotConfig[]>(() => {
-  if (!selectedConfig.value) return []
-  if (selectedConfig.value.computeSlots) {
-    return selectedConfig.value.computeSlots(selectedWidget.value?.props ?? {})
+/** Widget currently shown in the properties panel (may differ from canvas selection) */
+const viewingWidget = computed<WidgetSchema | null>(() =>
+  viewingId.value ? findInTree(schema.value.widgets, viewingId.value) : null,
+)
+
+const viewingConfig = computed<ComponentConfig | null>(
+  () => allConfigs.value.find((c) => c.name === viewingWidget.value?.name) ?? null,
+)
+
+const effectiveViewingSlots = computed<SlotConfig[]>(() => {
+  if (!viewingConfig.value) return []
+  if (viewingConfig.value.computeSlots) {
+    return viewingConfig.value.computeSlots(viewingWidget.value?.props ?? {})
   }
-  return selectedConfig.value.slots ?? []
+  return viewingConfig.value.slots ?? []
 })
 
 const globalConfig = computed<GlobalConfig>(() => schema.value.global ?? {})
@@ -283,10 +337,11 @@ function updateGlobalConfig(global: GlobalConfig) {
 
     <aside class="lc-designer-panel lc-panel-right">
       <PropertiesPanel
-        :widget="selectedWidget"
-        :config="selectedConfig"
-        :effective-slots="effectiveSelectedSlots"
+        :widget="viewingWidget"
+        :config="viewingConfig"
+        :effective-slots="effectiveViewingSlots"
         :global-config="globalConfig"
+        :has-back-button="hasViewHistory"
         @update:widget="updateWidget"
         @update:global-config="updateGlobalConfig"
       />

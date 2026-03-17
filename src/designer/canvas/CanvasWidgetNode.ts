@@ -9,6 +9,7 @@ import {
   type VNode,
 } from 'vue'
 import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
+import { resolveSlotName } from '../../types'
 import { draggingConfig, draggingWidget, isDragging, hoveredSlotParentId } from '../useDragState'
 import { hoveredId } from './useCanvasOverlay'
 
@@ -200,6 +201,7 @@ export const LcCanvasWidgetNode = defineComponent({
   setup(props) {
     const allConfigs   = inject<Ref<ComponentConfig[]>>('lc:allConfigs')!
     const selectWidget = inject<(id: string | null) => void>('lc:selectWidget')!
+    const viewWidget   = inject<(id: string) => void>('lc:viewWidget', selectWidget)
     const removeWidget = inject<(id: string) => void>('lc:removeWidget')!
     const selectedId   = inject<Ref<string | null>>('lc:selectedId')!
     const reorderSlotChildren = inject<
@@ -222,6 +224,9 @@ export const LcCanvasWidgetNode = defineComponent({
       if (props.virtual) {
         const canMoveUp   = props.slotIndex > 0
         const canMoveDown = props.slotIndex < props.slotTotal - 1
+
+        // Compute display name using ComponentConfig.slotName if provided
+        const chipLabel = resolveSlotName(config, props.widget.props)
 
         const virtualActionsBar = h('div', { class: 'lc-node-actions' }, [
           h('span', { class: 'lc-node-actions__name' }, config.name),
@@ -291,7 +296,7 @@ export const LcCanvasWidgetNode = defineComponent({
             },
             onClick: (e: MouseEvent) => {
               e.stopPropagation()
-              selectWidget(props.widget.id)
+              viewWidget(props.widget.id)
             },
             onMouseover: (e: MouseEvent) => {
               e.stopPropagation()
@@ -301,7 +306,7 @@ export const LcCanvasWidgetNode = defineComponent({
               if (hoveredId.value === props.widget.id) hoveredId.value = null
             },
           },
-          [virtualActionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, config.name)],
+          [virtualActionsBar, h('span', { class: 'lc-canvas-node__virtual-label' }, chipLabel)],
         )
       }
 

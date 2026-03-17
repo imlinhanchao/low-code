@@ -116,6 +116,22 @@ export interface ComponentConfig {
 }
 
 /**
+ * Resolves the display name for a widget when it appears as a slot child.
+ * Uses `ComponentConfig.slotName` (string or function) if provided.
+ * Falls back to `config.name` when `slotName` is absent or returns a falsy value.
+ */
+export function resolveSlotName(config: ComponentConfig, props: Record<string, unknown>): string {
+  if (config.slotName === undefined) return config.name
+  if (typeof config.slotName === 'function') {
+    try {
+      const result = config.slotName(props)
+      return (result != null && result !== '') ? String(result) : config.name
+    } catch { return config.name }
+  }
+  return config.slotName || config.name
+}
+
+/**
  * A named group of components shown as a collapsible palette section.
  * Groups are displayed in array order, which makes the group order explicit.
  * Use an empty string for `group` to create an ungrouped (default) section.
