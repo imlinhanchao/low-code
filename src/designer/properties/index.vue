@@ -344,6 +344,11 @@ function propOptions(v: unknown): string[] {
   return []
 }
 
+function propTooltip(key: string, v: unknown): string {
+  if (isPropConfig(v)) return (v as PropConfig).tooltip ?? ''
+  return ''
+}
+
 // ── Code-editor dialog ────────────────────────────────────────────────────────
 
 interface CodeDialogState {
@@ -639,6 +644,7 @@ function asRecord(v: unknown): Record<string, unknown> {
           <details v-if="propKind(cfgVal) === 'object-sub'" class="lc-prop-block-group">
             <summary class="lc-prop-block-header">
               <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
+              <span v-if="propTooltip(key, cfgVal)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(key, cfgVal)">ⓘ</span>
             </summary>
             <div class="lc-prop-block-body">
               <div
@@ -647,6 +653,7 @@ function asRecord(v: unknown): Record<string, unknown> {
                 class="lc-prop-row"
               >
                 <label class="lc-prop-label lc-prop-label--sub" :title="sk">{{ propLabel(sk, sv) }}</label>
+                <span v-if="propTooltip(sk, sv)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(sk, sv)">ⓘ</span>
                 <label v-if="propKind(sv) === 'boolean'" class="lc-prop-checkbox-wrap">
                   <input
                     type="checkbox"
@@ -691,6 +698,7 @@ function asRecord(v: unknown): Record<string, unknown> {
           <details v-else-if="propKind(cfgVal) === 'array-items'" class="lc-prop-block-group">
             <summary class="lc-prop-block-header">
               <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
+              <span v-if="propTooltip(key, cfgVal)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(key, cfgVal)">ⓘ</span>
               <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as PropConfig)"><Icon icon="mdi:plus" /></button>
             </summary>
             <div class="lc-prop-block-body">
@@ -739,6 +747,7 @@ function asRecord(v: unknown): Record<string, unknown> {
                       class="lc-prop-row"
                     >
                       <label class="lc-prop-label lc-prop-label--sub" :title="fk">{{ propLabel(fk, fv) }}</label>
+                      <span v-if="propTooltip(fk, fv)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(fk, fv)">ⓘ</span>
                       <label v-if="propKind(fv) === 'boolean'" class="lc-prop-checkbox-wrap">
                         <input
                           type="checkbox"
@@ -785,6 +794,7 @@ function asRecord(v: unknown): Record<string, unknown> {
           <!-- Normal prop row for all other types (boolean, select, function, object, number, multiline, string, object-json, array-json) -->
           <div v-else class="lc-prop-row">
             <label class="lc-prop-label" :title="key">{{ propLabel(key, cfgVal) }}</label>
+            <span v-if="propTooltip(key, cfgVal)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(key, cfgVal)">ⓘ</span>
 
             <!-- Boolean checkbox -->
             <label v-if="propKind(cfgVal) === 'boolean'" class="lc-prop-checkbox-wrap">

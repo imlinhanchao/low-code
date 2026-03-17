@@ -324,6 +324,47 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Info icon shown next to property labels that have a tooltip hint */
+.lc-prop-tooltip-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  color: #909399;
+  font-size: 12px;
+  position: relative;
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+  user-select: none;
+}
+.lc-prop-tooltip-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: -4px;
+  min-width: 120px;
+  max-width: 220px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #303133;
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.lc-prop-tooltip-icon:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
 .lc-prop-input {
   flex: 1;
   height: 28px;

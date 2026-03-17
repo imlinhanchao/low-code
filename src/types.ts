@@ -65,6 +65,11 @@ export interface PropConfig {
    * When absent (and no `dialog`) the object is edited as raw JSON.
    */
   props?: Record<string, PropConfig>
+  /**
+   * Optional tooltip hint text shown as an info icon (ⓘ) next to the property
+   * label in the designer.  Hovering the icon reveals the tooltip content.
+   */
+  tooltip?: string
 }
 
 /** Returns true when a ComponentConfig.props value is a PropConfig descriptor */
