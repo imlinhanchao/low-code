@@ -18,9 +18,8 @@ export default defineConfig({
   description: "基于 Vue 3 的低代码表单设计器与渲染器",
   themeConfig: {
     nav: [
-      { text: '基础使用', link: '/guide/getting-started' },
-      { text: '组件定义', link: '/guide/component-definition' },
-      { text: 'API 参考', link: '/guide/api-reference' }
+      { text: '组件定义', link: '/guide/getting-started' },
+      { text: '示例', link: '/demo/' },
     ],
     sidebar: [
       {

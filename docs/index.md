@@ -10,8 +10,8 @@ hero:
       text: 开始使用
       link: /guide/getting-started
     - theme: alt
-      text: GitHub
-      link: https://github.com/imlinhanchao/low-code
+      text: 查看示例
+      link: /demo/
 
 features:
   - title: 响应式设计器
