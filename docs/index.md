@@ -11,7 +11,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: 查看示例
-      link: /demo/
+      link: https://lc.hancel.org/demo/
 
 features:
   - title: 响应式设计器

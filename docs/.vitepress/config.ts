@@ -19,7 +19,7 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '组件定义', link: '/guide/getting-started' },
-      { text: '示例', link: '/demo/' },
+      { text: '示例', link: 'https://lc.hancel.org/demo/' },
     ],
     sidebar: [
       {

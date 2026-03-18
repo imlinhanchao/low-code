@@ -1,6 +1,9 @@
 # Low Code Vue
 
-基于 Vue 3 的可配置低代码表单设计器与渲染器。
+基于 Vue 3 的可配置低代码表单设计器与渲染器。[在线文档](https://lc.hancel.org/)
+
+[![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
+[![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 
 ## 特性
 
