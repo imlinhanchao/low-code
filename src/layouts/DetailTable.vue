@@ -1,21 +1,31 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: Record<string, unknown>[]
   showIndex?: boolean
   mode?: 'table' | 'list'
   headers?: string[]
-}>()
+}>(), {
+  modelValue: () => [],
+})
 
 const emit = defineEmits<{
   'update:modelValue': [value: Record<string, unknown>[]]
 }>()
 
-const rows = computed<Record<string, unknown>[]>(() => props.modelValue ?? [])
+const rows = ref<Record<string, unknown>[]>(props.modelValue)
 const checked = ref<Set<number>>(new Set())
 const showConfirm = ref(false)
+
+watch(() => props.modelValue, (val: Record<string, unknown>[]) => {
+  rows.value = val ?? []
+}, { deep: true })
+
+watch(rows, (val) => {
+  emit('update:modelValue', val)
+}, { deep: true })
 
 const allChecked = computed(() =>
   rows.value.length > 0 && checked.value.size === rows.value.length,
@@ -149,6 +159,8 @@ const isTable = computed(() => props.mode === 'table')
                 :row="row"
                 :rowIndex="ri"
                 :rowCount="rows.length"
+                :colIndex="ci"
+                :colCount="effectiveHeaders.length"
               />
             </td>
           </tr>
