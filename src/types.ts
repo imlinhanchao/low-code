@@ -173,7 +173,7 @@ export interface WidgetSchema {
    *   '$global'         → globalData[fieldName]        (read/write)
    *   '$global.section' → globalData.section[fieldName](read/write)
    *   '$scope'          → scope[fieldName]             (read-only)
-   *   '$scope.row'      → scope.row[fieldName]         (read/write via direct mutation)
+   *   '$scope.section'  → scope.section[fieldName]     (read/write via direct mutation)
    */
   sources?: Record<string, string>
   /** Current prop values */

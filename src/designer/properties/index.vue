@@ -908,7 +908,7 @@ function asRecord(v: unknown): Record<string, unknown> {
           数据绑定
           <span
             class="lc-prop-tooltip-icon lc-prop-tooltip-icon--group"
-            data-tooltip="字段名默认从 $model 读写。支持点语法指定嵌套对象：$model.section、$global.section（读写）；$scope.row 等嵌套作用域对象（读写，用于插槽内行数据）；$scope 本身只读"
+            data-tooltip="字段名默认从 $model 读写。支持点语法指定嵌套对象：$model.section、$global.section（读写）；$scope.section 等嵌套作用域对象（读写，用于插槽内行数据）；$scope 本身只读"
           >ⓘ</span>
         </div>
         <div

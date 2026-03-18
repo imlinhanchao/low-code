@@ -63,7 +63,7 @@ function toggleRow(index: number, e: Event) {
 }
 
 function addRow() {
-  emit('update:modelValue', [...rows.value, {}])
+  rows.value.push({})
 }
 
 function confirmDelete() {
@@ -73,10 +73,7 @@ function confirmDelete() {
 
 function doDelete() {
   const toDelete = checked.value
-  emit(
-    'update:modelValue',
-    rows.value.filter((_, i) => !toDelete.has(i)),
-  )
+  rows.value = rows.value.filter((_, i) => !toDelete.has(i))
   checked.value = new Set()
   showConfirm.value = false
 }
