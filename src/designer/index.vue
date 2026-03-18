@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, provide, watch } from 'vue'
-import type { ComponentConfig, ComponentGroup, FormSchema, GlobalConfig, WidgetSchema, SlotConfig, PropConfig } from '../types'
+import type { ComponentConfig, ComponentGroup, FormSchema, GlobalConfig, WidgetSchema, SlotConfig, ComponentProp } from '../types'
 import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
@@ -78,7 +78,7 @@ function generateId(): string {
 /** Extract the runtime default value from a prop descriptor (or plain value for layouts). */
 function getPropDefaultValue(v: unknown): unknown {
   if (!isPropConfig(v)) return v           // plain primitive (layout props)
-  const cfg = v as PropConfig
+  const cfg = v as ComponentProp
   if (cfg.default !== undefined) return cfg.default
   // Props with no explicit default are left undefined so they aren't passed
   // to the component at all (avoids e.g. maxlength=0 blocking text input).

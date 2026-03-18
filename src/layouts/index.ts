@@ -14,7 +14,7 @@ export const GridComponent: ComponentConfig = {
   category: 'layout',
   icon: 'mdi:view-column-outline',
   component: GridLayout,
-  props: { columns: 2 },
+  props: { columns: { type: Number, label: '列数', default: 2 } },
   computeSlots: (props): SlotConfig[] =>
     Array.from({ length: Math.max(1, Number(props.columns) || 2) }, (_, i) => ({
       name: `col-${i}`,
@@ -27,7 +27,7 @@ export const CardComponent: ComponentConfig = {
   category: 'layout',
   icon: 'mdi:card-outline',
   component: CardLayout,
-  props: { header: '卡片标题' },
+  props: { header: { type: String, label: '卡片标题', default: '卡片标题' } },
   slots: [
     { name: 'header', label: '标题栏' },
     { name: 'default', label: '内容区' },
@@ -39,7 +39,7 @@ export const TabComponent: ComponentConfig = {
   category: 'layout',
   icon: 'mdi:tab',
   component: TabsLayout,
-  props: { tabLabels: '标签1,标签2' },
+  props: { tabLabels: { type: String, label: '标签列表', default: '标签1,标签2' } },
   computeSlots: (props): SlotConfig[] => {
     const raw = (props.tabLabels as string) ?? '标签1,标签2'
     const labels = raw.split(',').map((s: string) => s.trim()).filter(Boolean)
@@ -52,7 +52,7 @@ export const TableComponent: ComponentConfig = {
   category: 'layout',
   icon: 'mdi:table',
   component: TableLayout,
-  props: { rows: 2, cols: 2 },
+  props: { rows: { type: Number, label: '行数', default: 2 }, cols: { type: Number, label: '列数', default: 2 } },
   computeSlots: (props): SlotConfig[] => {
     const rows = Math.max(1, Number(props.rows) || 2)
     const cols = Math.max(1, Number(props.cols) || 2)

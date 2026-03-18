@@ -1,6 +1,6 @@
 {
   "name": "@low-code/element-plus",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Element Plus component definitions for the low-code designer/renderer",
   "exports": {
@@ -14,18 +14,35 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
-    "dev": "tsdown --watch"
+    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "low-code",
+    "designer",
+    "renderer",
+    "vue",
+    "form",
+    "element-plus"
+  ],
+  "author": {
+    "name": "Hancel.Lin",
+    "email": "imlinhanchao@foxmail.com",
+    "url": "https://github.com/imlinhanchao"
+  },
+  "bugs": {
+    "url": "https://github.com/imlinhanchao/low-code/issues"
+  },
+  "homepage": "https://github.com/imlinhanchao/low-code/tree/master/packages/element-plus#readme",
+  "license": "MIT",
   "peerDependencies": {
     "element-plus": ">=2.0.0",
-    "vue": ">=3.0.0"
+    "vue": ">=3.0.0",
+    "low-code": "*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",

@@ -9,8 +9,11 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationDir": "./dist",
-    "rootDir": "src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "low-code": ["../../src/index.ts"]
+    }
   },
   "include": ["src/**/*", "env.d.ts", "typings/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "tsdown.config.ts"]

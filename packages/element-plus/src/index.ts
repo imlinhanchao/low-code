@@ -33,6 +33,7 @@ import {
 import type { ComponentGroup } from 'low-code'
 import RulesEditor from './components/RulesEditor.vue'
 import FieldRulesEditor from './components/FieldRulesEditor.vue'
+import "./style.css"
 
 const components: ComponentGroup[] = [
     // ── 通用 ─────────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 {
   "name": "low-code",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "Configurable low-code designer and renderer based on Vue 3",
   "type": "module",
   "workspaces": [
     "packages/*"
@@ -16,20 +17,39 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "vite --host",
     "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "low-code",
+    "designer",
+    "renderer",
+    "vue",
+    "form"
+  ],
+  "bugs": {
+    "url": "https://github.com/imlinhanchao/low-code/issues"
+  },
+  "homepage": "https://github.com/imlinhanchao/low-code#readme",
+  "author": {
+    "name": "Hancel.Lin",
+    "email": "imlinhanchao@foxmail.com",
+    "url": "https://github.com/imlinhanchao"
+  },  
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": ">=3.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitejs/plugin-vue-jsx": "^5.1.4",
+    "@low-code/element-plus": "*",
     "element-plus": "^2.13.5",
     "less": "^4.5.1",
     "tsdown": "^0.21.0",
@@ -39,7 +59,11 @@
     "vue-tsc": "^3.2.5"
   },
   "dependencies": {
-    "@iconify/vue": "^5.0.0",
-    "@low-code/element-plus": "*"
+    "@iconify/vue": "^5.0.0"
+  },
+  "release": {
+    "branches": [
+      "master"
+    ]
   }
 }

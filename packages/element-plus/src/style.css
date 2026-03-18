@@ -1,0 +1,318 @@
+/* === src/components/FieldRulesEditor.vue === */
+.fre-root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.fre-toolbar {
+  display: flex;
+}
+.fre-empty {
+  color: #c0c4cc;
+  text-align: center;
+  padding: 12px 0;
+}
+.fre-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fafafa;
+}
+.fre-rule-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fre-rule-cell--check {
+  cursor: pointer;
+  gap: 3px;
+}
+.fre-rule-cell--msg {
+  flex: 1;
+}
+.fre-rule-label {
+  color: #909399;
+  white-space: nowrap;
+}
+.fre-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 12px;
+  outline: none;
+  color: #303133;
+  background: #fff;
+  box-sizing: border-box;
+}
+.fre-input--sm {
+  width: 56px;
+  flex: none;
+}
+.fre-input:focus {
+  border-color: #409eff;
+}
+.fre-btn {
+  padding: 0 12px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #606266;
+  white-space: nowrap;
+}
+.fre-btn--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+.fre-btn--primary:hover {
+  background: #66b1ff;
+}
+.fre-icon-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.fre-icon-btn--del {
+  background: #f56c6c;
+  color: #fff;
+}
+.fre-icon-btn--del:hover {
+  background: #f78989;
+}
+/* === src/components/FieldRulesEditor.vue === */
+.fre-root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.fre-toolbar {
+  display: flex;
+}
+.fre-empty {
+  color: #c0c4cc;
+  text-align: center;
+  padding: 12px 0;
+}
+.fre-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fafafa;
+}
+.fre-rule-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fre-rule-cell--check {
+  cursor: pointer;
+  gap: 3px;
+}
+.fre-rule-cell--msg {
+  flex: 1;
+}
+.fre-rule-label {
+  color: #909399;
+  white-space: nowrap;
+}
+.fre-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 12px;
+  outline: none;
+  color: #303133;
+  background: #fff;
+  box-sizing: border-box;
+}
+.fre-input--sm {
+  width: 56px;
+  flex: none;
+}
+.fre-input:focus {
+  border-color: #409eff;
+}
+.fre-btn {
+  padding: 0 12px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #606266;
+  white-space: nowrap;
+}
+.fre-btn--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+.fre-btn--primary:hover {
+  background: #66b1ff;
+}
+.fre-icon-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.fre-icon-btn--del {
+  background: #f56c6c;
+  color: #fff;
+}
+.fre-icon-btn--del:hover {
+  background: #f78989;
+}
+
+/* === src/components/RulesEditor.vue === */
+.re-root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+.re-add-field-row {
+  display: flex;
+  gap: 8px;
+}
+.re-empty {
+  color: #c0c4cc;
+  text-align: center;
+  padding: 12px 0;
+}
+.re-field {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.re-field-header {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  padding: 5px 8px;
+  gap: 6px;
+}
+.re-field-name {
+  flex: 1;
+  font-weight: 600;
+  color: #303133;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+.re-rule-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 8px;
+  border-top: 1px solid #f0f0f0;
+}
+.re-rule-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.re-rule-cell--check {
+  cursor: pointer;
+  gap: 3px;
+}
+.re-rule-cell--msg {
+  flex: 1;
+}
+.re-rule-label {
+  color: #909399;
+  white-space: nowrap;
+}
+.re-input {
+  flex: 1;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 12px;
+  outline: none;
+  color: #303133;
+  background: #fff;
+  box-sizing: border-box;
+}
+.re-input--sm {
+  width: 56px;
+  flex: none;
+}
+.re-input:focus {
+  border-color: #409eff;
+}
+.re-btn {
+  padding: 0 12px;
+  height: 26px;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #606266;
+  white-space: nowrap;
+}
+.re-btn--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+.re-btn--primary:hover {
+  background: #66b1ff;
+}
+.re-icon-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.re-icon-btn--add {
+  background: #409eff;
+  color: #fff;
+}
+.re-icon-btn--del {
+  background: #f56c6c;
+  color: #fff;
+}
+.re-icon-btn--add:hover { background: #66b1ff; }
+.re-icon-btn--del:hover { background: #f78989; }

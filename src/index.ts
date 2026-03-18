@@ -6,6 +6,7 @@ import './style.css'
 export { LcDesigner, LcRenderer }
 export type { ComponentConfig, ComponentGroup, GlobalConfig, WidgetSchema, FormSchema, SlotConfig } from './types'
 export * from './layouts/index'
+export { addAPIProvider as addIconifyAPIProvider } from '@iconify/vue'
 
 export default {
   install(app: App) {

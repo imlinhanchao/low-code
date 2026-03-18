@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, PropConfig, SlotConfig, WidgetSchema } from '../../types'
+import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, ComponentProp, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig, resolveSlotName } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import { draggingConfig } from '../useDragState'
@@ -319,7 +319,7 @@ const showSlotContent = computed(
     !(props.widget?.slots['default'] ?? []).length,
 )
 
-/** Config prop entries as [key, value] – value may be a PropConfig or a plain primitive */
+/** Config prop entries as [key, value] – value may be a ComponentProp or a plain primitive */
 const configPropEntries = computed(() => Object.entries(props.config?.props ?? {}))
 
 /** Event entries from config, if any */
@@ -329,7 +329,7 @@ const configEvents = computed(() => Object.entries(props.config?.events ?? {}))
 
 function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'object' | 'object-sub' | 'object-json' | 'array-items' | 'array-json' | 'multiline' | 'string' {
   if (!isPropConfig(v)) return 'string'
-  const cfg = v as PropConfig
+  const cfg = v as ComponentProp
   if (cfg.type === Boolean) return 'boolean'
   if (cfg.type === Function) return 'function'
   if (cfg.type === Object) {
@@ -346,17 +346,17 @@ function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'o
 }
 
 function propLabel(key: string, v: unknown): string {
-  if (isPropConfig(v)) return (v as PropConfig).label ?? key
+  if (isPropConfig(v)) return (v as ComponentProp).label ?? key
   return key
 }
 
 function propOptions(v: unknown): string[] {
-  if (isPropConfig(v)) return (v as PropConfig).options ?? []
+  if (isPropConfig(v)) return (v as ComponentProp).options ?? []
   return []
 }
 
 function propTooltip(key: string, v: unknown): string {
-  if (isPropConfig(v)) return (v as PropConfig).tooltip ?? ''
+  if (isPropConfig(v)) return (v as ComponentProp).tooltip ?? ''
   return ''
 }
 
@@ -374,7 +374,7 @@ interface CodeDialogState {
 const codeDialog = ref<CodeDialogState | null>(null)
 
 function openFunctionPropDialog(key: string, v: unknown) {
-  const cfg = v as PropConfig
+  const cfg = v as ComponentProp
   const paramNames = cfg.params?.map((p: EventParam) => p.name) ?? []
   codeDialog.value = {
     title: `函数属性: ${cfg.label ?? key}`,
@@ -431,7 +431,7 @@ interface ObjectDialogState {
 const objectDialog = ref<ObjectDialogState | null>(null)
 
 function openObjectPropDialog(key: string, v: unknown) {
-  const cfg = v as PropConfig
+  const cfg = v as ComponentProp
   if (!cfg.dialog) return
   objectDialog.value = {
     title: `编辑: ${cfg.label ?? key}`,
@@ -469,7 +469,7 @@ interface JsonDialogState {
 
 const jsonDialog = ref<JsonDialogState | null>(null)
 
-function openJsonPropDialog(key: string, cfg: PropConfig) {
+function openJsonPropDialog(key: string, cfg: ComponentProp) {
   const current = props.widget?.props[key] ?? cfg.default ?? (cfg.type === Array ? [] : {})
   jsonDialog.value = {
     title: `编辑: ${cfg.label ?? key}`,
@@ -541,7 +541,7 @@ function getArrayItems(key: string): unknown[] {
   return Array.isArray(v) ? v : []
 }
 
-function addArrayItem(key: string, cfg: PropConfig) {
+function addArrayItem(key: string, cfg: ComponentProp) {
   const items = [...getArrayItems(key)]
   const itemCfg = cfg.item
   if (!itemCfg || itemCfg.type === Object) {
@@ -669,7 +669,7 @@ function asRecord(v: unknown): Record<string, unknown> {
             </summary>
             <div class="lc-prop-block-body">
               <div
-                v-for="[sk, sv] in Object.entries((cfgVal as PropConfig).props!)"
+                v-for="[sk, sv] in Object.entries((cfgVal as ComponentProp).props!)"
                 :key="sk"
                 class="lc-prop-row"
               >
@@ -720,19 +720,19 @@ function asRecord(v: unknown): Record<string, unknown> {
             <summary class="lc-prop-block-header">
               <span class="lc-prop-label">{{ propLabel(key, cfgVal) }}</span>
               <span v-if="propTooltip(key, cfgVal)" class="lc-prop-tooltip-icon" :data-tooltip="propTooltip(key, cfgVal)">ⓘ</span>
-              <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as PropConfig)"><Icon icon="mdi:plus" /></button>
+              <button class="lc-arr-add-btn" title="添加项目" @click.stop.prevent="addArrayItem(key, cfgVal as ComponentProp)"><Icon icon="mdi:plus" /></button>
             </summary>
             <div class="lc-prop-block-body">
               <div v-if="!getArrayItems(key).length" class="lc-arr-empty">暂无项目</div>
               <div
                 v-for="(arrItem, idx) in getArrayItems(key)"
                 :key="idx"
-                class="lc-arr-item" :class="{ 'lc-arr-item--complex': (cfgVal as PropConfig).item?.props }"
+                class="lc-arr-item" :class="{ 'lc-arr-item--complex': (cfgVal as ComponentProp).item?.props }"
               >
                 <!-- Primitive item (Boolean / Number / String) -->
-                <template v-if="(cfgVal as PropConfig).item!.type !== Object">
+                <template v-if="(cfgVal as ComponentProp).item!.type !== Object">
                   <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
-                  <label v-if="(cfgVal as PropConfig).item!.type === Boolean" class="lc-prop-checkbox-wrap">
+                  <label v-if="(cfgVal as ComponentProp).item!.type === Boolean" class="lc-prop-checkbox-wrap">
                     <input
                       type="checkbox"
                       :checked="!!arrItem"
@@ -740,7 +740,7 @@ function asRecord(v: unknown): Record<string, unknown> {
                     />
                   </label>
                   <input
-                    v-else-if="(cfgVal as PropConfig).item!.type === Number"
+                    v-else-if="(cfgVal as ComponentProp).item!.type === Number"
                     class="lc-prop-input"
                     type="number"
                     :value="(arrItem as number) ?? ''"
@@ -756,14 +756,14 @@ function asRecord(v: unknown): Record<string, unknown> {
                 </template>
 
                 <!-- Object item with sub-props: inline sub-fields -->
-                <template v-else-if="(cfgVal as PropConfig).item!.props">
+                <template v-else-if="(cfgVal as ComponentProp).item!.props">
                   <div class="lc-arr-item-header">
                     <span class="lc-arr-item-idx">{{ (idx as number) + 1 }}</span>
                     <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)"><Icon icon="mdi:close" /></button>
                   </div>
                   <div class="lc-arr-item-body">
                     <div
-                      v-for="[fk, fv] in Object.entries((cfgVal as PropConfig).item!.props!)"
+                      v-for="[fk, fv] in Object.entries((cfgVal as ComponentProp).item!.props!)"
                       :key="fk"
                       class="lc-prop-row"
                     >
@@ -866,7 +866,7 @@ function asRecord(v: unknown): Record<string, unknown> {
               <button
                 class="lc-fn-btn"
                 :class="{ 'lc-fn-btn--set': isComplexPropSet(key) }"
-                @click="openJsonPropDialog(key, cfgVal as PropConfig)"
+                @click="openJsonPropDialog(key, cfgVal as ComponentProp)"
               >
                 <span v-if="isComplexPropSet(key)" class="lc-fn-dot" />
                 {{ isComplexPropSet(key) ? '已设置' : '编辑 JSON' }}
