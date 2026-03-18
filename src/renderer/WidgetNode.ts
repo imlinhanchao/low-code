@@ -76,6 +76,13 @@ const LcWidgetNode = defineComponent({
     const getRefs = inject<(id: string) => unknown>('lc:getRefs') ?? ((_id: string) => undefined)
     const getGlobalData =
       inject<() => Record<string, unknown>>('lc:getGlobalData') ?? (() => ({}))
+    const updateGlobal =
+      inject<(fieldName: string, val: unknown) => void>('lc:updateGlobal') ??
+      ((fieldName: string) => {
+        if (import.meta.env?.DEV) {
+          console.warn(`[lc-renderer] updateGlobal called for "${fieldName}" but lc:updateGlobal is not provided.`)
+        }
+      })
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const formData = getFormData()
@@ -93,14 +100,30 @@ const LcWidgetNode = defineComponent({
 
       for (const key of Object.keys(props.widget.models)) {
         // Use the per-model field name (or fall back to the model key itself)
-        // to read from / write to the flat form data object.
+        // to read from / write to the configured data source.
         const fieldName = props.widget.fields?.[key] ?? key
-        result[key] = formData[fieldName] ?? props.widget.models[key]
-
+        const source = props.widget.sources?.[key] ?? '$model'
         const eventKey =
           key === 'modelValue' ? 'onUpdate:modelValue' : `onUpdate:${key}`
         const capturedFieldName = fieldName
-        result[eventKey] = (v: unknown) => updateModel(capturedFieldName, v)
+
+        if (source === '$global') {
+          result[key] = globalData[fieldName] ?? props.widget.models[key]
+          result[eventKey] = (v: unknown) => updateGlobal(capturedFieldName, v)
+        } else if (source === '$scope') {
+          result[key] = scope[fieldName] ?? props.widget.models[key]
+          // $scope is read-only — emit a dev warning if the component tries to write back
+          const capturedKey = key
+          result[eventKey] = (_v: unknown) => {
+            if (import.meta.env?.DEV) {
+              console.warn(`[lc-renderer] Model "${capturedKey}" is bound to $scope (read-only). Update ignored.`)
+            }
+          }
+        } else {
+          // default: '$model'
+          result[key] = formData[fieldName] ?? props.widget.models[key]
+          result[eventKey] = (v: unknown) => updateModel(capturedFieldName, v)
+        }
       }
 
       // Bind user-authored event handlers from widget.events.

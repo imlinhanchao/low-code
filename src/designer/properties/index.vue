@@ -87,6 +87,17 @@ function updateModelField(modelKey: string, fieldName: string) {
   emit('update:widget', { ...props.widget, fields: newFields })
 }
 
+function updateModelSource(modelKey: string, source: string) {
+  if (!props.widget) return
+  const newSources = { ...(props.widget.sources ?? {}) }
+  if (source && source !== '$model') {
+    newSources[modelKey] = source as '$model' | '$global' | '$scope'
+  } else {
+    delete newSources[modelKey]
+  }
+  emit('update:widget', { ...props.widget, sources: newSources })
+}
+
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
   const newProps = { ...props.widget.props }
@@ -907,24 +918,36 @@ function asRecord(v: unknown): Record<string, unknown> {
         >
           <span class="lc-model-key">{{ key }}</span>
           <div class="lc-model-fields">
-            <div class="lc-prop-row lc-model-field-row">
-              <label class="lc-prop-label lc-prop-label--sub">字段名</label>
-              <input
-                class="lc-prop-input"
-                :value="widget.fields?.[key] ?? ''"
-                placeholder="如: username"
-                @input="updateModelField(key, ($event.target as HTMLInputElement).value)"
-              />
+              <div class="lc-prop-row lc-model-field-row">
+                <label class="lc-prop-label lc-prop-label--sub">数据源</label>
+                <select
+                  class="lc-prop-input"
+                  :value="widget.sources?.[key] ?? '$model'"
+                  @change="updateModelSource(key as string, ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="$model">$model</option>
+                  <option value="$global">$global</option>
+                  <option value="$scope">$scope</option>
+                </select>
+              </div>
+              <div class="lc-prop-row lc-model-field-row">
+                <label class="lc-prop-label lc-prop-label--sub">字段名</label>
+                <input
+                  class="lc-prop-input"
+                  :value="widget.fields?.[key] ?? ''"
+                  placeholder="如: username"
+                  @input="updateModelField(key, ($event.target as HTMLInputElement).value)"
+                />
+              </div>
+              <div class="lc-prop-row lc-model-field-row">
+                <label class="lc-prop-label lc-prop-label--sub">默认值</label>
+                <input
+                  class="lc-prop-input"
+                  :value="valueToString(val)"
+                  @input="updateModel(key, ($event.target as HTMLInputElement).value)"
+                />
+              </div>
             </div>
-            <div class="lc-prop-row lc-model-field-row">
-              <label class="lc-prop-label lc-prop-label--sub">默认值</label>
-              <input
-                class="lc-prop-input"
-                :value="valueToString(val)"
-                @input="updateModel(key, ($event.target as HTMLInputElement).value)"
-              />
-            </div>
-          </div>
         </div>
       </template>
 

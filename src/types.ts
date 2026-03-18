@@ -164,6 +164,14 @@ export interface WidgetSchema {
    * Only present for widgets that have v-model bindings.
    */
   fields?: Record<string, string>
+  /**
+   * Per-model binding sources.
+   * Determines where each model's value is read from and written to.
+   * '$model' (default): reads/writes the flat form data object.
+   * '$global': reads/writes the global shared data object.
+   * '$scope': reads from scoped-slot props (read-only).
+   */
+  sources?: Record<string, '$model' | '$global' | '$scope'>
   /** Current prop values */
   props: Record<string, unknown>
   /** Current v-model values */
