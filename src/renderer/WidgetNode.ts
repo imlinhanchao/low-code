@@ -43,6 +43,70 @@ function evalProp(
 }
 
 /**
+ * Parse a binding source expression (e.g. '$model', '$scope.row', '$global.section.data')
+ * into a base identifier and a path array for nested access.
+ *
+ *   '$model'           → { base: '$model',  path: [] }
+ *   '$model.section'   → { base: '$model',  path: ['section'] }
+ *   '$global'          → { base: '$global', path: [] }
+ *   '$global.a.b'      → { base: '$global', path: ['a', 'b'] }
+ *   '$scope'           → { base: '$scope',  path: [] }
+ *   '$scope.row'       → { base: '$scope',  path: ['row'] }
+ *
+ * Unrecognised sources (i.e. not starting with one of the three known prefixes)
+ * fall back to `{ base: '$model', path: [] }`.  Redundant dots (e.g. `$model..key`)
+ * are normalised away by the `filter(Boolean)` step.
+ */
+function parseSource(source: string): { base: '$model' | '$global' | '$scope'; path: string[] } {
+  for (const base of ['$model', '$global', '$scope'] as const) {
+    if (source === base) return { base, path: [] }
+    if (source.startsWith(base + '.')) {
+      return { base, path: source.slice(base.length + 1).split('.').filter(Boolean) }
+    }
+  }
+  // Unrecognised source — fall back to $model with no sub-path.
+  return { base: '$model', path: [] }
+}
+
+/**
+ * Navigate `path` inside `root` and return the nested object that acts as
+ * the key-value container for the bound field.  Returns `{}` when any
+ * intermediate segment is missing or not a plain object / array so that
+ * reads yield `undefined` gracefully.
+ */
+function getAtPath(root: Record<string, unknown>, path: string[]): Record<string, unknown> {
+  let cur: unknown = root
+  for (const k of path) {
+    if (cur == null || typeof cur !== 'object') return {}
+    cur = (cur as Record<string, unknown>)[k]
+  }
+  // Accept both plain objects and arrays as containers (arrays support numeric field names).
+  return (cur != null && typeof cur === 'object' ? cur : {}) as Record<string, unknown>
+}
+
+/**
+ * Produce a *shallow-cloned* copy of `root` with the value at
+ * `[...path][fieldName]` set to `value`.  All intermediate objects are
+ * shallow-cloned to keep the update immutable at each level.
+ */
+function setAtPath(
+  root: Record<string, unknown>,
+  path: string[],
+  fieldName: string,
+  value: unknown,
+): Record<string, unknown> {
+  if (path.length === 0) {
+    return { ...root, [fieldName]: value }
+  }
+  const [head, ...tail] = path
+  const child =
+    typeof root[head] === 'object' && root[head] !== null
+      ? (root[head] as Record<string, unknown>)
+      : {}
+  return { ...root, [head]: setAtPath(child, tail, fieldName, value) }
+}
+
+/**
  * Recursive render-function component.
  * Renders a single WidgetSchema into live Vue nodes, passing slot children
  * as slot functions to `h()`.  Self-reference enables unlimited nesting.
@@ -102,16 +166,30 @@ const LcWidgetNode = defineComponent({
         // Use the per-model field name (or fall back to the model key itself)
         // to read from / write to the configured data source.
         const fieldName = props.widget.fields?.[key] ?? key
-        const source = props.widget.sources?.[key] ?? '$model'
+        const rawSource = props.widget.sources?.[key] ?? '$model'
+        const { base, path } = parseSource(rawSource)
         const eventKey =
           key === 'modelValue' ? 'onUpdate:modelValue' : `onUpdate:${key}`
         const capturedFieldName = fieldName
+        const capturedPath = path
 
-        if (source === '$global') {
-          result[key] = globalData[fieldName] ?? props.widget.models[key]
-          result[eventKey] = (v: unknown) => updateGlobal(capturedFieldName, v)
-        } else if (source === '$scope') {
-          result[key] = scope[fieldName] ?? props.widget.models[key]
+        if (base === '$global') {
+          const container = getAtPath(globalData, path)
+          result[key] = container[fieldName] ?? props.widget.models[key]
+          result[eventKey] = (v: unknown) => {
+            if (capturedPath.length === 0) {
+              updateGlobal(capturedFieldName, v)
+            } else {
+              // Update the nested container; only the top-level key needs to be
+              // written back via updateGlobal since it owns the full subtree.
+              const fresh = getGlobalData()
+              const newRoot = setAtPath(fresh, capturedPath, capturedFieldName, v)
+              updateGlobal(capturedPath[0], newRoot[capturedPath[0]])
+            }
+          }
+        } else if (base === '$scope') {
+          const container = getAtPath(scope as Record<string, unknown>, path)
+          result[key] = container[fieldName] ?? props.widget.models[key]
           // $scope is read-only — emit a dev warning if the component tries to write back
           const capturedKey = key
           result[eventKey] = (_v: unknown) => {
@@ -120,9 +198,18 @@ const LcWidgetNode = defineComponent({
             }
           }
         } else {
-          // default: '$model'
-          result[key] = formData[fieldName] ?? props.widget.models[key]
-          result[eventKey] = (v: unknown) => updateModel(capturedFieldName, v)
+          // default: '$model' (with optional sub-path)
+          const container = getAtPath(formData, path)
+          result[key] = container[fieldName] ?? props.widget.models[key]
+          result[eventKey] = (v: unknown) => {
+            if (capturedPath.length === 0) {
+              updateModel(capturedFieldName, v)
+            } else {
+              const fresh = getFormData()
+              const newRoot = setAtPath(fresh, capturedPath, capturedFieldName, v)
+              updateModel(capturedPath[0], newRoot[capturedPath[0]])
+            }
+          }
         }
       }
 

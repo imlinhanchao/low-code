@@ -91,7 +91,7 @@ function updateModelSource(modelKey: string, source: string) {
   if (!props.widget) return
   const newSources = { ...(props.widget.sources ?? {}) }
   if (source && source !== '$model') {
-    newSources[modelKey] = source as '$model' | '$global' | '$scope'
+    newSources[modelKey] = source
   } else {
     delete newSources[modelKey]
   }
@@ -908,7 +908,7 @@ function asRecord(v: unknown): Record<string, unknown> {
           数据绑定
           <span
             class="lc-prop-tooltip-icon lc-prop-tooltip-icon--group"
-            data-tooltip="字段名默认从 $model 读写。可使用 $model（表单数据）、$global（全局数据）；在插槽内还可使用 $scope（插槽数据）"
+            data-tooltip="字段名默认从 $model 读写。支持点语法指定嵌套对象：$model.section、$global.section（读写）；$scope 或 $scope.row（只读，用于插槽内）"
           >ⓘ</span>
         </div>
         <div
@@ -920,15 +920,12 @@ function asRecord(v: unknown): Record<string, unknown> {
           <div class="lc-model-fields">
               <div class="lc-prop-row lc-model-field-row">
                 <label class="lc-prop-label lc-prop-label--sub">数据源</label>
-                <select
+                <input
                   class="lc-prop-input"
                   :value="widget.sources?.[key] ?? '$model'"
-                  @change="updateModelSource(key as string, ($event.target as HTMLSelectElement).value)"
-                >
-                  <option value="$model">$model</option>
-                  <option value="$global">$global</option>
-                  <option value="$scope">$scope</option>
-                </select>
+                  placeholder="$model"
+                  @change="updateModelSource(key as string, ($event.target as HTMLInputElement).value.trim())"
+                />
               </div>
               <div class="lc-prop-row lc-model-field-row">
                 <label class="lc-prop-label lc-prop-label--sub">字段名</label>

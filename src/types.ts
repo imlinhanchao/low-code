@@ -167,11 +167,15 @@ export interface WidgetSchema {
   /**
    * Per-model binding sources.
    * Determines where each model's value is read from and written to.
-   * '$model' (default): reads/writes the flat form data object.
-   * '$global': reads/writes the global shared data object.
-   * '$scope': reads from scoped-slot props (read-only).
+   * Supports dot-notation to address a nested object as the data container:
+   *   '$model'          → formData[fieldName]          (default, read/write)
+   *   '$model.section'  → formData.section[fieldName]  (read/write)
+   *   '$global'         → globalData[fieldName]        (read/write)
+   *   '$global.section' → globalData.section[fieldName](read/write)
+   *   '$scope'          → scope[fieldName]             (read-only)
+   *   '$scope.row'      → scope.row[fieldName]         (read-only)
    */
-  sources?: Record<string, '$model' | '$global' | '$scope'>
+  sources?: Record<string, string>
   /** Current prop values */
   props: Record<string, unknown>
   /** Current v-model values */
