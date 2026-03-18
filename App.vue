@@ -26,11 +26,24 @@
             :schema="schema"
             :components="components"
             v-model="formData"
+            v-model:global="globalData"
           />
         </div>
         <div class="preview-data">
           <h3>表单数据</h3>
           <pre>{{ JSON.stringify(formData, null, 2) }}</pre>
+        </div>
+        <div class="preview-data">
+          <h3>全局数据</h3>
+          <el-input
+            type="textarea"
+            :rows="6"
+            v-model="globalDataText"
+          />
+          <p>
+            <el-button type="primary" @click="globalDataText = JSON.stringify(globalData, null, 2)">刷新</el-button>
+            <el-button @click="globalData = JSON.parse(globalDataText)">设置</el-button>
+          </p>
         </div>
       </div>
     </main>
@@ -38,11 +51,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer, layoutComponents } from 'low-code'
 import type { FormSchema } from 'low-code'
 import componentList from '@low-code/element-plus'
+import { ElInput, ElButton } from 'element-plus'
 
 const components = [
   {
@@ -58,6 +72,17 @@ const formData = ref<Record<string, unknown>>({})
 function clearSchema() {
   schema.value = { widgets: [] }
 }
+
+const globalData = ref<Record<string, unknown>>({})
+const globalDataText = ref<string>('{}')
+watch(globalData, (val) => {
+  try {
+    globalDataText.value = JSON.stringify(val, null, 2)
+  } catch {
+    // ignore
+  }
+})
+
 </script>
 
 <style>
