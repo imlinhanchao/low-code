@@ -3,12 +3,14 @@ import type { ComponentConfig, WidgetSchema } from '../types'
 import { isPropConfig } from '../types'
 
 /**
- * Evaluate a prop value that may reference the built-in `$model` or `$scope`
- * variables.
+ * Evaluate a prop value that may reference the built-in `$model`, `$global` or
+ * `$scope` variables.
  *
  * Supported patterns:
  *   '$model'       → the entire form-data object
  *   '$model.key'   → formData[key]  (own property only)
+ *   '$global'      → the global shared data object
+ *   '$global.key'  → globalData[key]  (own property only)
  *   '$scope'       → the scoped-slot props object passed by the parent slot
  *   '$scope.key'   → scope[key]  (own property only)
  *
@@ -17,6 +19,7 @@ import { isPropConfig } from '../types'
 function evalProp(
   value: unknown,
   formData: Record<string, unknown>,
+  globalData: Record<string, unknown>,
   scope: Record<string, unknown>,
 ): unknown {
   if (typeof value !== 'string') return value
@@ -25,6 +28,11 @@ function evalProp(
   if (trimmed.startsWith('$model.')) {
     const key = trimmed.slice(7)
     return Object.hasOwn(formData, key) ? formData[key] : undefined
+  }
+  if (trimmed === '$global') return globalData
+  if (trimmed.startsWith('$global.')) {
+    const key = trimmed.slice(8)
+    return Object.hasOwn(globalData, key) ? globalData[key] : undefined
   }
   if (trimmed === '$scope') return scope
   if (trimmed.startsWith('$scope.')) {
@@ -66,18 +74,21 @@ const LcWidgetNode = defineComponent({
       inject<(fieldName: string, val: unknown) => void>('lc:updateModel')!
     const widgetRefs = inject<Map<string, unknown>>('lc:widgetRefs')
     const getRefs = inject<(id: string) => unknown>('lc:getRefs') ?? ((_id: string) => undefined)
+    const getGlobalData =
+      inject<() => Record<string, unknown>>('lc:getGlobalData') ?? (() => ({}))
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const formData = getFormData()
+      const globalData = getGlobalData()
       const scope = props.scope as Record<string, unknown>
 
-      // Start with static props, evaluating any $model/$scope expressions.
+      // Start with static props, evaluating any $model/$global/$scope expressions.
       // Exclude the special 'hidden' prop — it's handled by LcWidgetNode itself
       // and must not be forwarded to the actual component.
       const result: Record<string, unknown> = {}
       for (const [key, value] of Object.entries(props.widget.props)) {
         if (key === 'hidden') continue
-        result[key] = evalProp(value, formData, scope)
+        result[key] = evalProp(value, formData, globalData, scope)
       }
 
       for (const key of Object.keys(props.widget.models)) {
@@ -101,13 +112,13 @@ const LcWidgetNode = defineComponent({
         const handlerKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
         const paramNames = config.events?.[eventName]?.map((p) => p.name) ?? []
         try {
-          // Compile handler with $model, $getRefs and $scope injected as named
-          // parameters. $model and $scope always reflect their current values at
+          // Compile handler with $model, $global, $getRefs and $scope injected as named
+          // parameters. $model, $global and $scope always reflect their current values at
           // the time the event fires rather than when the handler was compiled.
           // $getRefs allows handlers to access component instances by widget id.
           // eslint-disable-next-line no-new-func
-          const compiled = new Function('$model', '$getRefs', '$scope', ...paramNames, code)
-          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getRefs, scope, ...args)
+          const compiled = new Function('$model', '$global', '$getRefs', '$scope', ...paramNames, code)
+          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, scope, ...args)
         } catch (err) {
           if (import.meta.env?.DEV) {
             console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
@@ -122,12 +133,12 @@ const LcWidgetNode = defineComponent({
         if (typeof code === 'string' && code.trim()) {
           const paramNames = propCfg.params?.map((p) => p.name) ?? []
           try {
-            // Inject $model, $getRefs and $scope as named parameters so
+            // Inject $model, $global, $getRefs and $scope as named parameters so
             // Function-typed props (e.g. validator callbacks) can reference
-            // form data, component refs and scoped-slot data.
+            // form data, global data, component refs and scoped-slot data.
             // eslint-disable-next-line no-new-func
-            const compiled = new Function('$model', '$getRefs', '$scope', ...paramNames, code)
-            result[key] = (...args: unknown[]) => compiled(getFormData(), getRefs, scope, ...args)
+            const compiled = new Function('$model', '$global', '$getRefs', '$scope', ...paramNames, code)
+            result[key] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, scope, ...args)
           } catch (err) {
             if (import.meta.env?.DEV) {
               console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)

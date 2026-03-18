@@ -893,7 +893,13 @@ function asRecord(v: unknown): Record<string, unknown> {
 
       <!-- Models (v-model bindings) — each model has a field name + default value -->
       <template v-if="Object.keys(widget.models).length">
-        <div class="lc-properties-group-label">数据绑定</div>
+        <div class="lc-properties-group-label">
+          数据绑定
+          <span
+            class="lc-prop-tooltip-icon lc-prop-tooltip-icon--group"
+            data-tooltip="字段名默认从 $model 读写。可使用 $model（表单数据）、$global（全局数据）；在插槽内还可使用 $scope（插槽数据）"
+          >ⓘ</span>
+        </div>
         <div
           v-for="(val, key) in widget.models"
           :key="'model-' + key"

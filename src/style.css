@@ -338,6 +338,12 @@
   line-height: 1;
   user-select: none;
 }
+/* Variant used inside group label headers (inline, smaller) */
+.lc-prop-tooltip-icon--group {
+  vertical-align: middle;
+  margin-left: 4px;
+  font-size: 11px;
+}
 .lc-prop-tooltip-icon::after {
   content: attr(data-tooltip);
   position: absolute;

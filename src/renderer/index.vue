@@ -14,14 +14,21 @@ const props = defineProps<{
   schema: FormSchema
   components: ComponentGroup[]
   modelValue?: Record<string, unknown>
+  /** Global shared data object, accessible as `$global` in prop/event expressions */
+  global?: Record<string, unknown>
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [data: Record<string, unknown>]
+  'update:global': [data: Record<string, unknown>]
 }>()
 
 const formData = computed(
   () => (props.modelValue ?? {}) as Record<string, unknown>,
+)
+
+const globalData = computed(
+  () => (props.global ?? {}) as Record<string, unknown>,
 )
 
 /** Flatten ComponentGroup[] into a single ComponentConfig[] */
@@ -111,13 +118,14 @@ function execGlobalFn(name: string, ...args: unknown[]) {
         }
       }
     }
-    // Inject helpers as named params followed by $model, $getRefs and lifecycle params.
+    // Inject helpers as named params followed by $model, $global, $getRefs and lifecycle params.
     // $model gives global functions reactive access to the current form data.
+    // $global gives global functions access to the shared global object.
     // $getRefs allows global functions to access component instances by widget id.
     const paramNames = LIFECYCLE_PARAMS[name] ?? []
     // eslint-disable-next-line no-new-func
-    const fn = new Function(...helperNames, '$model', '$getRefs', ...paramNames, body)
-    fn(...helperValues, formData.value, getRefs, ...args)
+    const fn = new Function(...helperNames, '$model', '$global', '$getRefs', ...paramNames, body)
+    fn(...helperValues, formData.value, globalData.value, getRefs, ...args)
   } catch (e) {
     console.error(`[lc-renderer] ${name} error:`, e)
   }
@@ -138,12 +146,24 @@ function updateModel(fieldName: string, value: unknown) {
   execGlobalFn('onModelChange', fieldName, value, { ...current })
 }
 
+function updateGlobal(key: string, value: unknown) {
+  const current = { ...globalData.value }
+  current[key] = value
+  emit('update:global', current)
+}
+
+function getGlobalData() {
+  return globalData.value
+}
+
 // Provide context for recursive LcWidgetNode rendering
 provide('lc:getConfig', getConfig)
 provide('lc:getFormData', getFormData)
 provide('lc:updateModel', updateModel)
 provide('lc:widgetRefs', widgetRefs)
 provide('lc:getRefs', getRefs)
+provide('lc:getGlobalData', getGlobalData)
+provide('lc:updateGlobal', updateGlobal)
 </script>
 
 <template>
