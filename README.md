@@ -21,9 +21,13 @@ pnpm add low-code
 
 ## 快速上手
 
-### 1. 基础用法
+安装核心库 `low-code` 和组件库 `@low-code/element-plus` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
 
-参考 [App.vue](App.vue) 的实现，你可以同时在一个应用中使用设计器和渲染器。
+```bash
+npm install low-code @low-code/element-plus element-plus
+```
+
+在你的 Vue 3 项目中引入并使用设计器和渲染器：
 
 ```vue
 <template>
