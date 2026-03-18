@@ -72,12 +72,22 @@ const formData = ref({})
 ## 核心组件
 
 ### LcDesigner
+
 可视化设计器组件，用于生成表单 Schema。
+
 - `v-model`: 绑定表单 Schema 对象。
 - `components`: 注入的可选组件列表。
 
+> [!NOTE]
+> 设计器中所有组件，都可以使用内置变量 `$model` 来访问当前组件的数据模型，方便进行数据绑定和事件处理。
+> 还可以使用 `$global` 访问全局共享数据（如果启用）。
+> 若组件在插槽内，则可以使用 `$slot` 访问插槽属性。
+> `$getRefs(id)` 方法可获取指定 ID 的组件实例，方便跨组件通信。
+
 ### LcRenderer
+
 表单渲染器组件，根据 Schema 渲染表单并驱动数据。
+
 - `schema`: 表单定义 JSON。
 - `components`: 渲染所需的组件库。
 - `v-model`: 绑定表单业务数据。
