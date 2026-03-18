@@ -53,9 +53,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import 'element-plus/dist/index.css'
-import { LcDesigner, LcRenderer, layoutComponents } from 'low-code'
-import type { FormSchema } from 'low-code'
-import componentList from '@low-code/element-plus'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import type { FormSchema } from 'lc.vue'
+import componentList from 'lc-ep'
 import { ElInput, ElButton } from 'element-plus'
 
 const components = [

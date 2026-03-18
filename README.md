@@ -1,4 +1,4 @@
-# Low Code
+# Low Code Vue
 
 基于 Vue 3 的可配置低代码表单设计器与渲染器。
 
@@ -6,25 +6,25 @@
 
 - 🚀 **Vue 3 支持**: 采用 Vue 3 组合式 API 开发。
 - 🎨 **设计器与渲染器分离**: 提供 `LcDesigner` 用于可视化设计，`LcRenderer` 用于动态渲染。
-- 📦 **组件化架构**: 支持自定义组件库扩展，已支持 Element Plus (通过 `@low-code/element-plus`)。
+- 📦 **组件化架构**: 支持自定义组件库扩展，已支持 Element Plus (通过 `lc-ep`)。
 - 📝 **灵活的 Schema**: 使用 JSON 定义表单结构，易于存储和传输。
 
 ## 安装
 
 ```bash
-npm install low-code
+npm install lc.vue
 # 或者使用 yarn / pnpm
-pnpm add low-code
+pnpm add lc.vue
 ```
 
-> **注意**: 该库通常需要配合 `vue` (>=3.0.0) 以及 UI 组件库（如 `@low-code/element-plus`）使用。
+> **注意**: 该库通常需要配合 `vue` (>=3.0.0) 以及 UI 组件库（如 `lc-ep`）使用。
 
 ## 快速上手
 
-安装核心库 `low-code` 和组件库 `@low-code/element-plus` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
+安装核心库 `lc.vue` 和组件库 `lc-ep` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
 
 ```bash
-npm install low-code @low-code/element-plus element-plus
+npm install lc.vue lc-ep element-plus
 ```
 
 在你的 Vue 3 项目中引入并使用设计器和渲染器：
@@ -51,8 +51,8 @@ npm install low-code @low-code/element-plus element-plus
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LcDesigner, LcRenderer, layoutComponents } from 'low-code'
-import componentList from '@low-code/element-plus'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import componentList from 'lc-ep'
 
 // 组合内置布局组件和 Element Plus 组件列表
 const components = [

@@ -7,13 +7,16 @@ export default defineConfig({
   plugins: [vue(), vueJsx()],
   resolve: {
     alias: {
-      // Resolve low-code to source in dev to avoid needing a dist build
-      'low-code': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
-      // Resolve @low-code/element-plus to source in dev to avoid needing a dist build
-      '@low-code/element-plus': fileURLToPath(new URL('./packages/element-plus/src/index.ts', import.meta.url)),
+      // Resolve lc.vue to source in dev to avoid needing a dist build
+      'lc.vue': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+      // Resolve lc-ep to source in dev to avoid needing a dist build
+      'lc-ep': fileURLToPath(new URL('./packages/element-plus/src/index.ts', import.meta.url)),
     },
   },
   server: {
     allowedHosts: true,
   },
+  build: {
+    outDir: 'dist/demo',
+  }
 })

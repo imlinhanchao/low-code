@@ -1,8 +1,8 @@
 {
-  "name": "@low-code/element-plus",
+  "name": "lc-ep",
   "version": "0.0.1",
   "type": "module",
-  "description": "Element Plus component definitions for the low-code designer/renderer",
+  "description": "Element Plus component definitions for the low code designer/renderer",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -22,11 +22,12 @@
     "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
   },
   "keywords": [
-    "low-code",
+    "lowcode",
     "designer",
     "renderer",
     "vue",
     "form",
+    "form-builder",
     "element-plus"
   ],
   "author": {
@@ -41,8 +42,7 @@
   "license": "MIT",
   "peerDependencies": {
     "element-plus": ">=2.0.0",
-    "vue": ">=3.0.0",
-    "low-code": "*"
+    "vue": ">=3.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",

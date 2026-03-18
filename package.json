@@ -1,7 +1,7 @@
 {
-  "name": "low-code",
-  "version": "0.0.1",
-  "description": "Configurable low-code designer and renderer based on Vue 3",
+  "name": "lc.vue",
+  "version": "0.0.2",
+  "description": "Configurable low code designer and renderer based on Vue 3",
   "type": "module",
   "workspaces": [
     "packages/*"
@@ -22,15 +22,20 @@
     "LICENSE"
   ],
   "scripts": {
+    "docs:dev": "vitepress dev --host ./docs",
+    "docs:build": "vitepress build ./docs",
     "dev": "vite --host",
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
+    "demo:build": "vite build --outDir docs/.vitepress/dist/demo",
+    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "page:build": "npm run docs:build && npm run demo:build"
   },
   "keywords": [
-    "low-code",
+    "lowcode",
     "designer",
     "renderer",
     "vue",
-    "form"
+    "form",
+    "form-builder"
   ],
   "bugs": {
     "url": "https://github.com/imlinhanchao/low-code/issues"
@@ -40,21 +45,23 @@
     "name": "Hancel.Lin",
     "email": "imlinhanchao@foxmail.com",
     "url": "https://github.com/imlinhanchao"
-  },  
+  },
   "license": "MIT",
   "peerDependencies": {
     "vue": ">=3.0.0"
   },
   "devDependencies": {
+    "@low-code/element-plus": "*",
     "@types/node": "^25.5.0",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitejs/plugin-vue-jsx": "^5.1.4",
-    "@low-code/element-plus": "*",
     "element-plus": "^2.13.5",
     "less": "^4.5.1",
     "tsdown": "^0.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-pagefind": "^0.4.19",
     "vue": "^3.5.29",
     "vue-tsc": "^3.2.5"
   },
