@@ -1,10 +1,15 @@
 import type { App } from 'vue'
-import MyButton from './components/MyButton.vue'
+import LcDesigner from './designer/index.vue'
+import LcRenderer from './renderer/index.vue'
+import './style.css'
 
-export { MyButton }
+export { LcDesigner, LcRenderer }
+export type { ComponentConfig, ComponentGroup, GlobalConfig, WidgetSchema, FormSchema, SlotConfig } from './types'
+export * from './layouts/index'
 
 export default {
   install(app: App) {
-    app.component('MyButton', MyButton)
+    app.component('LcDesigner', LcDesigner)
+    app.component('LcRenderer', LcRenderer)
   },
 }
