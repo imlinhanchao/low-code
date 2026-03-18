@@ -12,7 +12,7 @@ import { isPropConfig } from '../types'
  *   '$global'      → the global shared data object
  *   '$global.key'  → globalData[key]  (own property only)
  *   '$scope'       → the scoped-slot props object passed by the parent slot
- *   '$scope.key'   → scope[key]  (own property only)
+ *   '$scope.key'   → scope[key]  (read/write via direct mutation of the reactive container)
  *
  * All other values are returned unchanged.
  */
@@ -190,11 +190,20 @@ const LcWidgetNode = defineComponent({
         } else if (base === '$scope') {
           const container = getAtPath(scope as Record<string, unknown>, path)
           result[key] = container[fieldName] ?? props.widget.models[key]
-          // $scope is read-only — emit a dev warning if the component tries to write back
-          const capturedKey = key
-          result[eventKey] = (_v: unknown) => {
-            if (import.meta.env?.DEV) {
-              console.warn(`[lc-renderer] Model "${capturedKey}" is bound to $scope (read-only). Update ignored.`)
+          if (capturedPath.length > 0) {
+            // Nested scope access (e.g. $scope.row) — the container is a reactive
+            // reference to the actual row / data object owned by the parent layout.
+            // Direct mutation propagates back through Vue's deep reactivity.
+            result[eventKey] = (v: unknown) => {
+              container[capturedFieldName] = v
+            }
+          } else {
+            // $scope itself is read-only — the scope object is not owned by this widget.
+            const capturedKey = key
+            result[eventKey] = (_v: unknown) => {
+              if (import.meta.env?.DEV) {
+                console.warn(`[lc-renderer] Model "${capturedKey}" is bound to $scope (read-only). Update ignored.`)
+              }
             }
           }
         } else {
