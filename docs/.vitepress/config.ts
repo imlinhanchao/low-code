@@ -18,7 +18,7 @@ export default defineConfig({
   description: "基于 Vue 3 的低代码表单设计器与渲染器",
   themeConfig: {
     nav: [
-      { text: '组件定义', link: '/guide/getting-started' },
+      { text: '组件定义', link: '/guide/component-definition' },
       { text: '示例', link: 'https://lc.hancel.org/demo/' },
     ],
     sidebar: [
@@ -26,14 +26,21 @@ export default defineConfig({
         text: '入门指导',
         items: [
           { text: '快速上手', link: '/guide/getting-started' },
+          { text: '国际化配置', link: '/guide/i18n' },
         ]
       },
       {
         text: '组件开发',
         items: [
           { text: '组件定义规范', link: '/guide/component-definition' },
-          { text: '布局组件', link: '/guide/layouts' },
-          { text: 'API 参考', link: '/guide/api-reference' }
+          { text: '布局组件', link: '/guide/layouts' }
+        ]
+      },
+      {
+        text: 'API 参考',
+        items: [
+          { text: '导出接口与组件', link: '/guide/exports-reference' },
+          { text: '核心类型定义', link: '/guide/api-reference' }
         ]
       }
     ],

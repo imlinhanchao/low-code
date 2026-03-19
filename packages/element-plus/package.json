@@ -1,6 +1,6 @@
 {
   "name": "lc-ep",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "Element Plus component definitions for the low code designer/renderer",
   "exports": {

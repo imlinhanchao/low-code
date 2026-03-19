@@ -11,8 +11,15 @@ export interface I18nConfig {
   messages: Record<Locale, I18nMessages>
 }
 
+const getBrowserLocale = (): Locale => {
+  if (typeof window === 'undefined') return 'zh-CN'
+  const lang = window.navigator.language
+  if (lang.startsWith('zh')) return 'zh-CN'
+  return 'en-US'
+}
+
 const state = reactive<I18nConfig>({
-  locale: 'zh-CN',
+  locale: getBrowserLocale(),
   messages: {
     'zh-CN': {
       designer: {

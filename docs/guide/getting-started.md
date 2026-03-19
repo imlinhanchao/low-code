@@ -34,9 +34,15 @@ const schema = ref({ widgets: [] })
 </script>
 
 <template>
-  <LcDesigner v-model="schema" :components="components" />
+  <LcDesigner 
+    ref="designerRef"
+    v-model="schema" 
+    :components="components" 
+  />
 </template>
 ```
+
+## 表单渲染
 
 使用 `schema` 渲染表单：
 

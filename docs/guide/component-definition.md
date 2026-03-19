@@ -7,9 +7,14 @@
 ```typescript
 export interface ComponentConfig {
   /**
-   * 组件名称
+   * 内部唯一标识符。用于查找和持久化。
    */
   name: string;
+  /**
+   * 在组件库面板和属性面板中显示的名称。
+   * 支持国际化：传入对象时，设计器会将其视为国际化配置，例如：{ 'zh-CN': '标题', 'en-US': 'Title' }
+   */
+  label: string | Record<string, string>;
   /**
    * 组件图标 (支持 Iconify)
    */
@@ -47,18 +52,18 @@ export interface ComponentConfig {
 
 ## 属性定义 (Props)
 
-属性定义决定了在设计器侧边栏显示的编辑器类型：
+属性定义决定了在设计器侧边栏显示的编辑器类型。`label` 和 `options` 都支持国际化对象配置：
 
 ```typescript
 props: {
   size: { 
     type: String, 
-    label: '尺寸', 
+    label: { 'zh-CN': '尺寸', 'en-US': 'Size' }, 
     options: ['default', 'small', 'large'] 
   },
   disabled: { 
     type: Boolean, 
-    label: '禁用' 
+    label: { 'zh-CN': '禁用', 'en-US': 'Disabled' } 
   },
   // 对象类型：通常用于配置复杂的子属性
   style: {
@@ -72,12 +77,12 @@ props: {
   // 数组类型：通常用于下拉选项、列表数据等，可以定义常规类型，也可以是 Object 类型以支持复杂结构
   options: {
     type: Array,
-    label: '选项列表',
+    label: { 'zh-CN': '选项列表', 'en-US': 'Options' },
     item: {
       type: Object,
       props: {
-        label: { type: String, label: '选项标签' },
-        value: { type: String, label: '选项值' }
+        label: { type: String, label: { 'zh-CN': '选项标签', 'en-US': 'Option Label' } },
+        value: { type: String, label: { 'zh-CN': '选项值', 'en-US': 'Option Value' } }
       }
     }
   }

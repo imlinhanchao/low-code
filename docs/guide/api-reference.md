@@ -1,4 +1,4 @@
-# API 参考 (核心类型)
+# 核心类型定义
 
 本文档详细介绍了低代码平台中用于定义组件和属性的核心 TypeScript 接口。
 
@@ -8,7 +8,8 @@
 
 | 属性 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `name` | `string` | 组件在面板中显示的名称 |
+| `name` | `string` | 内部唯一标识符。用于查找和持久化 |
+| `label` | `string \| Record<string, string>` | 在面板中显示的名称，支持国际化配置 |
 | `icon` | `string` | (可选) Iconify 图标名称 |
 | `category` | `'layout' \| 'widget'` | (可选) 组件类别，默认为 `widget` |
 | `component` | `Component` | 实际渲染的 Vue 组件构造函数 |
@@ -28,7 +29,7 @@
 | 属性 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `type` | `any` | JS 类型构造函数 (String, Number, Boolean, Object, Array, Function) |
-| `label` | `string` | (可选) 编辑器中显示的标签 |
+| `label` | `string \| Record<string, string>` | (可选) 编辑器中显示的标签，支持国际化配置 |
 | `default` | `any` | (可选) 属性默认值 |
 | `options` | `any[]` | (可选) 仅用于 String 类型，渲染为下拉选择框 |
 | `item` | `ComponentProp` | (可选) 仅用于 Array 类型，定义数组项配置 |
@@ -42,12 +43,12 @@
 
 ## SlotConfig
 
-组件插槽的配置。
+组件插槽的配置。`label` 支持国际化配置。
 
 | 属性 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `name` | `string` | 插槽名称 (如 `default`, `header`) |
-| `label` | `string` | (可选) 设计器中显示的标签 |
+| `label` | `string \| Record<string, string>` | (可选) 设计器中显示的标签 |
 | `components` | `ComponentConfig[]` | (可选) 限制该插槽内允许放入的组件 |
 | `virtual` | `boolean` | (可选) 为 true 时，空插槽不渲染占位符 |
 | `noPlaceholder`| `boolean` | (可选) 为 true 时，不渲染占位符 (常用于修饰类插槽) |
