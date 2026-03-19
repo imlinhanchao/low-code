@@ -14,11 +14,22 @@ export const GridComponent: ComponentConfig = {
   category: 'layout',
   icon: 'mdi:view-column-outline',
   component: GridLayout,
-  props: { columns: { type: Number, label: '列数', default: 2 } },
+  props: {
+    columns: {
+      type: Object, label: '列数', props: {
+        sm: { type: Number, default: 1 },
+        md: { type: Number, default: 2 },
+        lg: { type: Number, default: 3 }
+      },
+      default: { sm: 1, md: 2, lg: 3 }
+    },
+    count: { type: Number, label: '数量', default: 6 },
+    gap: { type: Number, label: '间距', default: 8 },
+  },
   computeSlots: (props): SlotConfig[] =>
-    Array.from({ length: Math.max(1, Number(props.columns) || 2) }, (_, i) => ({
+    Array.from({ length: Math.max(1, Number(props.count) || 6) }, (_, i) => ({
       name: `col-${i}`,
-      label: `第 ${i + 1} 列`,
+      label: `第 ${i + 1} 块`,
     })),
 }
 
