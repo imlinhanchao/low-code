@@ -12,6 +12,7 @@ import type { ComponentConfig, WidgetSchema, SlotConfig } from '../../types'
 import { resolveSlotName } from '../../types'
 import { draggingConfig, draggingWidget, isDragging, hoveredSlotParentId } from '../useDragState'
 import { hoveredId } from './useCanvasOverlay'
+import { useI18n } from '../i18n'
 
 // ── Canvas Slot Zone ──────────────────────────────────────────────────────────
 /**
@@ -214,6 +215,8 @@ export const LcCanvasWidgetNode = defineComponent({
         return h('div', { class: 'lc-canvas-node lc-canvas-node--missing' }, `?? ${props.widget.name}`)
       }
 
+      const { tt } = useI18n()
+
       const isSelected = selectedId.value === props.widget.id
       const isLayout   = props.widget.category === 'layout'
 
@@ -340,7 +343,7 @@ export const LcCanvasWidgetNode = defineComponent({
             h(CanvasSlotZone, {
               parentId: props.widget.id,
               slotName: sn,
-              slotLabel: slotCfg.label ?? sn,
+              slotLabel: tt(slotCfg.label) || sn,
               children,
               isLayout,
               accept: acceptList,

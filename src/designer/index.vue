@@ -1,16 +1,28 @@
 <script setup lang="ts">
 import { ref, computed, provide, watch } from 'vue'
+import { useI18n } from './i18n'
 import type { ComponentConfig, ComponentGroup, FormSchema, GlobalConfig, WidgetSchema, SlotConfig, ComponentProp } from '../types'
 import { isPropConfig } from '../types'
 import PaletteList from './components/list.vue'
 import DesignerCanvas from './canvas/index.vue'
 import PropertiesPanel from './properties/index.vue'
 
+const { setLocale, addLocale, getLocale } = useI18n()
+
 // ── Props / emits ────────────────────────────────────────────────────────────
 const props = defineProps<{
   components: ComponentGroup[]
   modelValue?: FormSchema
+  locale?: string
 }>()
+
+if (props.locale) {
+  setLocale(props.locale)
+}
+
+watch(() => props.locale, (newLocale) => {
+  if (newLocale) setLocale(newLocale)
+})
 
 const emit = defineEmits<{
   'update:modelValue': [schema: FormSchema]
@@ -93,6 +105,7 @@ function buildWidget(config: ComponentConfig): WidgetSchema {
   }
   const id = generateId()
   const modelKeys = Object.keys(config.models ?? {})
+  const { tt } = useI18n()
   // Auto-generate a field name per model key so form data is flat:
   // e.g. { modelValue: 'modelValue_abc' } → formData = { modelValue_abc: 'hello' }
   const fields: Record<string, string> | undefined = modelKeys.length > 0
@@ -110,7 +123,7 @@ function buildWidget(config: ComponentConfig): WidgetSchema {
     // dropping widgets into the slot, which takes precedence in the renderer).
     slotContent:
       config.category !== 'layout' && config.slots?.some((s) => s.name === 'default')
-        ? config.name
+        ? tt(config.label)
         : undefined,
     events: Object.fromEntries(Object.keys(config.events ?? {}).map((k) => [k, ''])),
     slots: {},
@@ -323,6 +336,11 @@ const globalConfig = computed<GlobalConfig>(() => schema.value.global ?? {})
 function updateGlobalConfig(global: GlobalConfig) {
   schema.value = { ...schema.value, global }
 }
+
+defineExpose({
+  setLocale,
+  addLocale,
+})
 </script>
 
 <template>

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from '../i18n'
 import type { GlobalConfig } from '../../types'
 
 const props = defineProps<{
   globalConfig: GlobalConfig
 }>()
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   'update:globalConfig': [config: GlobalConfig]
@@ -20,7 +23,7 @@ function updateCss(css: string) {
 
 function openCssDialog() {
   codeDialog.value = {
-    title: '全局 CSS 样式',
+    title: t('designer.editCss'),
     noBraces: true,
     code: props.globalConfig.css ?? '',
     fullscreen: false,
@@ -31,20 +34,20 @@ function openCssDialog() {
 // ── Functions ────────────────────────────────────────────────────────────────
 
 /** Built-in lifecycle hooks shown in fixed order */
-const LIFECYCLE_HOOKS = [
-  { name: 'onMounted', label: 'onMounted', signature: 'onMounted()' },
+const LIFECYCLE_HOOKS = computed(() => [
+  { name: 'onMounted', label: t('designer.onMounted'), signature: 'onMounted()' },
   {
     name: 'onModelChange',
-    label: 'onModelChange',
+    label: t('designer.onModelChange'),
     signature: 'onModelChange(fieldName, value, formData)',
   },
-]
+])
 
 /** User-defined custom function names (keys not in LIFECYCLE_HOOKS) */
-const builtinNames = new Set(LIFECYCLE_HOOKS.map((h) => h.name))
+const builtinNames = computed(() => new Set(LIFECYCLE_HOOKS.value.map((h) => h.name)))
 
 const customFunctionNames = computed<string[]>(() =>
-  Object.keys(props.globalConfig.functions ?? {}).filter((k) => !builtinNames.has(k)),
+  Object.keys(props.globalConfig.functions ?? {}).filter((k) => !builtinNames.value.has(k)),
 )
 
 function getFnBody(name: string): string {
@@ -69,7 +72,7 @@ const showAddFn = ref(false)
 
 function addCustomFunction() {
   const name = newFnName.value.trim()
-  if (!name || builtinNames.has(name)) return
+  if (!name || builtinNames.value.has(name)) return
   setFnBody(name, '')
   openCodeDialog(name, `${name}()`)
   newFnName.value = ''
@@ -93,7 +96,7 @@ const codeDialog = ref<CodeDialogState | null>(null)
 
 function openCodeDialog(name: string, signature: string) {
   codeDialog.value = {
-    title: `编辑函数: ${name}`,
+    title: `${t('designer.editFn')}: ${name}`,
     signature,
     code: getFnBody(name),
     fullscreen: false,

@@ -4,6 +4,7 @@ import type { ComponentConfig, WidgetSchema, FormSchema, SlotConfig } from '../.
 import { hoveredId } from './useCanvasOverlay'
 import { draggingWidget } from '../useDragState'
 import { LcCanvasWidgetNode, CanvasSlotZone } from './CanvasWidgetNode'
+import { useI18n } from '../i18n'
 
 interface Rect { left: number; top: number; width: number; height: number }
 
@@ -86,6 +87,7 @@ function getRect(id: string | null): Rect | null {
   }
 }
 
+const { tt } = useI18n();
 const hoverRect  = ref<Rect | null>(null)
 const selectRect = ref<Rect | null>(null)
 
@@ -239,7 +241,7 @@ const showSlotsPanel = computed(() => {
       <!-- Non-virtual slots: show children chips + append drop zone -->
       <template v-for="slot in nonVirtualSlots" :key="slot.name">
         <div class="lc-overlay__slot-group">
-          <div class="lc-overlay__slot-group-label">{{ slot.label ?? slot.name }}</div>
+          <div class="lc-overlay__slot-group-label">{{ tt(slot.label) || slot.name }}</div>
           <LcCanvasWidgetNode
             v-for="(child, i) in (selectedWidget.slots[slot.name] ?? [])"
             :key="child.id"
@@ -253,7 +255,7 @@ const showSlotsPanel = computed(() => {
           <CanvasSlotZone
             :parent-id="selectedWidget.id"
             :slot-name="slot.name"
-            :slot-label="slot.label ?? slot.name"
+            :slot-label="tt(slot.label) || slot.name"
             :children="[]"
             :is-layout="false"
             :accept="slot.components?.map((c) => c.name) ?? []"
@@ -263,7 +265,7 @@ const showSlotsPanel = computed(() => {
       <!-- Virtual slot children + drop zone -->
       <template v-for="slot in virtualSlots" :key="slot.name">
         <div class="lc-overlay__slot-group">
-          <div class="lc-overlay__slot-group-label">{{ slot.label ?? slot.name }}</div>
+          <div class="lc-overlay__slot-group-label">{{ tt(slot.label) || slot.name }}</div>
           <LcCanvasWidgetNode
             v-for="(child, i) in (selectedWidget.slots[slot.name] ?? [])"
             :key="child.id"
@@ -277,7 +279,7 @@ const showSlotsPanel = computed(() => {
           <CanvasSlotZone
             :parent-id="selectedWidget.id"
             :slot-name="slot.name"
-            :slot-label="slot.label ?? slot.name"
+            :slot-label="tt(slot.label) || slot.name"
             :children="[]"
             :is-layout="false"
             :accept="slot.components?.map((c) => c.name) ?? []"

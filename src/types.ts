@@ -1,4 +1,5 @@
 import type { Component, DefineComponent } from 'vue'
+import { useI18n } from './designer/i18n'
 
 /** Returns true when a ComponentConfig.props value is a PropConfig descriptor */
 export function isPropConfig(v: unknown): v is ComponentProp {
@@ -11,14 +12,17 @@ export function isPropConfig(v: unknown): v is ComponentProp {
  * Falls back to `config.name` when `slotName` is absent or returns a falsy value.
  */
 export function resolveSlotName(config: ComponentConfig, props: Record<string, unknown>): string {
-  if (config.slotName === undefined) return config.name
+  const { tt } = useI18n()
+  const getName = () => tt(config.label)
+
+  if (config.slotName === undefined) return getName()
   if (typeof config.slotName === 'function') {
     try {
       const result = config.slotName(props)
-      return (result != null && result !== '') ? String(result) : config.name
-    } catch { return config.name }
+      return (result != null && result !== '') ? String(result) : getName()
+    } catch { return getName() }
   }
-  return config.slotName || config.name
+  return config.slotName || getName()
 }
 
 /** 
@@ -157,10 +161,11 @@ export interface SlotConfig {
   /**
    * Optional display label for this slot, shown in the designer's slot panel.   
    * Falls back to `name` when not provided.  
+   * 支持国际化：传入对象时，设计器会将其视为国际化配置，例如：{ 'zh-CN': '标题', 'en-US': 'Title' }
    * 该插槽在设计器的插槽面板中显示的可选标签。  
    * 未提供时回退到 `name`。
    */
-  label?: string
+  label?: string | Record<string, string>
   /**
    * Nested components allowed within this slot.  If omitted, the slot accepts any components.  
    * 该插槽内允许的嵌套组件。如果省略，则该插槽接受任何组件。  
@@ -217,10 +222,11 @@ export interface ComponentProp {
   /**
    * Optional display label for this prop, shown in the designer's prop editor.
    * Falls back to the prop name when not provided.
+   * 支持国际化：传入对象时，设计器会将其视为国际化配置，例如：{ 'zh-CN': '标题', 'en-US': 'Title' }
    * 该属性在设计器的属性编辑器中显示的可选标签。
    * 未提供时回退到属性名称。
    */
-  label?: string;
+  label?: string | Record<string, string>;
   /**
    * For Array type: defines the type of items in the array.
    * When provided, the designer shows an inline collapsible list with add/delete buttons.
@@ -281,10 +287,16 @@ export interface ComponentProp {
  */
 export interface ComponentConfig {
   /**
-   * Display name shown in the palette.  
-   * 在组件库面板中显示的名称。
+   * Internal unique identifier. Used for lookup and persistence.
+   * 内部唯一标识符。用于查找和持久化。
    */
   name: string
+  /**
+   * Display text shown in the palette and properties panel.
+   * 支持国际化：传入对象时，设计器会将其视为国际化配置，例如：{ 'zh-CN': '标题', 'en-US': 'Title' }
+   * 在组件库面板和属性面板中显示的名称。
+   */
+  label: string | Record<string, string>
   /**
    * Iconify icon name (e.g. 'mdi:button-cursor').  
    * When provided, the palette renders the icon beside the component name.  
@@ -358,13 +370,12 @@ export interface ComponentConfig {
  */
 export interface ComponentGroup {
   /**
-   * Display name shown in the palette section header.  
-   * 在组件库面板部分标题中显示的名称。
+   * Display name shown in the palette section header.
+   * 支持国际化：传入对象时，设计器会将其视为国际化配置，例如：{ 'zh-CN': '标题', 'en-US': 'Title' }
    */
-  group: string
+  group: string | Record<string, string>
   /**
-   * Components belonging to this group, shown as items in the collapsible section.  
-   * 属于此组的组件，显示为可折叠部分中的项目。
+   * Components belonging to this group, shown as items in the collapsible section.
    */
   components: ComponentConfig[]
 }

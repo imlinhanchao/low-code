@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useI18n } from '../i18n'
 import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, ComponentProp, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig, resolveSlotName } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import { draggingConfig } from '../useDragState'
 
 const allConfigs = inject<Ref<ComponentConfig[]>>('lc:allConfigs')
+const { t, getLocale, tt } = useI18n()
 
 const props = defineProps<{
   widget: WidgetSchema | null
@@ -60,7 +62,7 @@ function handleIdChange(newId: string) {
   if (!props.widget) return
   const trimmed = newId.trim()
   if (!trimmed) {
-    idError.value = 'ID 不能为空'
+    idError.value = t('designer.idRequired')
     return
   }
   if (trimmed === props.widget.id) {
@@ -68,7 +70,7 @@ function handleIdChange(newId: string) {
     return
   }
   if (allWidgetIds.value.has(trimmed)) {
-    idError.value = `ID "${trimmed}" 已被占用`
+    idError.value = t('designer.idOccupied', { id: trimmed })
     return
   }
   idError.value = ''
@@ -346,8 +348,22 @@ function propKind(v: unknown): 'boolean' | 'select' | 'function' | 'number' | 'o
 }
 
 function propLabel(key: string, v: unknown): string {
-  if (isPropConfig(v)) return (v as ComponentProp).label ?? key
+  if (isPropConfig(v)) {
+    const label = (v as ComponentProp).label
+    if (typeof label === 'object' && label !== null) {
+      return label[getLocale()] || label['en-US'] || Object.values(label)[0]
+    }
+    return (label as string) ?? key
+  }
   return key
+}
+
+function resolveLabel(label: string | Record<string, string> | undefined, fallback: string): string {
+  if (!label) return fallback
+  if (typeof label === 'object' && label !== null) {
+    return label[getLocale()] || label['en-US'] || Object.values(label)[0]
+  }
+  return label
 }
 
 function propOptions(v: unknown): string[] {
@@ -599,7 +615,7 @@ function asRecord(v: unknown): Record<string, unknown> {
   <div class="lc-properties">
     <!-- Back button: shown when viewing a slot child's properties -->
     <div v-if="hasBackButton" class="lc-prop-back-row">
-      <button class="lc-prop-back-btn" title="返回" @click="viewBack?.()">← 返回</button>
+      <button class="lc-prop-back-btn" :title="t('designer.back')" @click="viewBack?.()">← {{ t('designer.back') }}</button>
     </div>
     <!-- Tab bar -->
     <div class="lc-prop-tabs">
@@ -607,23 +623,23 @@ function asRecord(v: unknown): Record<string, unknown> {
         class="lc-prop-tab"
         :class="{ 'lc-prop-tab--active': activeTab === 'props' }"
         @click="activeTab = 'props'"
-      >属性设置</button>
+      >{{ t('designer.propsPanel') }}</button>
       <button
         class="lc-prop-tab"
         :class="{ 'lc-prop-tab--active': activeTab === 'global' }"
         @click="activeTab = 'global'"
-      >全局配置</button>
+      >{{ t('designer.globalConfig') }}</button>
     </div>
 
     <!-- Properties tab -->
     <template v-if="activeTab === 'props'">
       <template v-if="widget && config">
-        <div class="lc-properties-section">{{ config.name }}</div>
+        <div class="lc-properties-section">{{ tt(config.label) }}</div>
 
       <!-- Common attributes (always available for every widget) -->
       <div class="lc-properties-group-label">公共</div>
       <div class="lc-prop-row">
-        <label class="lc-prop-label" title="id">组件ID</label>
+        <label class="lc-prop-label" title="id">{{ t('designer.widgetId') }}</label>
         <input
           class="lc-prop-input"
           :class="{ 'lc-prop-input--error': idError }"
@@ -963,7 +979,7 @@ function asRecord(v: unknown): Record<string, unknown> {
 
       <!-- Unified slot management: all slots, showing component blocks + drag support -->
       <template v-if="effectiveSlots.length > 0">
-        <div class="lc-properties-group-label">插槽</div>
+        <div class="lc-properties-group-label">{{ t('slots') }}</div>
         <div
           v-for="slot in effectiveSlots"
           :key="'slot-' + slot.name"
@@ -977,8 +993,8 @@ function asRecord(v: unknown): Record<string, unknown> {
           @drop="onSlotSectionDrop(slot.name, $event)"
         >
           <div class="lc-slot-section-header">
-            <span class="lc-slot-section-label">{{ slot.label ?? slot.name }}</span>
-            <span class="lc-slot-section-count">{{ (widget.slots[slot.name] ?? []).length ? (widget.slots[slot.name] ?? []).length : '空' }}</span>
+            <span class="lc-slot-section-label">{{ resolveLabel(slot.label, slot.name) }}</span>
+            <span class="lc-slot-section-count">{{ (widget.slots[slot.name] ?? []).length ? (widget.slots[slot.name] ?? []).length : t('empty') }}</span>
           </div>
           <!-- Children blocks (draggable within slot and across slots) -->
           <div

@@ -1,11 +1,15 @@
 <template>
   <div class="app-root">
     <header class="app-header">
-      <h1>低代码表单设计器</h1>
+      <h1>Low Code Form Designer</h1>
       <div class="header-actions">
-        <button class="btn" @click="mode = 'designer'">设计器</button>
-        <button class="btn btn-primary" @click="mode = 'preview'">预览</button>
-        <button class="btn btn-danger" @click="clearSchema">清空</button>
+        <el-select v-model="locale">
+          <el-option value="zh-CN" label="中文"></el-option>
+          <el-option value="en-US" label="English"></el-option>
+        </el-select>
+        <el-button @click="mode = 'designer'">设计器</el-button>
+        <el-button type="primary" @click="mode = 'preview'">预览</el-button>
+        <el-button type="danger" @click="clearSchema">清空</el-button>
       </div>
     </header>
 
@@ -16,6 +20,7 @@
         v-model="schema"
         :components="components"
         class="app-designer"
+        :locale="locale"
       />
 
       <!-- Preview mode -->
@@ -56,7 +61,7 @@ import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import type { FormSchema } from 'lc.vue'
 import componentList from 'lc-ep'
-import { ElInput, ElButton } from 'element-plus'
+import { ElInput, ElButton, ElSelect, ElOption } from 'element-plus'
 
 const components = [
   {
@@ -66,6 +71,7 @@ const components = [
 ]
 const mode = ref<'designer' | 'preview'>('designer')
 
+const locale = ref('zh-CN')
 const schema = ref<FormSchema>({ widgets: [] })
 const formData = ref<Record<string, unknown>>({})
 
@@ -119,23 +125,10 @@ body {
 }
 .header-actions {
   display: flex;
+  width: 100%;
+  max-width: 350px;
   gap: 8px;
 }
-.btn {
-  padding: 6px 16px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background: #fff;
-  font-size: 13px;
-  cursor: pointer;
-  color: #606266;
-  transition: all 0.2s;
-}
-.btn:hover { border-color: #409eff; color: #409eff; }
-.btn-primary { background: #409eff; color: #fff; border-color: #409eff; }
-.btn-primary:hover { background: #66b1ff; border-color: #66b1ff; color: #fff; }
-.btn-danger { color: #f56c6c; border-color: #f56c6c; }
-.btn-danger:hover { background: #f56c6c; color: #fff; }
 
 .app-body {
   flex: 1;

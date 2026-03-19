@@ -2,8 +2,14 @@
 import { Icon } from '@iconify/vue'
 import type { ComponentConfig } from '../../types'
 import { draggingConfig } from '../useDragState'
+import { useI18n } from '../i18n'
 
 const props = defineProps<{ config: ComponentConfig }>()
+const { tt } = useI18n()
+
+function resolveLabel(label: string | Record<string, string> | undefined, fallback: string): string {
+  return tt(label) || fallback
+}
 
 function onDragStart(e: DragEvent) {
   draggingConfig.value = props.config
@@ -31,7 +37,7 @@ function onDragEnd() {
     <span v-else class="lc-palette-item__icon lc-palette-item__icon--default">
       <Icon icon="mdi:puzzle-outline" width="16" height="16" />
     </span>
-    <span class="lc-palette-item__label">{{ config.name }}</span>
+    <span class="lc-palette-item__label">{{ resolveLabel(config.label, config.name) }}</span>
   </div>
 </template>
 
