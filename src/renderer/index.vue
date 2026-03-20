@@ -16,6 +16,10 @@ const props = defineProps<{
   modelValue?: Record<string, unknown>
   /** Global shared data object, accessible as `$global` in prop/event expressions */
   global?: Record<string, unknown>
+  /** Whether all widgets should be in model-only (view) mode */
+  modelonly?: boolean
+  /** Whether all widgets should be disabled */
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -164,6 +168,8 @@ provide('lc:widgetRefs', widgetRefs)
 provide('lc:getRefs', getRefs)
 provide('lc:getGlobalData', getGlobalData)
 provide('lc:updateGlobal', updateGlobal)
+provide('lc:globalModelOnly', computed(() => props.modelonly))
+provide('lc:globalDisabled', computed(() => props.disabled))
 </script>
 
 <template>

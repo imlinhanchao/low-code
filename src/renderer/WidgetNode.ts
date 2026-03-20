@@ -147,6 +147,8 @@ const LcWidgetNode = defineComponent({
           console.warn(`[lc-renderer] updateGlobal called for "${fieldName}" but lc:updateGlobal is not provided.`)
         }
       })
+    const globalModelOnly = inject<boolean>('lc:globalModelOnly')
+    const globalDisabled = inject<boolean>('lc:globalDisabled')
 
     function buildProps(config: ComponentConfig): Record<string, unknown> {
       const formData = getFormData()
@@ -157,6 +159,12 @@ const LcWidgetNode = defineComponent({
       // Exclude the special 'hidden' prop — it's handled by LcWidgetNode itself
       // and must not be forwarded to the actual component.
       const result: Record<string, unknown> = {}
+
+      // Apply global disabled state if set.
+      if (globalDisabled === true) {
+        result.disabled = true
+      }
+
       for (const [key, value] of Object.entries(props.widget.props)) {
         if (key === 'hidden') continue
         result[key] = evalProp(value, formData, globalData, scope)
@@ -283,7 +291,7 @@ const LcWidgetNode = defineComponent({
 
       const builtProps = buildProps(config)
 
-      const isModelOnly = props.widget.props.modelonly === true && props.widget.category === 'widget'
+      const isModelOnly = (globalModelOnly === true || props.widget.props.modelonly === true) && props.widget.category === 'widget'
 
       // If modelonly is true, just render the value (from modelValue or first model)
       if (isModelOnly) {
