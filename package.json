@@ -1,6 +1,6 @@
 {
   "name": "lc.vue",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Configurable low code designer and renderer based on Vue 3",
   "type": "module",
   "workspaces": [

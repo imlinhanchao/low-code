@@ -1,48 +1,50 @@
+English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/README_ZH.md) 
+
 # Low Code Vue
 
-基于 Vue 3 的可配置低代码表单设计器与渲染器。[在线文档](https://lc.hancel.org/)
+A configurable low-code form designer and renderer based on Vue 3. [Online Documentation](https://lc.hancel.org/)
 
 [![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 [![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 
-## 特性
+## Features
 
-- 🚀 **Vue 3 支持**: 采用 Vue 3 组合式 API 开发。
-- 🎨 **设计器与渲染器分离**: 提供 `LcDesigner` 用于可视化设计，`LcRenderer` 用于动态渲染。
-- 📦 **组件化架构**: 支持自定义组件库扩展，已支持 Element Plus (通过 `lc-ep`)。
-- 📝 **灵活的 Schema**: 使用 JSON 定义表单结构，易于存储和传输。
+- 🚀 **Vue 3 Support**: Developed using Vue 3 Composition API.
+- 🎨 **Designer & Renderer Decoupling**: Provides `LcDesigner` for visual design and `LcRenderer` for dynamic rendering.
+- 📦 **Component-based Architecture**: Supports custom component library extensions, with existing support for Element Plus (via `lc-ep`).
+- 📝 **Flexible Schema**: Uses JSON to define form structures, making it easy to store and transmit.
 
-## 安装
+## Installation
 
 ```bash
 npm install lc.vue
-# 或者使用 yarn / pnpm
+# Or using yarn / pnpm
 pnpm add lc.vue
 ```
 
-> **注意**: 该库通常需要配合 `vue` (>=3.0.0) 以及 UI 组件库（如 `lc-ep`）使用。
+> **Note**: This library typically needs to be used with `vue` (>=3.0.0) and a UI component library (such as `lc-ep`).
 
-## 快速上手
+## Quick Start
 
-安装核心库 `lc.vue` 和组件库 `lc-ep` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
+After installing the core library `lc.vue` and the component library `lc-ep`, you can import the designer and renderer components in your Vue 3 project:
 
 ```bash
 npm install lc.vue lc-ep element-plus
 ```
 
-在你的 Vue 3 项目中引入并使用设计器和渲染器：
+Import and use the designer and renderer in your Vue 3 project:
 
 ```vue
 <template>
   <div class="app">
-    <!-- 设计模式 -->
+    <!-- Designer Mode -->
     <LcDesigner
       v-if="mode === 'designer'"
       v-model="schema"
       :components="components"
     />
 
-    <!-- 预览/渲染模式 -->
+    <!-- Preview/Renderer Mode -->
     <LcRenderer
       v-else
       :schema="schema"
@@ -57,10 +59,10 @@ import { ref } from 'vue'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import componentList from 'lc-ep'
 
-// 组合内置布局组件和 Element Plus 组件列表
+// Combine built-in layout components and Element Plus component list
 const components = [
   {
-    group: '布局',
+    group: 'Layout',
     components: layoutComponents 
   },
   ...componentList
@@ -72,33 +74,33 @@ const formData = ref({})
 </script>
 ```
 
-## 核心组件
+## Core Components
 
 ### LcDesigner
 
-可视化设计器组件，用于生成表单 Schema。
+A visual designer component used to generate form Schemas.
 
-- `v-model`: 绑定表单 Schema 对象。
-- `components`: 注入的可选组件列表。
+- `v-model`: Binds the form Schema object.
+- `components`: List of injectable optional components.
 
 > [!NOTE]
-> 设计器中所有组件，都可以使用内置变量 `$model` 来访问当前组件的数据模型，方便进行数据绑定和事件处理。
-> 还可以使用 `$global` 访问全局共享数据（如果启用）。
-> 若组件在插槽内，则可以使用 `$slot` 访问插槽属性。
-> `$getRefs(id)` 方法可获取指定 ID 的组件实例，方便跨组件通信。
+> All components in the designer can use the built-in variable `$model` to access the current component's data model, facilitating data binding and event handling.
+> You can also use `$global` to access globally shared data (if enabled).
+> If a component is inside a slot, you can use `$slot` to access slot properties.
+> The `$getRefs(id)` method can be used to get the component instance of a specified ID, facilitating cross-component communication.
 
 ### LcRenderer
 
-表单渲染器组件，根据 Schema 渲染表单并驱动数据。
+A form renderer component that renders forms and drives data based on a Schema.
 
-- `schema`: 表单定义 JSON。
-- `components`: 渲染所需的组件库。
-- `v-model`: 绑定表单业务数据。
-- `v-model:global`: 绑定全局共享数据（可选）。
+- `schema`: Form definition JSON.
+- `components`: Component library required for rendering.
+- `v-model`: Binds form business data.
+- `v-model:global`: Binds globally shared data (optional).
 
-## 项目结构
+## Project Structure
 
-- `packages/element-plus`: 基于 Element Plus 封装的表单组件。
-- `src/designer`: 设计器核心实现。
-- `src/renderer`: 渲染器核心实现。
-- `src/layouts`: 内置布局组件（Card, Grid, Tabs 等）。
+- `packages/element-plus`: Form components encapsulated based on Element Plus.
+- `src/designer`: Core implementation of the designer.
+- `src/renderer`: Core implementation of the renderer.
+- `src/layouts`: Built-in layout components (Card, Grid, Tabs, etc.).

@@ -1,41 +1,43 @@
+English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/packages/element-plus/README_ZH.md) 
+
 # lc-ep
 
-基于 [Element Plus](https://element-plus.org/) 封装的 lc.vue 插件包，为设计器和渲染器提供丰富的 UI 组件支持。[开发文档](https://lc.hancel.org/guide/component-definition.html)
+A `lc.vue` plugin package encapsulated based on [Element Plus](https://element-plus.org/), providing rich UI component support for the designer and renderer. [Development Documentation](https://lc.hancel.org/guide/component-definition.html)
 
 [![npm version](https://img.shields.io/npm/v/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 [![License](https://img.shields.io/npm/l/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 
-## 特性
+## Features
 
-- 🏗️ **开箱即用**: 包含 `ElButton`, `ElInput`, `ElSelect`, `ElDatePicker` 等常用 Element Plus 组件。
-- 🔧 **高度可配置**: 每个组件都预设了属性映射（props）、事件（events）和插槽（slots），完美适配 `lc.vue` 设计器。
-- 🛠️ **内置编辑器**: 提供 `RulesEditor` (规则编辑器) 和 `FieldRulesEditor` (字段规则编辑器) 等高级功能组件。
+- 🏗️ **Out-of-the-box**: Includes common Element Plus components such as `ElButton`, `ElInput`, `ElSelect`, `ElDatePicker`, etc.
+- 🔧 **Highly Configurable**: Each component has preset property mappings (props), events, and slots, perfectly adapted for the `lc.vue` designer.
+- 🛠️ **Built-in Editors**: Provides advanced functional components such as `RulesEditor` and `FieldRulesEditor`.
 
-## 安装
+## Installation
 
 ```bash
 npm install lc.vue lc-ep element-plus
-# 或者
+# or
 pnpm add lc.vue lc-ep element-plus
 ```
 
-> **注意**: 此包依赖于 `element-plus` 和 `lc.vue` 核心库。
+> **Note**: This package depends on `element-plus` and the `lc.vue` core library.
 
-## 使用方法
+## Usage
 
-在你的项目中引入并注册组件：
+Import and register the components in your project:
 
 ```vue
 <template>
   <div class="app">
-    <!-- 设计模式 -->
+    <!-- Designer Mode -->
     <LcDesigner
       v-if="mode === 'designer'"
       v-model="schema"
       :components="components"
     />
 
-    <!-- 预览/渲染模式 -->
+    <!-- Preview/Renderer Mode -->
     <LcRenderer
       v-else
       :schema="schema"
@@ -50,10 +52,10 @@ import { ref } from 'vue'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import componentList from 'lc-ep'
 
-// 组合内置布局组件和 Element Plus 组件列表
+// Combine built-in layout components and Element Plus component list
 const components = [
   {
-    group: '布局',
+    group: 'Layout',
     components: layoutComponents 
   },
   ...componentList
@@ -65,12 +67,11 @@ const formData = ref({})
 </script>
 ```
 
+## Component Classifications
 
-## 包含组件分类
+The plugin package categorizes components into several major types:
 
-该插件包将组件分为以下几大类：
-
-- **通用**: 按钮 (Button)、工具提示 (Tooltip) 等。
-- **表单**: 输入框 (Input)、选择器 (Select)、开关 (Switch)、日期选择 (DatePicker) 等几乎所有 Element Plus 表单项。
-- **反馈**: 警告 (Alert) 等。
-- **导航**: 步骤条 (Steps) 等。
+- **General**: Button, Tooltip, etc.
+- **Form**: Input, Select, Switch, DatePicker, and almost all other Element Plus form items.
+- **Feedback**: Alert, etc.
+- **Navigation**: Steps, etc.
