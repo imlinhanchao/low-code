@@ -4,11 +4,13 @@
 
 ## 栅格布局 (Grid)
 
-基于行和列的响应式布局。
+基于 CSS Grid 的响应式布局。
 
 - **图标**: `mdi:view-column-outline`
 - **属性**:
-  - `columns` (`Number`): 列数，默认为 2。
+  - `columns` (`Object`): 响应式列数配置，包含 `sm`, `md`, `lg`。默认为 `{ sm: 1, md: 2, lg: 3 }`。
+  - `count` (`Number`): 插槽数量，默认为 6。
+  - `gap` (`Number`): 网格间距（单位：px），默认为 8。
 - **插槽**: 动态生成 `col-0`, `col-1` ... 等插槽。
 
 ---
