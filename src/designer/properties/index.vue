@@ -6,6 +6,7 @@ import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, ComponentPr
 import { isPropConfig, resolveSlotName } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
 import ExpressionEditor from './ExpressionEditor.vue'
+import XInput from '../../components/XInput/index.vue'
 import { draggingConfig } from '../useDragState'
 
 const allConfigs = inject<Ref<ComponentConfig[]>>('lc:allConfigs')
@@ -533,10 +534,10 @@ function isComplexPropSet(key: string): boolean {
 
 // ── Object sub-prop helpers ───────────────────────────────────────────────────
 
-function getSubPropValue(key: string, subKey: string): unknown {
+function getSubPropValue(key: string, subKey: string): any {
   const obj = props.widget?.props[key]
   if (obj != null && typeof obj === 'object' && !Array.isArray(obj)) {
-    return (obj as Record<string, unknown>)[subKey]
+    return (obj as Record<string, unknown>)[subKey] as any
   }
   return undefined
 }
@@ -608,8 +609,13 @@ function updateArrayItemField(key: string, idx: number, fieldKey: string, value:
 }
 
 /** Safely casts an unknown value to a Record for use in template expressions */
-function asRecord(v: unknown): Record<string, unknown> {
-  return (typeof v === 'object' && v !== null ? v : {}) as Record<string, unknown>
+function asRecord(v: unknown): Record<string, any> {
+  return (typeof v === 'object' && v !== null ? v : {}) as Record<string, any>
+}
+
+/** Simple any cast for template expressions where TS incorrectly infers an object type */
+function asAny(v: any): any {
+  return v
 }
 </script>
 
@@ -642,10 +648,10 @@ function asRecord(v: unknown): Record<string, unknown> {
       <div class="lc-properties-group-label">公共</div>
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="id">{{ t('designer.widgetId') }}</label>
-        <input
+        <XInput
           class="lc-prop-input"
           :class="{ 'lc-prop-input--error': idError }"
-          :value="widget.id"
+          :modelValue="widget.id"
           title="在事件/全局方法中通过 $getRefs(id) 访问此组件实例"
           @change="handleIdChange(($event.target as HTMLInputElement).value)"
           @input="idError = ''"
@@ -654,12 +660,20 @@ function asRecord(v: unknown): Record<string, unknown> {
       <div v-if="idError" class="lc-prop-error">{{ idError }}</div>
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="class">CSS类名</label>
-        <input
+        <XInput
           class="lc-prop-input"
-          :value="(widget.props['class'] as string) ?? ''"
+          :modelValue="(widget.props['class'] as string) ?? ''"
           placeholder="class1 class2"
-          @input="updateProp('class', ($event.target as HTMLInputElement).value || undefined)"
-        />
+          @update:modelValue="updateProp('class', $event || undefined)"
+        >
+          <template v-if="expressions" #suffix>
+            <ExpressionEditor
+              :modelValue="widget.props['class']"
+              title="CSS类名 (class)"
+              @update:modelValue="updateProp('class', $event)"
+            />
+          </template>
+        </XInput>
       </div>
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="hidden">隐藏</label>
@@ -722,22 +736,37 @@ function asRecord(v: unknown): Record<string, unknown> {
                     @update:modelValue="updateSubProp(key, sk, $event)"
                   />
                 </label>
-                <select
-                  v-else-if="propKind(sv) === 'select'"
-                  class="lc-prop-input"
-                  :value="valueToString(getSubPropValue(key, sk))"
-                  @change="updateSubProp(key, sk, ($event.target as HTMLSelectElement).value)"
-                >
-                  <option value="">-- 请选择 --</option>
-                  <option v-for="opt in propOptions(sv)" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
-                <input
+                <div v-else-if="propKind(sv) === 'select'" class="lc-prop-input-group">
+                  <select
+                    class="lc-prop-input"
+                    :value="valueToString(getSubPropValue(key, sk))"
+                    @change="updateSubProp(key, sk, ($event.target as HTMLSelectElement).value)"
+                  >
+                    <option value="">-- 请选择 --</option>
+                    <option v-for="opt in propOptions(sv)" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+                  <ExpressionEditor
+                    v-if="expressions"
+                    :modelValue="getSubPropValue(key, sk)"
+                    :title="propLabel(sk, sv)"
+                    @update:modelValue="updateSubProp(key, sk, $event)"
+                  />
+                </div>
+                <XInput
                   v-else-if="propKind(sv) === 'number'"
                   class="lc-prop-input"
                   type="number"
-                  :value="getSubPropValue(key, sk) ?? ''"
-                  @input="updateSubProp(key, sk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-                />
+                  :modelValue="asAny(getSubPropValue(key, sk)) ?? ''"
+                  @update:modelValue="updateSubProp(key, sk, $event === '' ? undefined : Number($event))"
+                >
+                  <template v-if="expressions" #suffix>
+                    <ExpressionEditor
+                      :modelValue="getSubPropValue(key, sk)"
+                      :title="propLabel(sk, sv)"
+                      @update:modelValue="updateSubProp(key, sk, $event)"
+                    />
+                  </template>
+                </XInput>
                 <textarea
                   v-else-if="propKind(sv) === 'multiline'"
                   class="lc-prop-input lc-prop-textarea"
@@ -745,12 +774,20 @@ function asRecord(v: unknown): Record<string, unknown> {
                   rows="3"
                   @input="updateSubProp(key, sk, ($event.target as HTMLTextAreaElement).value)"
                 />
-                <input
+                <XInput
                   v-else
                   class="lc-prop-input"
-                  :value="valueToString(getSubPropValue(key, sk))"
-                  @input="updateSubProp(key, sk, ($event.target as HTMLInputElement).value)"
-                />
+                  :modelValue="valueToString(getSubPropValue(key, sk))"
+                  @update:modelValue="updateSubProp(key, sk, $event)"
+                >
+                  <template v-if="expressions" #suffix>
+                    <ExpressionEditor
+                      :modelValue="getSubPropValue(key, sk)"
+                      :title="propLabel(sk, sv)"
+                      @update:modelValue="updateSubProp(key, sk, $event)"
+                    />
+                  </template>
+                </XInput>
               </div>
             </div>
           </details>
@@ -785,19 +822,35 @@ function asRecord(v: unknown): Record<string, unknown> {
                       @update:modelValue="updateArrayItem(key, idx, $event)"
                     />
                   </label>
-                  <input
+                  <XInput
                     v-else-if="(cfgVal as ComponentProp).item!.type === Number"
                     class="lc-prop-input"
                     type="number"
-                    :value="(arrItem as number) ?? ''"
-                    @input="updateArrayItem(key, idx, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-                  />
-                  <input
+                    :modelValue="(arrItem as number) ?? ''"
+                    @update:modelValue="updateArrayItem(key, idx, $event === '' ? undefined : Number($event))"
+                  >
+                    <template v-if="expressions" #suffix>
+                      <ExpressionEditor
+                        :modelValue="arrItem"
+                        :title="propLabel(key, cfgVal) + ' ' + ((idx as number) + 1)"
+                        @update:modelValue="updateArrayItem(key, idx, $event)"
+                      />
+                    </template>
+                  </XInput>
+                  <XInput
                     v-else
                     class="lc-prop-input"
-                    :value="valueToString(arrItem)"
-                    @input="updateArrayItem(key, idx, ($event.target as HTMLInputElement).value)"
-                  />
+                    :modelValue="valueToString(arrItem)"
+                    @update:modelValue="updateArrayItem(key, idx, $event)"
+                  >
+                    <template v-if="expressions" #suffix>
+                      <ExpressionEditor
+                        :modelValue="arrItem"
+                        :title="propLabel(key, cfgVal) + ' ' + ((idx as number) + 1)"
+                        @update:modelValue="updateArrayItem(key, idx, $event)"
+                      />
+                    </template>
+                  </XInput>
                   <button class="lc-arr-del-btn" title="删除" @click="removeArrayItem(key, idx)"><Icon icon="mdi:close" /></button>
                 </template>
 
@@ -828,28 +881,51 @@ function asRecord(v: unknown): Record<string, unknown> {
                           @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
                         />
                       </label>
-                      <select
-                        v-else-if="propKind(fv) === 'select'"
-                        class="lc-prop-input"
-                        :value="valueToString(asRecord(arrItem)[fk])"
-                        @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLSelectElement).value)"
-                      >
-                        <option value="">-- 请选择 --</option>
-                        <option v-for="opt in propOptions(fv)" :key="opt" :value="opt">{{ opt }}</option>
-                      </select>
-                      <input
+                      <div v-else-if="propKind(fv) === 'select'" class="lc-prop-input-group">
+                        <select
+                          class="lc-prop-input"
+                          :value="valueToString(asRecord(arrItem)[fk])"
+                          @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLSelectElement).value)"
+                        >
+                          <option value="">-- 请选择 --</option>
+                          <option v-for="opt in propOptions(fv)" :key="opt" :value="opt">{{ opt }}</option>
+                        </select>
+                        <ExpressionEditor
+                          v-if="expressions"
+                          :modelValue="asRecord(arrItem)[fk]"
+                          :title="propLabel(fk, fv)"
+                          @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
+                        />
+                      </div>
+                      <XInput
                         v-else-if="propKind(fv) === 'number'"
                         class="lc-prop-input"
                         type="number"
-                        :value="asRecord(arrItem)[fk] ?? ''"
-                        @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-                      />
-                      <input
+                        :modelValue="asAny(asRecord(arrItem)[fk]) ?? ''"
+                        @update:modelValue="updateArrayItemField(key, idx, fk, $event === '' ? undefined : Number($event))"
+                      >
+                        <template v-if="expressions" #suffix>
+                          <ExpressionEditor
+                            :modelValue="asRecord(arrItem)[fk]"
+                            :title="propLabel(fk, fv)"
+                            @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
+                          />
+                        </template>
+                      </XInput>
+                      <XInput
                         v-else
                         class="lc-prop-input"
-                        :value="valueToString(asRecord(arrItem)[fk])"
-                        @input="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).value)"
-                      />
+                        :modelValue="valueToString(asRecord(arrItem)[fk])"
+                        @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
+                      >
+                        <template v-if="expressions" #suffix>
+                          <ExpressionEditor
+                            :modelValue="asRecord(arrItem)[fk]"
+                            :title="propLabel(fk, fv)"
+                            @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
+                          />
+                        </template>
+                      </XInput>
                     </div>
                   </div>
                 </template>
@@ -885,15 +961,22 @@ function asRecord(v: unknown): Record<string, unknown> {
             </label>
 
             <!-- Enum select -->
-            <select
-              v-else-if="propKind(cfgVal) === 'select'"
-              class="lc-prop-input"
-              :value="valueToString(widget.props[key])"
-              @change="updateProp(key, ($event.target as HTMLSelectElement).value)"
-            >
-              <option value="">-- 请选择 --</option>
-              <option v-for="opt in propOptions(cfgVal)" :key="opt" :value="opt">{{ opt }}</option>
-            </select>
+            <div v-else-if="propKind(cfgVal) === 'select'" class="lc-prop-input-group">
+              <select
+                class="lc-prop-input"
+                :value="valueToString(widget.props[key])"
+                @change="updateProp(key, ($event.target as HTMLSelectElement).value)"
+              >
+                <option value="">-- 请选择 --</option>
+                <option v-for="opt in propOptions(cfgVal)" :key="opt" :value="opt">{{ opt }}</option>
+              </select>
+              <ExpressionEditor
+                v-if="expressions"
+                :modelValue="widget.props[key]"
+                :title="propLabel(key, cfgVal)"
+                @update:modelValue="updateProp(key, $event)"
+              />
+            </div>
 
             <!-- Function prop button -->
             <template v-else-if="propKind(cfgVal) === 'function'">
@@ -932,13 +1015,21 @@ function asRecord(v: unknown): Record<string, unknown> {
             </template>
 
             <!-- Number input -->
-            <input
+            <XInput
               v-else-if="propKind(cfgVal) === 'number'"
               class="lc-prop-input"
               type="number"
-              :value="widget.props[key] ?? ''"
-              @input="updateProp(key, ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
-            />
+              :modelValue="asAny(widget.props[key]) ?? ''"
+              @update:modelValue="updateProp(key, $event === '' ? undefined : Number($event))"
+            >
+              <template v-if="expressions" #suffix>
+                <ExpressionEditor
+                  :modelValue="widget.props[key]"
+                  :title="propLabel(key, cfgVal)"
+                  @update:modelValue="updateProp(key, $event)"
+                />
+              </template>
+            </XInput>
 
             <!-- Multiline string (e.g. HTML content) -->
             <textarea
@@ -950,12 +1041,20 @@ function asRecord(v: unknown): Record<string, unknown> {
             />
 
             <!-- String / plain text (default) -->
-            <input
+            <XInput
               v-else
               class="lc-prop-input"
-              :value="valueToString(widget.props[key])"
-              @input="updateProp(key, ($event.target as HTMLInputElement).value)"
-            />
+              :modelValue="valueToString(widget.props[key])"
+              @update:modelValue="updateProp(key, $event)"
+            >
+              <template v-if="expressions" #suffix>
+                <ExpressionEditor
+                  :modelValue="widget.props[key]"
+                  :title="propLabel(key, cfgVal)"
+                  @update:modelValue="updateProp(key, $event)"
+                />
+              </template>
+            </XInput>
           </div>
         </template>
       </template>

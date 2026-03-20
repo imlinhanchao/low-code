@@ -127,15 +127,16 @@ const onInput = (event: Event) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 8px;
+  padding: 0;
   color: #c0c4cc;
 }
 
 .x-input-inner {
   width: 100%;
   flex-grow: 1;
-  border: none;
-  outline: none;
+  border: none!important;
+  outline: none!important;
+  box-shadow: none!important;
   padding: 8px 11px;
   box-sizing: border-box;
   background: transparent;

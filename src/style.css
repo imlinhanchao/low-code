@@ -312,6 +312,7 @@
   align-items: center;
   padding: 4px 14px;
   gap: 8px;
+  min-height: 28px;
 }
 .lc-prop-label {
   flex: 0 0 84px;
@@ -1010,6 +1011,23 @@ details[open] > .lc-prop-block-header::before {
 }
 .lc-prop-input:focus {
   border-color: #409eff;
+}
+.lc-prop-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.x-input-inner {
+  height: 26px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+.x-input-suffix, .x-input-prefix {
+  padding: 0 4px !important;
+}
+.x-input-inner-wrapper {
+  height: 28px !important;
 }
 
 /* === src/renderer/index.vue === */

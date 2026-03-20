@@ -25,13 +25,12 @@
 
 ## GlobalConfig
 
-表单的全局配置，定义了表单级别的样式、脚本和功能开关。
+表单的全局配置，定义了表单级别的样式、脚本和功能。
 
 | 属性 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `css` | `string` | (可选) 全局 CSS 样式字符串 |
 | `functions` | `Record<string, string>` | (可选) 命名的全局函数或生命周期钩子字符串 |
-| `expressions` | `boolean` | (可选) 是否在设计器的属性面板中开启表达式编辑功能。默认为 `false` |
 
 ---
 
@@ -76,3 +75,31 @@
 | :--- | :--- | :--- |
 | `name` | `string` | 参数名称 |
 | `type` | `unknown` | 参数的 JavaScript 类型 |
+
+---
+
+## Component Props (LC Components)
+
+### LcDesigner
+
+设计器组件的 Props 定义。
+
+| 属性 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `v-model` | `FormSchema` | `{ widgets: [] }` | 表单定义的 JSON 对象。 |
+| `components` | `ComponentGroup[]` | `[]` | 在左侧面板展示的组件库配置。 |
+| `globalConfig` | `GlobalConfig` | `{}` | 表单层级的全局配置。 |
+| `expressions` | `boolean` | `false` | 是否启用属性面板的表达式设置按钮 (ƒ)。 |
+| `previewUrl` | `string` | `''` | 预览地址。 |
+
+### LcRenderer
+
+渲染器组件的 Props 定义。
+
+| 属性 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `schema` | `FormSchema` | `{ widgets: [] }` | 要渲染的表单定义。 |
+| `components` | `ComponentGroup[]` | `[]` | 组件库实现配置。 |
+| `v-model` | `Record<string, any>` | `{}` | 表单数据雙向绑定。 |
+| `globalConfig` | `GlobalConfig` | `{}` | 全局脚本和样式。 |
+| `readOnly` | `boolean` | `false` | 是否为只读模式。 |
