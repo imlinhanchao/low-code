@@ -645,7 +645,7 @@ function asAny(v: any): any {
         <div class="lc-properties-section">{{ tt(config.label) }}</div>
 
       <!-- Common attributes (always available for every widget) -->
-      <div class="lc-properties-group-label">公共</div>
+      <div class="lc-properties-group-label">{{ t('designer.commonProps') }}</div>
       <div class="lc-prop-row">
         <label class="lc-prop-label" title="id">{{ t('designer.widgetId') }}</label>
         <XInput
@@ -659,7 +659,7 @@ function asAny(v: any): any {
       </div>
       <div v-if="idError" class="lc-prop-error">{{ idError }}</div>
       <div class="lc-prop-row">
-        <label class="lc-prop-label" title="class">CSS类名</label>
+        <label class="lc-prop-label" title="class">{{ t('designer.class') }}</label>
         <XInput
           class="lc-prop-input"
           :modelValue="(widget.props['class'] as string) ?? ''"
@@ -669,14 +669,14 @@ function asAny(v: any): any {
           <template v-if="expressions" #suffix>
             <ExpressionEditor
               :modelValue="widget.props['class']"
-              title="CSS类名 (class)"
+              :title="t('designer.class')"
               @update:modelValue="updateProp('class', $event)"
             />
           </template>
         </XInput>
       </div>
       <div class="lc-prop-row">
-        <label class="lc-prop-label" title="hidden">隐藏</label>
+        <label class="lc-prop-label" title="hidden">{{ t('designer.hidden') }}</label>
         <label class="lc-prop-checkbox-wrap">
           <input
             type="checkbox"
@@ -686,13 +686,13 @@ function asAny(v: any): any {
           <ExpressionEditor
             v-if="expressions"
             :modelValue="widget.props['hidden']"
-            title="隐藏 (hidden)"
+            :title="t('designer.hidden')"
             @update:modelValue="updateProp('hidden', $event)"
           />
         </label>
       </div>
       <div v-if="widget.category === 'widget' && Object.keys(widget.models).length > 0" class="lc-prop-row">
-        <label class="lc-prop-label" title="modelonly">仅展示数据</label>
+        <label class="lc-prop-label" title="modelonly">{{ t('designer.modelOnly') }}</label>
         <label class="lc-prop-checkbox-wrap">
           <input
             type="checkbox"
@@ -704,7 +704,7 @@ function asAny(v: any): any {
 
       <!-- Props (type-aware) -->
       <template v-if="configPropEntries.length">
-        <div class="lc-properties-group-label">属性</div>
+        <div class="lc-properties-group-label">{{ t('designer.widgetProps') }}</div>
         <template
           v-for="[key, cfgVal] in configPropEntries"
           :key="'prop-' + key"
@@ -1076,7 +1076,7 @@ function asAny(v: any): any {
           <span class="lc-model-key">{{ key }}</span>
           <div class="lc-model-fields">
               <div class="lc-prop-row lc-model-field-row">
-                <label class="lc-prop-label lc-prop-label--sub">数据源</label>
+                <label class="lc-prop-label lc-prop-label--sub">{{ t('designer.dataSource') }}</label>
                 <input
                   class="lc-prop-input"
                   :value="widget.sources?.[key] ?? '$model'"
@@ -1085,16 +1085,16 @@ function asAny(v: any): any {
                 />
               </div>
               <div class="lc-prop-row lc-model-field-row">
-                <label class="lc-prop-label lc-prop-label--sub">字段名</label>
+                <label class="lc-prop-label lc-prop-label--sub">{{ t('designer.fieldName') }}</label>
                 <input
                   class="lc-prop-input"
                   :value="widget.fields?.[key] ?? ''"
-                  placeholder="如: username"
+                  :placeholder="t('designer.placeholder')"
                   @input="updateModelField(key, ($event.target as HTMLInputElement).value)"
                 />
               </div>
               <div class="lc-prop-row lc-model-field-row">
-                <label class="lc-prop-label lc-prop-label--sub">默认值</label>
+                <label class="lc-prop-label lc-prop-label--sub">{{ t('designer.defaultValue') }}</label>
                 <input
                   class="lc-prop-input"
                   :value="valueToString(val)"
@@ -1107,9 +1107,9 @@ function asAny(v: any): any {
 
       <!-- Simple text content for the default slot (leaf widgets like buttons) -->
       <template v-if="showSlotContent">
-        <div class="lc-properties-group-label">文本内容</div>
+        <div class="lc-properties-group-label">{{ t('designer.content') }}</div>
         <div class="lc-prop-row">
-          <label class="lc-prop-label">内容</label>
+          <label class="lc-prop-label">{{ t('designer.content') }}</label>
           <input
             class="lc-prop-input"
             :value="widget.slotContent ?? ''"
@@ -1153,16 +1153,16 @@ function asAny(v: any): any {
             @drop="onSlotChildDrop(slot.name, idx, $event)"
             @dragend="resetDrag"
           >
-            <span class="lc-slot-child-drag-handle" title="拖拽排序">⠿</span>
+            <span class="lc-slot-child-drag-handle" :title="t('designer.dragSort')">⠿</span>
             <span class="lc-slot-child-name">{{ getSlotChildDisplayName(child) }}</span>
             <button
               class="lc-slot-child-btn lc-slot-child-configure"
-              title="组件设置"
+              :title="t('designer.widgetSetting')"
               @click="viewWidget?.(child.id)"
             >⚙</button>
             <button
               class="lc-slot-child-btn lc-slot-child-remove"
-              title="从插槽移除"
+              :title="t('designer.removeSlot')"
               @click="removeSlotChild(slot.name, child.id)"
             >✕</button>
           </div>
@@ -1170,13 +1170,13 @@ function asAny(v: any): any {
           <div
             v-if="!(widget.slots[slot.name] ?? []).length"
             class="lc-slot-empty-hint"
-          >拖拽组件到此处</div>
+          >{{ t('designer.empty') }}</div>
         </div>
       </template>
 
       <!-- Events – button per event that opens the code dialog -->
       <template v-if="configEvents.length > 0">
-        <div class="lc-properties-group-label">事件</div>
+        <div class="lc-properties-group-label">{{ t('designer.events') }}</div>
         <div
           v-for="[eventName, params] in configEvents"
           :key="'event-' + eventName"
@@ -1189,13 +1189,13 @@ function asAny(v: any): any {
             @click="openEventCodeDialog(eventName, params)"
           >
             <span v-if="isEventSet(eventName)" class="lc-fn-dot" />
-            {{ isEventSet(eventName) ? '已设置' : '设置处理器' }}
+            {{ isEventSet(eventName) ? t('designer.isSet') : t('designer.eventHandlers') }}
           </button>
         </div>
       </template>
       </template>
 
-      <div v-else class="lc-properties-empty">请选择一个组件</div>
+      <div v-else class="lc-properties-empty">{{ t('designer.selectWidgetHint') }}</div>
     </template>
 
     <!-- Global config tab -->

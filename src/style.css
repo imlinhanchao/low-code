@@ -98,7 +98,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 .lc-designer-panel {
-  flex: 0 0 260px;
+  flex: 0 0 300px;
   overflow: hidden;
   background: #f8f9fc;
 }
@@ -107,7 +107,7 @@
 }
 .lc-panel-right {
   border-left: 1px solid #e0e3ea;
-  flex-basis: 260px;
+  flex-basis: 300px;
 }
 .lc-designer-canvas {
   flex: 1;
@@ -986,7 +986,6 @@ details[open] > .lc-prop-block-header::before {
 }
 .lc-confirm-btn {
   flex: 0 0 auto;
-  width: 48px;
 }
 .lc-fn-dot {
   display: inline-block;

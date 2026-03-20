@@ -123,21 +123,21 @@ function isFnSet(name: string): boolean {
   <div class="lc-global-panel">
 
     <!-- CSS Section -->
-    <div class="lc-global-section-label">CSS 样式</div>
+    <div class="lc-global-section-label">{{ t('designer.cssStyle') }}</div>
     <div class="lc-global-fn-row">
-      <span class="lc-global-fn-name">全局 CSS</span>
+      <span class="lc-global-fn-name">{{ t('designer.globalCss') }}</span>
       <button
         class="lc-fn-btn"
         :class="{ 'lc-fn-btn--set': isCssSet }"
         @click="openCssDialog"
       >
         <span v-if="isCssSet" class="lc-fn-dot" />
-        {{ isCssSet ? '已设置' : '设置' }}
+        {{ isCssSet ? t('designer.isSet') : t('designer.set') }}
       </button>
     </div>
 
     <!-- Lifecycle hooks -->
-    <div class="lc-global-section-label">生命周期函数</div>
+    <div class="lc-global-section-label">{{ t('designer.lifecycleHooksTitle') }}</div>
     <div
       v-for="hook in LIFECYCLE_HOOKS"
       :key="hook.name"
@@ -150,13 +150,13 @@ function isFnSet(name: string): boolean {
         @click="openCodeDialog(hook.name, hook.signature)"
       >
         <span v-if="isFnSet(hook.name)" class="lc-fn-dot" />
-        {{ isFnSet(hook.name) ? '已设置' : '设置' }}
+        {{ isFnSet(hook.name) ? t('designer.isSet') : t('designer.set') }}
       </button>
     </div>
 
     <!-- Custom functions -->
     <div class="lc-global-section-label lc-global-section-label--with-btn">
-      <span>全局函数</span>
+      <span>{{ t('designer.globalFunctions') }}</span>
       <button class="lc-add-btn" @click="showAddFn = !showAddFn">＋</button>
     </div>
 
@@ -165,10 +165,10 @@ function isFnSet(name: string): boolean {
       <input
         v-model="newFnName"
         class="lc-prop-input"
-        placeholder="函数名称"
+        :placeholder="t('designer.functionName')"
         @keydown.enter="addCustomFunction"
       />
-      <button class="lc-fn-btn lc-confirm-btn" @click="addCustomFunction">确定</button>
+      <button class="lc-fn-btn lc-confirm-btn" @click="addCustomFunction">{{ t('designer.confirm') }}</button>
     </div>
 
     <div
@@ -183,9 +183,9 @@ function isFnSet(name: string): boolean {
         @click="openCodeDialog(name, `${name}()`)"
       >
         <span v-if="isFnSet(name)" class="lc-fn-dot" />
-        {{ isFnSet(name) ? '已设置' : '编辑' }}
+        {{ isFnSet(name) ? t('designer.isSet') : t('designer.edit') }}
       </button>
-      <button class="lc-global-fn-remove" title="删除函数" @click="removeFn(name)">✕</button>
+      <button class="lc-global-fn-remove" :title="t('designer.deleteFn')" @click="removeFn(name)">✕</button>
     </div>
 
   </div>
@@ -202,23 +202,23 @@ function isFnSet(name: string): boolean {
           <div class="lc-code-dialog-header-btns">
             <button
               class="lc-code-hdr-btn"
-              :title="codeDialog.fullscreen ? '退出全屏' : '全屏编辑'"
+              :title="codeDialog.fullscreen ? t('designer.exitFullscreen') : t('designer.fullscreenEdit')"
               @click="codeDialog.fullscreen = !codeDialog.fullscreen"
             >{{ codeDialog.fullscreen ? '⊠' : '⊡' }}</button>
-            <button class="lc-code-hdr-btn" title="关闭" @click="closeCodeDialog">✕</button>
+            <button class="lc-code-hdr-btn" :title="t('designer.close')" @click="closeCodeDialog">✕</button>
           </div>
         </div>
         <div v-if="!codeDialog.noBraces && codeDialog.signature" class="lc-code-signature">{{ codeDialog.signature }} {</div>
         <textarea
           class="lc-code-editor"
-          :placeholder="codeDialog.noBraces ? '/* 在此输入全局 CSS */' : '// 在此输入函数体'"
+          :placeholder="codeDialog.noBraces ? t('designer.placeholderCss') : t('designer.placeholderFn')"
           :value="codeDialog.code"
           @input="codeDialog.code = ($event.target as HTMLTextAreaElement).value"
         />
         <div v-if="!codeDialog.noBraces && codeDialog.signature" class="lc-code-closing">}</div>
         <div class="lc-code-footer">
-          <button class="lc-code-btn-primary" @click="applyCode">确 定</button>
-          <button class="lc-code-btn" @click="closeCodeDialog">取 消</button>
+          <button class="lc-code-btn-primary" @click="applyCode">{{ t('designer.confirm') }}</button>
+          <button class="lc-code-btn" @click="closeCodeDialog">{{ t('designer.cancel') }}</button>
         </div>
       </div>
     </div>

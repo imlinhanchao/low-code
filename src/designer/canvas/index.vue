@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, ref, provide } from 'vue'
+import { useI18n } from '../i18n'
 import type { ComponentConfig, FormSchema } from '../../types'
 import { draggingConfig, draggingWidget } from '../useDragState'
 import { hoveredId } from './useCanvasOverlay'
@@ -7,6 +8,7 @@ import { LcCanvasWidgetNode } from './CanvasWidgetNode'
 import CanvasOverlay from './CanvasOverlay.vue'
 
 const props = defineProps<{ schema: FormSchema }>()
+const { t } = useI18n()
 
 const addWidget =
   inject<(parentId: string | null, slotName: string | null, cfg: ComponentConfig) => void>(
@@ -62,7 +64,7 @@ function onDrop(e: DragEvent) {
     @mouseleave="hoveredId = null"
   >
     <div v-if="schema.widgets.length === 0" class="lc-canvas-empty">
-      从左侧拖拽组件到此处
+      {{ t('designer.canvasEmptyHint') }}
     </div>
     <LcCanvasWidgetNode
       v-for="widget in schema.widgets"

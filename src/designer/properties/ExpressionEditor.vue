@@ -54,14 +54,13 @@ function apply(e?: Event) {
         </div>
         <div class="lc-expression-dialog-body">
           <p class="lc-expression-hint">
-            支持使用 <code>$model</code>, <code>$global</code>, <code>$scope</code> 编写表达式。
-            例如：<code>$model.age > 18</code> 或 <code>!$global.readonly</code>
+            {{ t('designer.expressionHint') }}
           </p>
           <textarea
             v-model="expression"
             class="lc-expression-input"
             rows="4"
-            placeholder="输入 JavaScript 表达式..."
+            :placeholder="t('designer.expressionPlaceholder')"
             autofocus
           ></textarea>
         </div>

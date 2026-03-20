@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useI18n } from '../designer/i18n'
+
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   modelValue?: Record<string, unknown>[]
@@ -90,18 +93,18 @@ const isTable = computed(() => props.mode === 'table')
   <div class="lc-detail-table">
     <!-- Header bar -->
     <div class="lc-detail-table__header">
-      <span class="lc-detail-table__title">明细</span>
+      <span class="lc-detail-table__title">{{ t('designer.detailTable') }}</span>
       <div class="lc-detail-table__actions">
         <button
           class="lc-detail-table__btn"
-          title="新增"
+          :title="t('designer.addDetail')"
           @click="addRow"
         >
           <Icon icon="mdi:plus" width="16" height="16" />
         </button>
         <button
           class="lc-detail-table__btn lc-detail-table__btn--danger"
-          title="删除"
+          :title="t('designer.deleteDetail')"
           :disabled="checked.size === 0"
           @click="confirmDelete"
         >
@@ -165,7 +168,7 @@ const isTable = computed(() => props.mode === 'table')
             <td
               :colspan="(showIndex !== false ? 2 : 1) + effectiveHeaders.length"
               class="lc-detail-table__empty"
-            >暂无数据</td>
+            >{{ t('designer.noData') }}</td>
           </tr>
         </tbody>
       </table>
@@ -184,7 +187,7 @@ const isTable = computed(() => props.mode === 'table')
             />
           </span>
           <span v-if="showIndex !== false" class="lc-detail-table__index-col">#</span>
-          <span class="lc-detail-table__list-content-col">内容</span>
+          <span class="lc-detail-table__list-content-col">{{ t('designer.content') }}</span>
         </div>
         <div
           v-for="(row, ri) in rows"
@@ -208,7 +211,7 @@ const isTable = computed(() => props.mode === 'table')
             />
           </div>
         </div>
-        <div v-if="rows.length === 0" class="lc-detail-table__empty">暂无数据</div>
+        <div v-if="rows.length === 0" class="lc-detail-table__empty">{{ t('designer.noData') }}</div>
       </div>
     </template>
 
@@ -217,14 +220,14 @@ const isTable = computed(() => props.mode === 'table')
       <div class="lc-detail-table__dialog">
         <div class="lc-detail-table__dialog-title">
           <Icon icon="mdi:alert-circle-outline" class="lc-detail-table__dialog-icon" />
-          确认删除
+          {{ t('designer.confirmDelete') }}
         </div>
         <div class="lc-detail-table__dialog-body">
-          确定要删除选中的 {{ checked.size }} 条记录吗？此操作不可撤销。
+          {{ t('designer.confirmDeleteMsg', { count: checked.size }) }}
         </div>
         <div class="lc-detail-table__dialog-footer">
-          <button class="lc-detail-table__dialog-btn" @click="cancelDelete">取消</button>
-          <button class="lc-detail-table__dialog-btn lc-detail-table__dialog-btn--danger" @click="doDelete">确定删除</button>
+          <button class="lc-detail-table__dialog-btn" @click="cancelDelete">{{ t('designer.cancelDelete') }}</button>
+          <button class="lc-detail-table__dialog-btn lc-detail-table__dialog-btn--danger" @click="doDelete">{{ t('designer.confirmDelete') }}</button>
         </div>
       </div>
     </div>
