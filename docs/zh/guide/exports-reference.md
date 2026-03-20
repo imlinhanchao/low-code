@@ -1,12 +1,12 @@
 # 导出接口与组件
 
-## 组件
+## 组件 {#Components}
 
-### LcDesigner (设计器)
+### LcDesigner
 
 主要的表单设计器组件。
 
-#### Props
+#### Props {LcDesignerProps}
 
 | 属性 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -14,7 +14,7 @@
 | `components` | `ComponentGroup[]` | `[]` | 注册到设计器的组件列表 |
 | `locale` | `string` | (浏览器语言) | 初始化语言，如 `zh-CN`, `en-US` |
 
-#### 内置通用属性 (Common Props)
+#### 内置通用属性 {#CommonProps}
 
 所有组件在设计器中都内置了以下通用属性（位于属性面板顶部）：
 
@@ -25,7 +25,7 @@
 | `隐藏` | `boolean` | 是否在渲染时隐藏（不占位） |
 | `仅展示数据` | `boolean` | 为 true 时，非布局且具备 models 的组件将渲染为 `<span>` 纯文本，取 modelValue 或第一个 model 的值（Key 为 `modelonly`） |
 
-#### 方法 (Expose)
+#### 方法 {#LcDesignerMethods}
 
 | 方法名 | 参数 | 说明 |
 | :--- | :--- | :--- |
@@ -35,11 +35,11 @@
 
 ---
 
-### LcRenderer (渲染器)
+### LcRenderer
 
 用于将设计出的 Schema 渲染为实际表单。
 
-#### Props
+#### Props {#LcRendererProps}
 
 | 属性 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -53,7 +53,7 @@
 
 ---
 
-## 方法
+## 方法 {#Methods}
 
 ### addIconifyAPIProvider
 

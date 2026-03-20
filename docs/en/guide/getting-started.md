@@ -14,7 +14,7 @@ If using the Element Plus component library, you also need to install:
 npm install lc-ep
 ```
 
-## Basic Usage
+## Basic Usage {#BasicUsage}
 
 In a Vue 3 project, you can use the designer as follows:
 
@@ -42,7 +42,7 @@ const schema = ref({ widgets: [] })
 </template>
 ```
 
-## Form Rendering
+## Form Rendering {#FormRendering}
 
 Use `schema` to render the form:
 

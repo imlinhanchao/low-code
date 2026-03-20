@@ -2,7 +2,7 @@
 
 In the low-code platform, every component needs to be defined via a standard object so that the designer can recognize its properties, events, and slots.
 
-## Definition Structure
+## Definition Structure {#ComponentConfig}
 
 ```typescript
 export interface ComponentConfig {
@@ -50,7 +50,7 @@ export interface ComponentConfig {
 }
 ```
 
-## Property Definitions (Props)
+## Property Definitions {#Props}
 
 Property definitions determine the type of editor displayed in the designer sidebar. Both `label` and `options` support internationalization object configuration:
 
@@ -89,7 +89,7 @@ props: {
 }
 ```
 
-## Slot Definitions (Slots)
+## Slot Definitions {#Slots}
 
 Slots are used to define parts within a component where content can be nested:
 
@@ -106,7 +106,7 @@ slots: [
 ]
 ```
 
-## Dynamic Slot Calculation (computeSlots)
+## Dynamic Slot Calculation {#computeSlots}
 
 For components whose slot count or names depend on properties (Props) (e.g., grid layout columns, tab page labels, table columns/rows), the `computeSlots` function can be used to dynamically generate a list of slots based on current `props`.
 
@@ -131,7 +131,7 @@ export const GridComponent = {
 
 When `computeSlots` exists, it overrides any static `slots` definition. The designer will update the slot placeholders on the canvas in real-time based on the return value of this function.
 
-## Events
+## Events {#Events}
 
 Defines the actions a component can trigger, used for low-code interactions:
 
@@ -141,7 +141,7 @@ events: {
 }
 ```
 
-## Custom Property Setting Components
+## Custom Property Setting Components {#Dialog}
 
 When the standard property structure is complex and cannot be met by the default editor, you can customize the property setting component using the `dialog` property.
 

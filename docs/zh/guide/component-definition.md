@@ -2,7 +2,7 @@
 
 在低代码平台中，每个组件都需要通过一个标准对象进行定义，以便设计器能够识别其属性、事件和插槽。
 
-## 定义结构
+## 定义结构 {#ComponentConfig}
 
 ```typescript
 export interface ComponentConfig {
@@ -50,7 +50,7 @@ export interface ComponentConfig {
 }
 ```
 
-## 属性定义 (Props)
+## 属性定义 {#Props}
 
 属性定义决定了在设计器侧边栏显示的编辑器类型。`label` 和 `options` 都支持国际化对象配置：
 
@@ -89,7 +89,7 @@ props: {
 }
 ```
 
-## 插槽定义 (Slots)
+## 插槽定义 {#Slots}
 
 插槽用于定义组件内部可嵌套内容的部分：
 
@@ -106,7 +106,7 @@ slots: [
 ]
 ```
 
-## 动态插槽计算 (computeSlots)
+## 动态插槽计算 {#computeSlots}
 
 对于插槽数量或名称依赖于属性（Props）的组件（如：栅格布局的列、标签页的标签、表格的行列），可以使用 `computeSlots` 函数根据当前的 `props` 动态生成插槽列表。
 
@@ -131,7 +131,7 @@ export const GridComponent = {
 
 当 `computeSlots` 存在时，它将覆盖静态的 `slots` 定义。设计器会根据该函数的返回值实时更新画布上的插槽占位符。
 
-## 事件 (Events)
+## 事件 {#Events}
 
 定义组件可以触发的动作，用于低代码交互：
 
@@ -141,7 +141,7 @@ events: {
 }
 ```
 
-## 自定义属性设置组件
+## 自定义属性设置组件 {#Dialog}
 
 当标准属性结构复杂，无法通过默认编辑器满足需求时，可以通过 `dialog` 属性自定义属性设置组件。
 

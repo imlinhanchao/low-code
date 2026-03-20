@@ -76,30 +76,3 @@ Definition of event parameters or function parameters.
 | `name` | `string` | Parameter name. |
 | `type` | `unknown` | JavaScript type of the parameter. |
 
----
-
-## Component Props (LC Components)
-
-### LcDesigner
-
-Props definition for the designer component.
-
-| Property | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `v-model` | `FormSchema` | `{ widgets: [] }` | Form definition JSON object. |
-| `components` | `ComponentGroup[]` | `[]` | Component library configuration displayed in the left panel. |
-| `globalConfig` | `GlobalConfig` | `{}` | Form-level global configuration. |
-| `expressions` | `boolean` | `false` | Whether to enable the expression setting button (ƒ) in the properties panel. |
-| `previewUrl` | `string` | `''` | Preview URL. |
-
-### LcRenderer
-
-Props definition for the renderer component.
-
-| Property | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `schema` | `FormSchema` | `{ widgets: [] }` | Form definition to render. |
-| `components` | `ComponentGroup[]` | `[]` | Component library implementation configuration. |
-| `v-model` | `Record<string, any>` | `{}` | Two-way binding for form data. |
-| `globalConfig` | `GlobalConfig` | `{}` | Global scripts and styles. |
-| `readOnly` | `boolean` | `false` | Whether it is in read-only mode. |

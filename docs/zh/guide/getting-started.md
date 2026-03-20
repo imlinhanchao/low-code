@@ -1,6 +1,6 @@
 # 快速上手
 
-## 安装
+## 安装 {#Installation}
 
 首先安装核心库和组件扩展包：
 
@@ -14,7 +14,7 @@ npm install lc.vue
 npm install lc-ep
 ```
 
-## 基础用法
+## 基础用法 {#BasicUsage}
 
 在 Vue 3 项目中，你可以按如下方式使用设计器：
 
@@ -42,7 +42,7 @@ const schema = ref({ widgets: [] })
 </template>
 ```
 
-## 表单渲染
+## 表单渲染 {#FormRendering}
 
 使用 `schema` 渲染表单：
 
