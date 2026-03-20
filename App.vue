@@ -7,6 +7,7 @@
           <el-option value="zh-CN" label="中文"></el-option>
           <el-option value="en-US" label="English"></el-option>
         </el-select>
+        <el-button @click="openJson">查看 Schema</el-button>
         <el-button @click="mode = 'designer'">设计器</el-button>
         <el-button type="primary" @click="mode = 'preview'">预览</el-button>
         <el-button type="danger" @click="clearSchema">清空</el-button>
@@ -52,6 +53,19 @@
         </div>
       </div>
     </main>
+
+    <el-dialog v-model="showJson" title="Schema JSON" width="800px">
+      <el-input
+        v-model="jsonContent"
+        type="textarea"
+        :rows="20"
+        style="font-family: monospace"
+      />
+      <template #footer>
+        <el-button @click="copyJson">复制</el-button>
+        <el-button type="primary" @click="saveJson">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -61,7 +75,7 @@ import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import type { FormSchema } from 'lc.vue'
 import componentList from 'lc-ep'
-import { ElInput, ElButton, ElSelect, ElOption } from 'element-plus'
+import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage } from 'element-plus'
 
 const components = [
   {
@@ -81,6 +95,34 @@ function clearSchema() {
 
 const globalData = ref<Record<string, unknown>>({})
 const globalDataText = ref<string>('{}')
+
+const showJson = ref(false)
+const jsonContent = ref('')
+
+function openJson() {
+  jsonContent.value = JSON.stringify(schema.value, null, 2)
+  showJson.value = true
+}
+
+function saveJson() {
+  try {
+    const newSchema = JSON.parse(jsonContent.value)
+    schema.value = newSchema
+    showJson.value = false
+    ElMessage.success('保存成功')
+  } catch (e) {
+    ElMessage.error('JSON格式错误')
+  }
+}
+
+function copyJson() {
+  navigator.clipboard.writeText(jsonContent.value).then(() => {
+    ElMessage.success('复制成功')
+  }).catch(() => {
+    ElMessage.error('复制失败')
+  })
+}
+
 watch(globalData, (val) => {
   try {
     globalDataText.value = JSON.stringify(val, null, 2)
@@ -126,7 +168,7 @@ body {
 .header-actions {
   display: flex;
   width: 100%;
-  max-width: 350px;
+  max-width: 450px;
   gap: 8px;
 }
 
