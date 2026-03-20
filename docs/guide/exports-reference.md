@@ -23,7 +23,7 @@
 | `ID` | `string` | 组件实例的唯一标识符（即字段名） |
 | `CSS类名` | `string` | 绑定到组件根元素的 `class` |
 | `隐藏` | `boolean` | 是否在渲染时隐藏（不占位） |
-| `只读` | `boolean` | 为 true 时，非布局且具备 models 的组件将渲染为 `<span>` 纯文本，会取 modelValue 或第一个 model 的值 |
+| `仅展示数据` | `boolean` | 为 true 时，非布局且具备 models 的组件将渲染为 `<span>` 纯文本，取 modelValue 或第一个 model 的值（Key 为 `modelonly`） |
 
 #### 方法 (Expose)
 

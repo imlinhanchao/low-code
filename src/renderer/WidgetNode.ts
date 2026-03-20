@@ -283,10 +283,10 @@ const LcWidgetNode = defineComponent({
 
       const builtProps = buildProps(config)
 
-      const isReadonly = props.widget.props.readonly === true && props.widget.category === 'widget'
+      const isModelOnly = props.widget.props.modelonly === true && props.widget.category === 'widget'
 
-      // If readonly is true, just render the value (from modelValue or first model)
-      if (isReadonly) {
+      // If modelonly is true, just render the value (from modelValue or first model)
+      if (isModelOnly) {
         let display: any
         if (config.format) {
           try {

@@ -670,12 +670,12 @@ function asRecord(v: unknown): Record<string, unknown> {
         </label>
       </div>
       <div v-if="widget.category === 'widget' && Object.keys(widget.models).length > 0" class="lc-prop-row">
-        <label class="lc-prop-label" title="readonly">只读</label>
+        <label class="lc-prop-label" title="modelonly">仅展示数据</label>
         <label class="lc-prop-checkbox-wrap">
           <input
             type="checkbox"
-            :checked="!!widget.props['readonly']"
-            @change="updateProp('readonly', ($event.target as HTMLInputElement).checked || undefined)"
+            :checked="!!widget.props['modelonly']"
+            @change="updateProp('modelonly', ($event.target as HTMLInputElement).checked || undefined)"
           />
         </label>
       </div>
