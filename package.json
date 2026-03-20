@@ -1,6 +1,6 @@
 {
   "name": "lc.vue",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Configurable low code designer and renderer based on Vue 3",
   "type": "module",
   "workspaces": [
@@ -27,7 +27,8 @@
     "dev": "vite --host",
     "demo:build": "vite build --outDir docs/.vitepress/dist/demo",
     "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
-    "page:build": "npm run docs:build && npm run demo:build"
+    "page:build": "npm run docs:build && npm run demo:build",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "lowcode",

@@ -32,25 +32,3 @@ const gridStyle = computed(() => ({
     </div>
   </div>
 </template>
-<style lang="less">
-.lc-grid {
-  display: grid;
-  width: 100%;
-  min-height: 1.5em;
-}
-@media (min-width: 640px) {
-  .lc-grid {
-    grid-template-columns: repeat(var(--columns-sm), 1fr);
-  }
-}
-@media (min-width: 768px) {
-  .lc-grid {
-    grid-template-columns: repeat(var(--columns-md), 1fr);
-  }
-}
-@media (min-width: 1024px) {
-  .lc-grid {
-    grid-template-columns: repeat(var(--columns-lg), 1fr);
-  }
-}
-</style>

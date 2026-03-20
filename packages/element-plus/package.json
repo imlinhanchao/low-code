@@ -1,6 +1,6 @@
 {
   "name": "lc-ep",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "description": "Element Plus component definitions for the low code designer/renderer",
   "exports": {
@@ -19,7 +19,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist"
+    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "lowcode",
