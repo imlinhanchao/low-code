@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: Low Code
-  text: 配置驱动型表单设计器
+  text: 配置驱动型低代码组件
   tagline: 灵活、轻量、易扩展
   actions:
     - theme: brand
