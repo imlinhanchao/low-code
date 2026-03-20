@@ -24,22 +24,48 @@ function evalProp(
 ): unknown {
   if (typeof value !== 'string') return value
   const trimmed = value.trim()
+
+  // Optimization: skip eval for plain strings that don't look like expressions
+  if (!trimmed.startsWith('$model') && !trimmed.startsWith('$global') && !trimmed.startsWith('$scope')) {
+    return value
+  }
+
   if (trimmed === '$model') return formData
   if (trimmed.startsWith('$model.')) {
     const key = trimmed.slice(7)
-    return Object.hasOwn(formData, key) ? formData[key] : undefined
+    // Check if it's a simple key access
+    if (/^[a-zA-Z0-9_$]+$/.test(key)) {
+      return Object.hasOwn(formData, key) ? formData[key] : undefined
+    }
   }
+
   if (trimmed === '$global') return globalData
   if (trimmed.startsWith('$global.')) {
     const key = trimmed.slice(8)
-    return Object.hasOwn(globalData, key) ? globalData[key] : undefined
+    if (/^[a-zA-Z0-9_$]+$/.test(key)) {
+      return Object.hasOwn(globalData, key) ? globalData[key] : undefined
+    }
   }
+
   if (trimmed === '$scope') return scope
   if (trimmed.startsWith('$scope.')) {
     const key = trimmed.slice(7)
-    return Object.hasOwn(scope, key) ? scope[key] : undefined
+    if (/^[a-zA-Z0-9_$]+$/.test(key)) {
+      return Object.hasOwn(scope, key) ? scope[key] : undefined
+    }
   }
-  return value
+
+  // Complex expressions (e.g. "$model.age > 18")
+  try {
+    // eslint-disable-next-line no-new-func
+    const fn = new Function('$model', '$global', '$scope', `return (${trimmed})`)
+    return fn(formData, globalData, scope)
+  } catch (e) {
+    if (import.meta.env?.DEV) {
+      console.warn(`[lc-renderer] Failed to evaluate expression "${trimmed}":`, e)
+    }
+    return value
+  }
 }
 
 /**
@@ -138,6 +164,12 @@ const LcWidgetNode = defineComponent({
       inject<(fieldName: string, val: unknown) => void>('lc:updateModel')!
     const widgetRefs = inject<Map<string, unknown>>('lc:widgetRefs')
     const getRefs = inject<(id: string) => unknown>('lc:getRefs') ?? ((_id: string) => undefined)
+    const getProps = inject<(id: string) => Record<string, unknown> | undefined>('lc:getProps') ?? ((_id: string) => undefined)
+    const setProps = inject<(id: string, props: Record<string, unknown>) => void>('lc:setProps') ?? ((_id: string, _props: Record<string, unknown>) => {
+      if (import.meta.env?.DEV) {
+        console.warn('[lc-renderer] $setProps called but lc:setProps is not provided.')
+      }
+    })
     const getGlobalData =
       inject<() => Record<string, unknown>>('lc:getGlobalData') ?? (() => ({}))
     const updateGlobal =
@@ -168,6 +200,26 @@ const LcWidgetNode = defineComponent({
       for (const [key, value] of Object.entries(props.widget.props)) {
         if (key === 'hidden') continue
         result[key] = evalProp(value, formData, globalData, scope)
+      }
+
+      // Special handling for nested properties (e.g. { sub: '$model.x' }) and array items
+      for (const [key, propCfg] of Object.entries(config.props ?? {})) {
+        if (!isPropConfig(propCfg)) continue
+        const rawValue = props.widget.props[key]
+        if (rawValue === undefined) continue
+
+        // 1. Array items
+        if (propCfg.type === Array && Array.isArray(rawValue)) {
+          result[key] = rawValue.map(item => evalProp(item, formData, globalData, scope))
+        }
+        // 2. Object sub-props
+        else if (propCfg.type === Object && propCfg.props && typeof rawValue === 'object' && rawValue !== null && !Array.isArray(rawValue)) {
+          const evaluatedObj = { ...(result[key] as Record<string, unknown>) }
+          for (const [subKey, subVal] of Object.entries(rawValue as Record<string, unknown>)) {
+            evaluatedObj[subKey] = evalProp(subVal, formData, globalData, scope)
+          }
+          result[key] = evaluatedObj
+        }
       }
 
       for (const key of Object.keys(props.widget.models)) {
@@ -239,13 +291,15 @@ const LcWidgetNode = defineComponent({
         const handlerKey = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
         const paramNames = config.events?.[eventName]?.map((p) => p.name) ?? []
         try {
-          // Compile handler with $model, $global, $getRefs and $scope injected as named
+          // Compile handler with $model, $global, $getRefs, $getProps, $setProps and $scope injected as named
           // parameters. $model, $global and $scope always reflect their current values at
           // the time the event fires rather than when the handler was compiled.
           // $getRefs allows handlers to access component instances by widget id.
+          // $getProps allows handlers to read widget props.
+          // $setProps allows handlers to update widget props dynamically.
           // eslint-disable-next-line no-new-func
-          const compiled = new Function('$model', '$global', '$getRefs', '$scope', ...paramNames, code)
-          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, scope, ...args)
+          const compiled = new Function('$model', '$global', '$getRefs', '$getProps', '$setProps', '$scope', ...paramNames, code)
+          result[handlerKey] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, getProps, setProps, scope, ...args)
         } catch (err) {
           if (import.meta.env?.DEV) {
             console.warn(`[lc-renderer] Invalid handler code for event "${eventName}":`, err)
@@ -260,12 +314,12 @@ const LcWidgetNode = defineComponent({
         if (typeof code === 'string' && code.trim()) {
           const paramNames = propCfg.params?.map((p) => p.name) ?? []
           try {
-            // Inject $model, $global, $getRefs and $scope as named parameters so
+            // Inject $model, $global, $getRefs, $getProps, $setProps and $scope as named parameters so
             // Function-typed props (e.g. validator callbacks) can reference
             // form data, global data, component refs and scoped-slot data.
             // eslint-disable-next-line no-new-func
-            const compiled = new Function('$model', '$global', '$getRefs', '$scope', ...paramNames, code)
-            result[key] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, scope, ...args)
+            const compiled = new Function('$model', '$global', '$getRefs', '$getProps', '$setProps', '$scope', ...paramNames, code)
+            result[key] = (...args: unknown[]) => compiled(getFormData(), getGlobalData(), getRefs, getProps, setProps, scope, ...args)
           } catch (err) {
             if (import.meta.env?.DEV) {
               console.warn(`[lc-renderer] Invalid function code for prop "${key}":`, err)

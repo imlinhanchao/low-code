@@ -47,6 +47,8 @@ const state = reactive<I18nConfig>({
         apply: '应用',
         cancel: '取消',
         confirm: '确定',
+        expression: '表达式',
+        editExpression: '编辑表达式',
         // Common
         delete: '删除',
         copy: '复制',
@@ -79,6 +81,8 @@ const state = reactive<I18nConfig>({
         apply: 'Apply',
         cancel: 'Cancel',
         confirm: 'Confirm',
+        expression: 'Expression',
+        editExpression: 'Edit Expression',
         // Common
         delete: 'Delete',
         copy: 'Copy',

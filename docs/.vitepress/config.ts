@@ -26,6 +26,7 @@ export default defineConfig({
         text: '入门指导',
         items: [
           { text: '快速上手', link: '/guide/getting-started' },
+          { text: '脚本与表达式', link: '/guide/scripts' },
           { text: '国际化配置', link: '/guide/i18n' },
         ]
       },

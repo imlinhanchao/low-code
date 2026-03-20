@@ -1,4 +1,4 @@
-# 库导出 API 参考
+# 导出接口与组件
 
 ## 组件
 
@@ -46,6 +46,7 @@
 | `schema` | `FormSchema` | (必传) | 设计器生成的 Schema 数据 |
 | `components` | `ComponentGroup[]` | `[]` | 渲染所需的组件列表（需与设计器一致） |
 | `v-model` | `Record<string, any>` | `{}` | 表单绑定的实际数据对象 |
+| `update:schema` | `(schema: FormSchema) => void` | - | 当通过 `$setProps` 更新组件属性时触发，用于同步最新的 Schema |
 | `global` | `Record<string, any>` | `{}` | 全局共享数据，可在脚本中通过 `$global` 访问 |
 | `modelonly` | `boolean` | `false` | 全局只读开关。为 true 时，强制所有输入类组件进入纯文本渲染模式 |
 | `disabled` | `boolean` | `false` | 全局禁用开关。为 true 时，强制所有组件属性中添加 `disabled: true` |

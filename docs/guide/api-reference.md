@@ -23,6 +23,18 @@
 
 ---
 
+## GlobalConfig
+
+表单的全局配置，定义了表单级别的样式、脚本和功能开关。
+
+| 属性 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `css` | `string` | (可选) 全局 CSS 样式字符串 |
+| `functions` | `Record<string, string>` | (可选) 命名的全局函数或生命周期钩子字符串 |
+| `expressions` | `boolean` | (可选) 是否在设计器的属性面板中开启表达式编辑功能。默认为 `false` |
+
+---
+
 ## ComponentProp
 
 用于描述组件 Props 的元数据，设计器据此生成属性编辑器。

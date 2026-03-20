@@ -22,6 +22,7 @@
         :components="components"
         class="app-designer"
         :locale="locale"
+        expressions
       />
 
       <!-- Preview mode -->
@@ -33,6 +34,7 @@
             :components="components"
             v-model="formData"
             v-model:global="globalData"
+            expressions
           />
         </div>
         <div class="preview-data">

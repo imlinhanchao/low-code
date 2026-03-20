@@ -5,6 +5,7 @@ import { useI18n } from '../i18n'
 import type { ComponentConfig, EventParam, FormSchema, GlobalConfig, ComponentProp, SlotConfig, WidgetSchema } from '../../types'
 import { isPropConfig, resolveSlotName } from '../../types'
 import GlobalConfigPanel from './GlobalConfigPanel.vue'
+import ExpressionEditor from './ExpressionEditor.vue'
 import { draggingConfig } from '../useDragState'
 
 const allConfigs = inject<Ref<ComponentConfig[]>>('lc:allConfigs')
@@ -16,6 +17,7 @@ const props = defineProps<{
   effectiveSlots: SlotConfig[]
   globalConfig: GlobalConfig
   hasBackButton?: boolean
+  expressions?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -103,7 +105,7 @@ function updateModelSource(modelKey: string, source: string) {
 function updateProp(key: string, value: unknown) {
   if (!props.widget) return
   const newProps = { ...props.widget.props }
-  if (value === undefined) {
+  if (value === undefined || value === '') {
     delete newProps[key]
   } else {
     newProps[key] = value
@@ -664,8 +666,14 @@ function asRecord(v: unknown): Record<string, unknown> {
         <label class="lc-prop-checkbox-wrap">
           <input
             type="checkbox"
-            :checked="!!widget.props['hidden']"
+            :checked="widget.props['hidden'] === true"
             @change="updateProp('hidden', ($event.target as HTMLInputElement).checked || undefined)"
+          />
+          <ExpressionEditor
+            v-if="expressions"
+            :modelValue="widget.props['hidden']"
+            title="隐藏 (hidden)"
+            @update:modelValue="updateProp('hidden', $event)"
           />
         </label>
       </div>
@@ -704,8 +712,14 @@ function asRecord(v: unknown): Record<string, unknown> {
                 <label v-if="propKind(sv) === 'boolean'" class="lc-prop-checkbox-wrap">
                   <input
                     type="checkbox"
-                    :checked="!!getSubPropValue(key, sk)"
+                    :checked="getSubPropValue(key, sk) === true"
                     @change="updateSubProp(key, sk, ($event.target as HTMLInputElement).checked)"
+                  />
+                  <ExpressionEditor
+                    v-if="expressions"
+                    :modelValue="getSubPropValue(key, sk)"
+                    :title="propLabel(sk, sv)"
+                    @update:modelValue="updateSubProp(key, sk, $event)"
                   />
                 </label>
                 <select
@@ -761,8 +775,14 @@ function asRecord(v: unknown): Record<string, unknown> {
                   <label v-if="(cfgVal as ComponentProp).item!.type === Boolean" class="lc-prop-checkbox-wrap">
                     <input
                       type="checkbox"
-                      :checked="!!arrItem"
+                      :checked="arrItem === true"
                       @change="updateArrayItem(key, idx, ($event.target as HTMLInputElement).checked)"
+                    />
+                    <ExpressionEditor
+                      v-if="expressions"
+                      :modelValue="arrItem"
+                      :title="propLabel(key, cfgVal) + ' ' + ((idx as number) + 1)"
+                      @update:modelValue="updateArrayItem(key, idx, $event)"
                     />
                   </label>
                   <input
@@ -798,8 +818,14 @@ function asRecord(v: unknown): Record<string, unknown> {
                       <label v-if="propKind(fv) === 'boolean'" class="lc-prop-checkbox-wrap">
                         <input
                           type="checkbox"
-                          :checked="!!asRecord(arrItem)[fk]"
+                          :checked="asRecord(arrItem)[fk] === true"
                           @change="updateArrayItemField(key, idx, fk, ($event.target as HTMLInputElement).checked)"
+                        />
+                        <ExpressionEditor
+                          v-if="expressions"
+                          :modelValue="asRecord(arrItem)[fk]"
+                          :title="propLabel(fk, fv)"
+                          @update:modelValue="updateArrayItemField(key, idx, fk, $event)"
                         />
                       </label>
                       <select
@@ -847,8 +873,14 @@ function asRecord(v: unknown): Record<string, unknown> {
             <label v-if="propKind(cfgVal) === 'boolean'" class="lc-prop-checkbox-wrap">
               <input
                 type="checkbox"
-                :checked="!!widget.props[key]"
+                :checked="widget.props[key] === true"
                 @change="updateProp(key, ($event.target as HTMLInputElement).checked)"
+              />
+              <ExpressionEditor
+                v-if="expressions"
+                :modelValue="widget.props[key]"
+                :title="propLabel(key, cfgVal)"
+                @update:modelValue="updateProp(key, $event)"
               />
             </label>
 

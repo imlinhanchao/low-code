@@ -14,6 +14,8 @@ const props = defineProps<{
   components: ComponentGroup[]
   modelValue?: FormSchema
   locale?: string
+  /** Whether to enable the expression editor in the property panel */
+  expressions?: boolean
 }>()
 
 if (props.locale) {
@@ -360,6 +362,7 @@ defineExpose({
         :effective-slots="effectiveViewingSlots"
         :global-config="globalConfig"
         :has-back-button="hasViewHistory"
+        :expressions="expressions"
         @update:widget="updateWidget"
         @update:global-config="updateGlobalConfig"
       />

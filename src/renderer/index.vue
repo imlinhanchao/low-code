@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, onMounted, onUnmounted, watch } from 'vue'
+import { computed, provide, onMounted, onUnmounted, watch, ref } from 'vue'
 import type { ComponentConfig, ComponentGroup, FormSchema } from '../types'
 import { layoutComponents } from '../layouts/index'
 import LcWidgetNode from './WidgetNode'
@@ -25,6 +25,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [data: Record<string, unknown>]
   'update:global': [data: Record<string, unknown>]
+  'update:schema': [schema: FormSchema]
 }>()
 
 const formData = computed(
@@ -34,6 +35,12 @@ const formData = computed(
 const globalData = computed(
   () => (props.global ?? {}) as Record<string, unknown>,
 )
+
+const internalSchema = ref<FormSchema>(props.schema)
+
+watch(() => props.schema, (val) => {
+  internalSchema.value = val
+}, { deep: true })
 
 /** Flatten ComponentGroup[] into a single ComponentConfig[] */
 const flatComponents = computed<ComponentConfig[]>(() =>
@@ -80,7 +87,7 @@ function injectCss(css: string | undefined) {
   styleEl.textContent = css ?? ''
 }
 
-watch(() => props.schema.global?.css, (css) => {
+watch(() => internalSchema.value.global?.css, (css) => {
   injectCss(css)
 }, { immediate: true })
 
@@ -102,12 +109,52 @@ function getRefs(id: string): unknown {
   return widgetRefs.get(id)
 }
 
+function setProps(widgetId: string, propsToSet: Record<string, unknown>) {
+  const findAndSet = (widgets: any[]) => {
+    for (const w of widgets) {
+      if (w.id === widgetId) {
+        w.props = { ...w.props, ...propsToSet }
+        return true
+      }
+      if (w.slots) {
+        for (const children of Object.values(w.slots)) {
+          if (findAndSet(children as any[])) return true
+        }
+      }
+    }
+    return false
+  }
+
+  // Directly update the reactive internalSchema
+  if (findAndSet(internalSchema.value.widgets)) {
+    emit('update:schema', { ...internalSchema.value })
+  }
+}
+
+function getProps(widgetId: string): Record<string, unknown> | undefined {
+  const findWidgets = (widgets: any[]): Record<string, unknown> | undefined => {
+    for (const w of widgets) {
+      if (w.id === widgetId) {
+        return { ...w.props }
+      }
+      if (w.slots) {
+        for (const children of Object.values(w.slots)) {
+          const res = findWidgets(children as any[])
+          if (res) return res
+        }
+      }
+    }
+    return undefined
+  }
+  return findWidgets(internalSchema.value.widgets)
+}
+
 function execGlobalFn(name: string, ...args: unknown[]) {
-  const body = props.schema.global?.functions?.[name]
+  const body = internalSchema.value.global?.functions?.[name]
   if (!body?.trim()) return
   try {
     // Build a helper scope: inject other named functions as variables
-    const allFunctions = props.schema.global?.functions ?? {}
+    const allFunctions = internalSchema.value.global?.functions ?? {}
     const helperNames: string[] = []
     const helperValues: unknown[] = []
     for (const [fnName, fnBody] of Object.entries(allFunctions)) {
@@ -122,14 +169,16 @@ function execGlobalFn(name: string, ...args: unknown[]) {
         }
       }
     }
-    // Inject helpers as named params followed by $model, $global, $getRefs and lifecycle params.
+    // Inject helpers as named params followed by $model, $global, $getRefs, $getProps, $setProps and lifecycle params.
     // $model gives global functions reactive access to the current form data.
     // $global gives global functions access to the shared global object.
     // $getRefs allows global functions to access component instances by widget id.
+    // $getProps allows global functions to read widget props.
+    // $setProps allows global functions to update widget props dynamically.
     const paramNames = LIFECYCLE_PARAMS[name] ?? []
     // eslint-disable-next-line no-new-func
-    const fn = new Function(...helperNames, '$model', '$global', '$getRefs', ...paramNames, body)
-    fn(...helperValues, formData.value, globalData.value, getRefs, ...args)
+    const fn = new Function(...helperNames, '$model', '$global', '$getRefs', '$getProps', '$setProps', ...paramNames, body)
+    fn(...helperValues, formData.value, globalData.value, getRefs, getProps, setProps, ...args)
   } catch (e) {
     console.error(`[lc-renderer] ${name} error:`, e)
   }
@@ -166,6 +215,8 @@ provide('lc:getFormData', getFormData)
 provide('lc:updateModel', updateModel)
 provide('lc:widgetRefs', widgetRefs)
 provide('lc:getRefs', getRefs)
+provide('lc:getProps', getProps)
+provide('lc:setProps', setProps)
 provide('lc:getGlobalData', getGlobalData)
 provide('lc:updateGlobal', updateGlobal)
 provide('lc:globalModelOnly', computed(() => props.modelonly))
@@ -175,7 +226,7 @@ provide('lc:globalDisabled', computed(() => props.disabled))
 <template>
   <div class="lc-renderer">
     <LcWidgetNode
-      v-for="widget in schema.widgets"
+      v-for="widget in internalSchema.widgets"
       :key="widget.id"
       :widget="widget"
     />
