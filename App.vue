@@ -7,9 +7,11 @@
           <el-option value="zh-CN" label="中文"></el-option>
           <el-option value="en-US" label="English"></el-option>
         </el-select>
-        <el-button @click="openJson">查看 Schema</el-button>
-        <el-button @click="mode = 'designer'">设计器</el-button>
-        <el-button type="primary" @click="mode = 'preview'">预览</el-button>
+        <el-button @click="openJson">Schema</el-button>
+        <el-radio-group v-model="mode">
+          <el-radio-button label="设计器" value="designer" />
+          <el-radio-button label="预览" value="preview" />
+        </el-radio-group>
         <el-button type="danger" @click="clearSchema">清空</el-button>
       </div>
     </header>
@@ -77,11 +79,11 @@ import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import type { FormSchema } from 'lc.vue'
 import componentList from 'lc-ep'
-import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage } from 'element-plus'
+import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage, ElRadioGroup, ElRadioButton } from 'element-plus'
 
 const components = [
   {
-    group: '布局',
+    group: { 'zh-CN': '布局', 'en-US': 'Layout' },
     components: layoutComponents 
   }, ...componentList
 ]
@@ -172,6 +174,12 @@ body {
   width: 100%;
   max-width: 450px;
   gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.header-actions .el-radio-group {
+  flex-wrap: nowrap;
 }
 
 .app-body {

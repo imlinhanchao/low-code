@@ -186,7 +186,6 @@
   font-size: 10px;
   font-weight: 700;
   color: #909399;
-  text-transform: uppercase;
   letter-spacing: 0.6px;
   user-select: none;
 }
@@ -890,7 +889,6 @@ details[open] > .lc-prop-block-header::before {
   font-size: 10px;
   font-weight: 600;
   color: #909399;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .lc-global-section-label--with-btn {
