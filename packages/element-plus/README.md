@@ -1,8 +1,8 @@
 English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/packages/element-plus/README_ZH.md) 
 
-# lc-ep
+# Low Code Element Plus
 
-A `lc.vue` plugin package encapsulated based on [Element Plus](https://element-plus.org/), providing rich UI component support for the designer and renderer. [Development Documentation](https://lc.hancel.org/guide/component-definition.html)
+A `lc.vue` plugin package encapsulated based on [Element Plus](https://element-plus.org/), providing rich UI component support for the designer and renderer. [Development Documentation](https://lc.hancel.org/en/guide/component-definition.html)
 
 [![npm version](https://img.shields.io/npm/v/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 [![License](https://img.shields.io/npm/l/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)

@@ -1,8 +1,8 @@
 [English](README.md) / 简体中文
 
-# lc-ep
+# Low Code Element Plus
 
-基于 [Element Plus](https://element-plus.org/) 封装的 lc.vue 插件包，为设计器和渲染器提供丰富的 UI 组件支持。[开发文档](https://lc.hancel.org/guide/component-definition.html)
+基于 [Element Plus](https://element-plus.org/) 封装的 lc.vue 插件包，为设计器和渲染器提供丰富的 UI 组件支持。[开发文档](https://lc.hancel.org/zh/guide/component-definition.html)
 
 [![npm version](https://img.shields.io/npm/v/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 [![License](https://img.shields.io/npm/l/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
