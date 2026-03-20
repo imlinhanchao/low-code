@@ -2,8 +2,9 @@ English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/RE
 
 # Low Code Vue
 
-A configurable low-code form designer and renderer based on Vue 3. [Online Documentation](https://lc.hancel.org/)
+A configurable low-code form designer and renderer based on Vue 3.
 
+[![Documentation](https://img.shields.io/badge/Documentation-Online-green.svg)](https://lc.hancel.org)
 [![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 [![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 
