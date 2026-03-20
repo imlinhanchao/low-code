@@ -14,6 +14,17 @@
 | `components` | `ComponentGroup[]` | `[]` | 注册到设计器的组件列表 |
 | `locale` | `string` | (浏览器语言) | 初始化语言，如 `zh-CN`, `en-US` |
 
+#### 内置通用属性 (Common Props)
+
+所有组件在设计器中都内置了以下通用属性（位于属性面板顶部）：
+
+| 属性名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `ID` | `string` | 组件实例的唯一标识符（即字段名） |
+| `CSS类名` | `string` | 绑定到组件根元素的 `class` |
+| `隐藏` | `boolean` | 是否在渲染时隐藏（不占位） |
+| `只读` | `boolean` | 为 true 时，非布局且具备 models 的组件将渲染为 `<span>` 纯文本，会取 modelValue 或第一个 model 的值 |
+
 #### 方法 (Expose)
 
 | 方法名 | 参数 | 说明 |

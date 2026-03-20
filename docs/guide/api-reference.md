@@ -19,6 +19,7 @@
 | `slots` | `SlotConfig[]` | (可选) 组件的静态插槽列表 |
 | `computeSlots` | `(props: Record) => SlotConfig[]` | (可选) 动态计算插槽的函数 |
 | `slotName` | `string \| ((props) => string)` | (可选) 作为子项时的显示名称 |
+| `format` | `(props, data) => string` | (可选) 只读模式下的内容格式化函数 |
 
 ---
 

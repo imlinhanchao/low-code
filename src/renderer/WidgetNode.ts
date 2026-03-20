@@ -281,6 +281,25 @@ const LcWidgetNode = defineComponent({
       // If the widget is marked as hidden, skip rendering entirely.
       if (props.widget.props.hidden === true) return null
 
+      const builtProps = buildProps(config)
+
+      const isReadonly = props.widget.props.readonly === true && props.widget.category === 'widget'
+
+      // If readonly is true, just render the value (from modelValue or first model)
+      if (isReadonly) {
+        let display: any
+        if (config.format) {
+          try {
+            display = config.format(builtProps, getFormData())
+          } catch (err) {
+            display = `[Error in format: ${err}]`
+          }
+        } else {
+          display = builtProps.modelValue ?? Object.values(props.widget.models)[0]
+        }
+        return h('span', { class: 'lc-readonly-value' }, String(display ?? ''))
+      }
+
       // Build slot functions from stored children.
       // Each slot function receives the scoped-slot props emitted by the parent
       // component and forwards them to child LcWidgetNode instances as `scope`,
@@ -326,7 +345,6 @@ const LcWidgetNode = defineComponent({
 
       // Build the component props, then add a callback ref that keeps the
       // widgetRefs registry in sync with the component's mounted/unmounted state.
-      const builtProps = buildProps(config)
       const widgetId = props.widget.id
       if (widgetRefs) {
         builtProps.ref = (el: unknown) => {

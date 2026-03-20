@@ -317,7 +317,14 @@ export interface ComponentConfig {
    */
   component: Component
   /**
-   * Default static prop values for this component.  
+   * (Optional) Function to format the display value when the widget is in readonly mode.
+   * Receives the widget's current props and the full form data object.
+   * (可选) 当组件处于只读模式时用于格式化显示内容的函数。
+   * 接收组件当前的 props 和完整的表单数据对象。
+   */
+  format?: (props: Record<string, any>, formData: Record<string, any>) => string
+  /**
+   * Default static prop values for this component.
    * These are merged with any props set in the schema and can be used to provide default values for props that are required by the component but not set in the schema.
    * 该组件的默认静态属性值。
    * 这些值与 schema 中设置的任何属性合并，并且可以用于为组件所需但未在 schema 中设置的属性提供默认值。
