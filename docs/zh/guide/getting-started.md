@@ -65,3 +65,31 @@ const formData = ref({})
   <LcRenderer :schema="schema" :components="components" v-model="formData" />
 </template>
 ```
+
+## 暗色模式 {#DarkMode}
+
+`LcDesigner` 和 `LcRenderer` 支持通过容器 class 切换暗色模式。
+
+- 在外层容器添加 `lc-dark` 类名即可启用暗色主题。
+- 移除 `lc-dark` 类名即恢复亮色主题。
+
+```vue
+<template>
+  <div :class="{ 'lc-dark': isDark }">
+    <LcDesigner
+      v-model="schema"
+      :components="components"
+    />
+  </div>
+
+  <div :class="{ 'lc-dark': isDark }">
+    <LcRenderer
+      :schema="schema"
+      :components="components"
+      v-model="formData"
+    />
+  </div>
+</template>
+```
+
+如果你的页面是全局暗色，也可以直接把 `lc-dark` 挂在更高层（例如页面根节点）统一生效。

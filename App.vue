@@ -1,13 +1,15 @@
 <template>
-  <div class="app-root">
+  <div class="app-root" :class="{
+    dark: darkMode
+  }">
     <header class="app-header">
       <div class="header-title">
         <h1>Low Code Form Designer</h1>
         <a href="https://github.com/imlinhanchao/low-code/" target="_blank" title="GitHub">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em"><use href="#mdi--github"/></svg>
+          <Icon icon="mdi:github" width="1.2em" height="1.2em" />
         </a>
         <a href="/" target="_blank" :title="t('document')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em"><use href="#fluent--document-folder-16-filled" /></svg>
+          <Icon icon="fluent:document-folder-16-filled" width="1.2em" height="1.2em" />
         </a>
       </div>
       <div class="header-actions">
@@ -15,12 +17,32 @@
           <el-option value="zh-CN" label="中文"></el-option>
           <el-option value="en-US" label="English"></el-option>
         </el-select>
-        <el-button @click="openJson">{{ t('schema') }}</el-button>
+        <el-button @click="openJson">
+          <Icon icon="mdi:code-json" width="16" height="16" style="vertical-align: middle; margin-right: 4px;" />
+          <span>{{ t('schema') }}</span>
+        </el-button>
         <el-radio-group v-model="mode">
-          <el-radio-button :label="t('designer')" value="designer" />
-          <el-radio-button :label="t('preview')" value="preview" />
+          <el-radio-button value="designer" icon="">
+            <Icon icon="mdi:palette-outline" width="16" height="16" style="vertical-align: middle; margin-right: 4px;" />
+            <span>{{ t('designer') }}</span>
+          </el-radio-button>
+          <el-radio-button value="preview" icon="">
+            <Icon icon="mdi:eye-outline" width="16" height="16" style="vertical-align: middle; margin-right: 4px;" />
+            <span>{{ t('preview') }}</span>
+          </el-radio-button>
         </el-radio-group>
-        <el-button type="danger" @click="clearSchema">{{ t('clear') }}</el-button>
+        <el-button type="danger" @click="clearSchema">
+          <Icon icon="mdi:delete-outline" width="16" height="16" style="vertical-align: middle; margin-right: 4px;" />
+          <span>{{ t('clear') }}</span>
+        </el-button>
+        <el-switch v-model="darkMode">
+          <template #active-action>
+            <Icon icon="tabler:moon-filled" width="16" height="16" />
+          </template>
+          <template #inactive-action>
+            <Icon icon="tabler:sun-filled" width="16" height="16" color="var(--el-color-primary)" />
+          </template>
+        </el-switch>
       </div>
     </header>
 
@@ -31,6 +53,9 @@
         v-model="schema"
         :components="components"
         class="app-designer"
+        :class="{
+          'lc-dark': darkMode
+        }"
         :locale="locale"
         expressions
       />
@@ -44,6 +69,9 @@
             :components="components"
             v-model="formData"
             v-model:global="globalData"
+            :class="{
+              'lc-dark': darkMode
+            }"
             expressions
           />
         </div>
@@ -87,7 +115,22 @@ import 'element-plus/dist/index.css'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
 import type { FormSchema } from 'lc.vue'
 import componentList from 'lc-ep'
-import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage, ElRadioGroup, ElRadioButton } from 'element-plus'
+import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage, ElRadioGroup, ElRadioButton, ElSwitch } from 'element-plus'
+import { Icon } from '@iconify/vue'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+
+const darkMode = ref(false)
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  darkMode.value = true
+  document.documentElement.classList.add('dark')
+}
+watch(darkMode, (val) => {
+  if (val) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+}, { immediate: true })
 
 const components = [
   {
@@ -190,28 +233,47 @@ watch(globalData, (val) => {
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f2f5;
+  background: var(--app-color-bg-page, #f0f2f5);
 }
 .app-root {
+  --app-color-bg-page: #f0f2f5;
+  --app-color-bg-header: #fff;
+  --app-color-bg-panel: #fff;
+  --app-color-text-title: #303133;
+  --app-color-text-secondary: #909399;
+  --app-color-border-base: #dcdfe6;
+  --app-shadow-header: rgba(0, 0, 0, 0.08);
+
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
 }
+
+.app-root.dark {
+  --app-color-bg-page: #151a22;
+  --app-color-bg-header: #1b1f27;
+  --app-color-bg-panel: #1f2530;
+  --app-color-text-title: #e5eaf3;
+  --app-color-text-secondary: #8d98aa;
+  --app-color-border-base: #3c4558;
+  --app-shadow-header: rgba(0, 0, 0, 0.35);
+}
+
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
   height: 52px;
-  background: #fff;
-  border-bottom: 1px solid #dcdfe6;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  background: var(--app-color-bg-header);
+  border-bottom: 1px solid var(--app-color-border-base);
+  box-shadow: 0 1px 4px var(--app-shadow-header);
   flex-shrink: 0;
 }
 .app-header h1 {
   font-size: 18px;
-  color: #303133;
+  color: var(--app-color-text-title);
   font-weight: 600;
 }
 .header-title {
@@ -230,7 +292,7 @@ body {
 .header-actions {
   display: flex;
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   gap: 8px;
   flex-wrap: nowrap;
   white-space: nowrap;
@@ -243,7 +305,7 @@ body {
 .app-body {
   flex: 1;
   overflow: hidden;
-  background: #f0f2f5;
+  background: var(--app-color-bg-page);
 }
 .app-designer {
   height: 100%;
@@ -261,24 +323,24 @@ body {
 }
 .preview-title {
   font-size: 16px;
-  color: #303133;
+  color: var(--app-color-text-title);
 }
 .preview-form {
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--app-color-bg-panel);
+  border: 1px solid var(--app-color-border-base);
   border-radius: 4px;
   padding: 20px;
   min-height: 80px;
 }
 .preview-data {
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--app-color-bg-panel);
+  border: 1px solid var(--app-color-border-base);
   border-radius: 4px;
   padding: 16px;
 }
 .preview-data h3 {
   font-size: 13px;
-  color: #909399;
+  color: var(--app-color-text-secondary);
   margin-bottom: 8px;
 }
 .preview-data textarea {

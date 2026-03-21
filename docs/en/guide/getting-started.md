@@ -65,3 +65,31 @@ const formData = ref({})
   <LcRenderer :schema="schema" :components="components" v-model="formData" />
 </template>
 ```
+
+## Dark Mode {#DarkMode}
+
+`LcDesigner` and `LcRenderer` support dark mode via a container class.
+
+- Add the `lc-dark` class on a wrapper element to enable dark theme.
+- Remove the `lc-dark` class to switch back to light theme.
+
+```vue
+<template>
+  <div :class="{ 'lc-dark': isDark }">
+    <LcDesigner
+      v-model="schema"
+      :components="components"
+    />
+  </div>
+
+  <div :class="{ 'lc-dark': isDark }">
+    <LcRenderer
+      :schema="schema"
+      :components="components"
+      v-model="formData"
+    />
+  </div>
+</template>
+```
+
+If your page already uses a global dark layout, you can also put `lc-dark` on a higher-level root container.
