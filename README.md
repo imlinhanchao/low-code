@@ -5,8 +5,8 @@ English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/RE
 A configurable low-code form designer and renderer based on Vue 3.
 
 [![Documentation](https://img.shields.io/badge/Documentation-Online-green.svg)](https://lc.hancel.org)
-[![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
-[![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
+[![npm version](https://img.shields.io/npm/v/lc-vue3.svg)](https://www.npmjs.com/package/lc-vue3)
+[![License](https://img.shields.io/npm/l/lc-vue3.svg)](https://www.npmjs.com/package/lc-vue3)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/imlinhanchao/low-code)
 
 ## Features
@@ -19,19 +19,19 @@ A configurable low-code form designer and renderer based on Vue 3.
 ## Installation
 
 ```bash
-npm install lc.vue
+npm install lc-vue3
 # Or using yarn / pnpm
-pnpm add lc.vue
+pnpm add lc-vue3
 ```
 
 > **Note**: This library typically needs to be used with `vue` (>=3.0.0) and a UI component library (such as `lc-ep`).
 
 ## Quick Start
 
-After installing the core library `lc.vue` and the component library `lc-ep`, you can import the designer and renderer components in your Vue 3 project:
+After installing the core library `lc-vue3` and the component library `lc-ep`, you can import the designer and renderer components in your Vue 3 project:
 
 ```bash
-npm install lc.vue lc-ep element-plus
+npm install lc-vue3 lc-ep element-plus
 ```
 
 Import and use the designer and renderer in your Vue 3 project:
@@ -58,7 +58,7 @@ Import and use the designer and renderer in your Vue 3 project:
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 
 // Combine built-in layout components and Element Plus component list

@@ -2,7 +2,7 @@
 
 # Low Code Element Plus
 
-基于 [Element Plus](https://element-plus.org/) 封装的 lc.vue 插件包，为设计器和渲染器提供丰富的 UI 组件支持。[开发文档](https://lc.hancel.org/zh/guide/component-definition.html)
+基于 [Element Plus](https://element-plus.org/) 封装的 lc-vue3 插件包，为设计器和渲染器提供丰富的 UI 组件支持。[开发文档](https://lc.hancel.org/zh/guide/component-definition.html)
 
 [![npm version](https://img.shields.io/npm/v/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 [![License](https://img.shields.io/npm/l/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
@@ -10,18 +10,18 @@
 ## 特性
 
 - 🏗️ **开箱即用**: 包含 `ElButton`, `ElInput`, `ElSelect`, `ElDatePicker` 等常用 Element Plus 组件。
-- 🔧 **高度可配置**: 每个组件都预设了属性映射（props）、事件（events）和插槽（slots），完美适配 `lc.vue` 设计器。
+- 🔧 **高度可配置**: 每个组件都预设了属性映射（props）、事件（events）和插槽（slots），完美适配 `lc-vue3` 设计器。
 - 🛠️ **内置编辑器**: 提供 `RulesEditor` (规则编辑器) 和 `FieldRulesEditor` (字段规则编辑器) 等高级功能组件。
 
 ## 安装
 
 ```bash
-npm install lc.vue lc-ep element-plus
+npm install lc-vue3 lc-ep element-plus
 # 或者
-pnpm add lc.vue lc-ep element-plus
+pnpm add lc-vue3 lc-ep element-plus
 ```
 
-> **注意**: 此包依赖于 `element-plus` 和 `lc.vue` 核心库。
+> **注意**: 此包依赖于 `element-plus` 和 `lc-vue3` 核心库。
 
 ## 使用方法
 
@@ -49,7 +49,7 @@ pnpm add lc.vue lc-ep element-plus
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 
 // 组合内置布局组件和 Element Plus 组件列表

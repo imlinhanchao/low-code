@@ -30,7 +30,7 @@ import {
   ElSteps,
   ElStep,
 } from 'element-plus'
-import type { ComponentGroup } from 'lc.vue'
+import type { ComponentGroup } from 'lc-vue3'
 import RulesEditor from './components/RulesEditor.vue'
 import FieldRulesEditor from './components/FieldRulesEditor.vue'
 import "./style.css"

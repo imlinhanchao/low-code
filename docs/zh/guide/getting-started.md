@@ -5,7 +5,7 @@
 首先安装核心库和组件扩展包：
 
 ```bash
-npm install lc.vue
+npm install lc-vue3
 ```
 
 若使用 Element Plus 组件库，还需安装：
@@ -21,7 +21,7 @@ npm install lc-ep
 ```vue
 <script setup>
 import { ref } from 'vue'
-import { LcDesigner, layoutComponents } from 'lc.vue'
+import { LcDesigner, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
 
@@ -49,7 +49,7 @@ const schema = ref({ widgets: [] })
 ```vue
 <script setup>
 import { ref } from 'vue'
-import { LcRenderer, layoutComponents } from 'lc.vue'
+import { LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
 

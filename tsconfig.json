@@ -17,7 +17,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "lc-ep": ["./packages/element-plus/src/index.ts"],
-      "lc.vue": ["./src/index.ts"]
+      "lc-vue3": ["./src/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "*.ts", "*.vue", "env.d.ts"],

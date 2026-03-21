@@ -5,7 +5,7 @@
 First, install the core library and the component extension package:
 
 ```bash
-npm install lc.vue
+npm install lc-vue3
 ```
 
 If using the Element Plus component library, you also need to install:
@@ -21,7 +21,7 @@ In a Vue 3 project, you can use the designer as follows:
 ```vue
 <script setup>
 import { ref } from 'vue'
-import { LcDesigner, layoutComponents } from 'lc.vue'
+import { LcDesigner, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
 
@@ -49,7 +49,7 @@ Use `schema` to render the form:
 ```vue
 <script setup>
 import { ref } from 'vue'
-import { LcRenderer, layoutComponents } from 'lc.vue'
+import { LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
 

@@ -5,8 +5,8 @@
 基于 Vue 3 的可配置低代码表单设计器与渲染器。
 
 [![Documentation](https://img.shields.io/badge/Documentation-Online-green.svg)](https://lc.hancel.org/zh)
-[![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
-[![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
+[![npm version](https://img.shields.io/npm/v/lc-vue3.svg)](https://www.npmjs.com/package/lc-vue3)
+[![License](https://img.shields.io/npm/l/lc-vue3.svg)](https://www.npmjs.com/package/lc-vue3)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/imlinhanchao/low-code)
 
 ## 特性
@@ -19,19 +19,19 @@
 ## 安装
 
 ```bash
-npm install lc.vue
+npm install lc-vue3
 # 或者使用 yarn / pnpm
-pnpm add lc.vue
+pnpm add lc-vue3
 ```
 
 > **注意**: 该库通常需要配合 `vue` (>=3.0.0) 以及 UI 组件库（如 `lc-ep`）使用。
 
 ## 快速上手
 
-安装核心库 `lc.vue` 和组件库 `lc-ep` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
+安装核心库 `lc-vue3` 和组件库 `lc-ep` 后，你可以在 Vue 3 项目中引入设计器和渲染器组件：
 
 ```bash
-npm install lc.vue lc-ep element-plus
+npm install lc-vue3 lc-ep element-plus
 ```
 
 在你的 Vue 3 项目中引入并使用设计器和渲染器：
@@ -58,7 +58,7 @@ npm install lc.vue lc-ep element-plus
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 
 // 组合内置布局组件和 Element Plus 组件列表

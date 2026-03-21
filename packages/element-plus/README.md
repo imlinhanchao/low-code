@@ -2,7 +2,7 @@ English / [简体中文](https://github.com/imlinhanchao/low-code/blob/master/pa
 
 # Low Code Element Plus
 
-A `lc.vue` plugin package encapsulated based on [Element Plus](https://element-plus.org/), providing rich UI component support for the designer and renderer. [Development Documentation](https://lc.hancel.org/en/guide/component-definition.html)
+A `lc-vue3` plugin package encapsulated based on [Element Plus](https://element-plus.org/), providing rich UI component support for the designer and renderer. [Development Documentation](https://lc.hancel.org/en/guide/component-definition.html)
 
 [![npm version](https://img.shields.io/npm/v/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
 [![License](https://img.shields.io/npm/l/lc-ep.svg)](https://www.npmjs.com/package/lc-ep)
@@ -10,18 +10,18 @@ A `lc.vue` plugin package encapsulated based on [Element Plus](https://element-p
 ## Features
 
 - 🏗️ **Out-of-the-box**: Includes common Element Plus components such as `ElButton`, `ElInput`, `ElSelect`, `ElDatePicker`, etc.
-- 🔧 **Highly Configurable**: Each component has preset property mappings (props), events, and slots, perfectly adapted for the `lc.vue` designer.
+- 🔧 **Highly Configurable**: Each component has preset property mappings (props), events, and slots, perfectly adapted for the `lc-vue3` designer.
 - 🛠️ **Built-in Editors**: Provides advanced functional components such as `RulesEditor` and `FieldRulesEditor`.
 
 ## Installation
 
 ```bash
-npm install lc.vue lc-ep element-plus
+npm install lc-vue3 lc-ep element-plus
 # or
-pnpm add lc.vue lc-ep element-plus
+pnpm add lc-vue3 lc-ep element-plus
 ```
 
-> **Note**: This package depends on `element-plus` and the `lc.vue` core library.
+> **Note**: This package depends on `element-plus` and the `lc-vue3` core library.
 
 ## Usage
 
@@ -49,7 +49,7 @@ Import and register the components in your project:
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 
 // Combine built-in layout components and Element Plus component list

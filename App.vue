@@ -112,8 +112,8 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import 'element-plus/dist/index.css'
-import { LcDesigner, LcRenderer, layoutComponents } from 'lc.vue'
-import type { FormSchema } from 'lc.vue'
+import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
+import type { FormSchema } from 'lc-vue3'
 import componentList from 'lc-ep'
 import { ElInput, ElButton, ElSelect, ElOption, ElDialog, ElMessage, ElRadioGroup, ElRadioButton, ElSwitch } from 'element-plus'
 import { Icon } from '@iconify/vue'
