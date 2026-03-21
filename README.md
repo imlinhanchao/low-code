@@ -7,6 +7,7 @@ A configurable low-code form designer and renderer based on Vue 3.
 [![Documentation](https://img.shields.io/badge/Documentation-Online-green.svg)](https://lc.hancel.org)
 [![npm version](https://img.shields.io/npm/v/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
 [![License](https://img.shields.io/npm/l/lc.vue.svg)](https://www.npmjs.com/package/lc.vue)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/imlinhanchao/low-code)
 
 ## Features
 
