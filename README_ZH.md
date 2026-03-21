@@ -60,6 +60,8 @@ npm install lc-vue3 lc-ep element-plus
 import { ref } from 'vue'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
+import 'lc-vue3/style.css'
+import 'lc-ep/style.css'
 
 // 组合内置布局组件和 Element Plus 组件列表
 const components = [

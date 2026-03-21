@@ -24,6 +24,8 @@ import { ref } from 'vue'
 import { LcDesigner, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
+import 'lc-vue3/style.css'
+import 'lc-ep/style.css'
 
 const components = [
   { group: '布局', components: layoutComponents },
@@ -52,6 +54,8 @@ import { ref } from 'vue'
 import { LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
 import 'element-plus/dist/index.css'
+import 'lc-vue3/style.css'
+import 'lc-ep/style.css'
 
 const components = [
   { group: '布局', components: layoutComponents },

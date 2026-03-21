@@ -51,6 +51,8 @@ Import and register the components in your project:
 import { ref } from 'vue'
 import { LcDesigner, LcRenderer, layoutComponents } from 'lc-vue3'
 import componentList from 'lc-ep'
+import 'lc-vue3/style.css'
+import 'lc-ep/style.css'
 
 // Combine built-in layout components and Element Plus component list
 const components = [
