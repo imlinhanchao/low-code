@@ -155,6 +155,8 @@ const i18n = reactive({
     copySuccess: '复制成功',
     copyError: '复制失败',
     document: '文档',
+    copy: '复制',
+    save: '保存',
   },
   'en-US': {
     designer: 'Designer',
@@ -170,6 +172,8 @@ const i18n = reactive({
     copySuccess: 'Copy Success',
     copyError: 'Copy Error',
     document: 'Document',
+    copy: 'Copy',
+    save: 'Save',
   }
 })
 
