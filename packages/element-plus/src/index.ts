@@ -9,13 +9,10 @@ import {
   ElCheckbox,
   ElCheckboxGroup,
   ElColorPicker,
-  ElColorPickerPanel,
   ElDatePicker,
   ElForm,
   ElFormItem,
   ElInputNumber,
-  ElInputTag,
-  ElMention,
   ElRadio,
   ElRadioGroup,
   ElRate,
@@ -366,29 +363,34 @@ const components: ComponentGroup[] = [
         slots: [],
       },
 
-      // ── ElInputTag ─────────────────────────────────────────────────────────────
+      // ── ElCascader ─────────────────────────────────────────────────────────────
       {
-        name: 'ElInputTag',
-        label: { 'zh-CN': '标签输入框', 'en-US': 'Input Tag' },
-        icon: 'mdi:tag-multiple-outline',
-        component: ElInputTag,
+        name: 'ElCascader',
+        label: { 'zh-CN': '级联选择器', 'en-US': 'Cascader' },
+        icon: 'mdi:layers-outline',
+        component: ElCascader,
         props: {
           placeholder: { type: String, label: { 'zh-CN': '占位文本', 'en-US': 'Placeholder' } },
           size: { type: String, label: { 'zh-CN': '尺寸', 'en-US': 'Size' }, options: ['default', 'small', 'large'] },
           disabled: { type: Boolean, label: { 'zh-CN': '禁用', 'en-US': 'Disabled' }, default: false },
-          readonly: { type: Boolean, label: { 'zh-CN': '只读', 'en-US': 'Readonly' }, default: false },
           clearable: { type: Boolean, label: { 'zh-CN': '可清空', 'en-US': 'Clearable' }, default: false },
-          max: { type: Number, label: { 'zh-CN': '最大标签数', 'en-US': 'Max' } },
+          filterable: { type: Boolean, label: { 'zh-CN': '可搜索', 'en-US': 'Filterable' }, default: false },
+          separator: { type: String, label: { 'zh-CN': '层级分隔符', 'en-US': 'Separator' }, default: '/' },
+          showAllLevels: { type: Boolean, label: { 'zh-CN': '显示完整路径', 'en-US': 'Show All Levels' }, default: true },
+          collapseTags: { type: Boolean, label: { 'zh-CN': '折叠标签', 'en-US': 'Collapse Tags' }, default: false },
+          collapseTagsTooltip: { type: Boolean, label: { 'zh-CN': '折叠标签显示 tooltip', 'en-US': 'Collapse Tags Tooltip' }, },
+          maxCollapseTags: { type: Number, label: { 'zh-CN': '最大显示标签数', 'en-US': 'Max Collapse Tags' } },
+          maxCollapseTagsTooltipHeight: { type: Number, label: { 'zh-CN': '折叠标签工具提示最大高度 (px)', 'en-US': 'Max Collapse Tags Tooltip Height' } },
+          debounce: { type: Number, label: { 'zh-CN': '防抖延迟 (ms)', 'en-US': 'Debounce' }, default: 300 },
+          filterMethod: { type: Function, label: { 'zh-CN': '自定义过滤方法', 'en-US': 'Filter Method' }, params: [{ name: 'node', type: Object }, { name: 'keyword', type: String }] },
+          options: { type: Array, label: { 'zh-CN': '选项数据', 'en-US': 'Options' } },
+          props: { type: Object, label: { 'zh-CN': '配置选项', 'en-US': 'Props' } },
+          beforeFilter: { type: Function, label: { 'zh-CN': '过滤前的钩子方法', 'en-US': 'Before Filter' }, params: [{ name: 'value', type: String }] },
+          popperClass: { type: String, label: { 'zh-CN': '下拉列表类名', 'en-US': 'Popper Class' } },
+          teleported: { type: Boolean, label: { 'zh-CN': '是否将弹出框插入到 body 元素', 'en-US': 'Teleported' }, default: true },
           tagType: { type: String, label: { 'zh-CN': '标签类型', 'en-US': 'Tag Type' }, options: ['default', 'primary', 'success', 'warning', 'danger'] },
           tagEffect: { type: String, label: { 'zh-CN': '标签效果', 'en-US': 'Tag Effect' }, options: ['dark', 'light', 'plain', 'border'] },
           effect: { type: String, label: { 'zh-CN': '输入框效果', 'en-US': 'Effect' }, options: ['dark', 'light', 'plain', 'border'] },
-          trigger: { type: String, label: { 'zh-CN': '触发方式', 'en-US': 'Trigger' }, options: ['enter', 'blur'] },
-          draggable: { type: Boolean, label: { 'zh-CN': '可拖拽排序', 'en-US': 'Draggable' }, default: false },
-          delimiter: { type: String, label: { 'zh-CN': '分隔符', 'en-US': 'Delimiter' } },
-          collapseTags: { type: Boolean, label: { 'zh-CN': '折叠标签', 'en-US': 'Collapse Tags' }, default: false },
-          collapseTagsTooltip: { type: Boolean, label: { 'zh-CN': '折叠标签显示 tooltip', 'en-US': 'Collapse Tags Tooltip' }, default: false },
-          maxCollapseTags: { type: Number, label: { 'zh-CN': '最大显示标签数 (collapseTags=true)', 'en-US': 'Max Collapse Tags' } },
-          saveOnBlur: { type: Boolean, label: { 'zh-CN': '失去焦点时保存', 'en-US': 'Save on Blur' }, default: false },
           validateEvent: { type: Boolean, label: { 'zh-CN': '触发表单校验', 'en-US': 'Validate Event' }, default: true },
         },
         models: {
@@ -396,17 +398,13 @@ const components: ComponentGroup[] = [
         },
         events: {
           change: [{ name: 'value', type: Array }],
-          'add-tag': [{ name: 'value', type: String }],
-          'remove-tag': [{ name: 'value', type: String }],
-          focus: [{ name: 'event', type: Event }],
+          'expand-change': [{ name: 'value', type: Array }],
           blur: [{ name: 'event', type: Event }],
-          clear: [],
+          focus: [{ name: 'event', type: Event }],
+          'visible-change': [{ name: 'visible', type: Boolean }],
+          removeTag: [{ name: 'value', type: Object }],
         },
-        slots: [
-          { name: 'tag', label: { 'zh-CN': '标签内容', 'en-US': 'Tag Content' } },
-          { name: 'prefix', label: { 'zh-CN': '头部内容', 'en-US': 'Header' } },
-          { name: 'suffix', label: { 'zh-CN': '尾部内容', 'en-US': 'Footer' } }
-        ],
+        slots: [],
       },
 
       // ── ElSelect ───────────────────────────────────────────────────────────────
@@ -492,50 +490,6 @@ const components: ComponentGroup[] = [
           { name: 'footer', label: { 'zh-CN': '下拉底部 (footer)', 'en-US': 'Footer' } },
           { name: 'empty', label: { 'zh-CN': '无数据内容 (empty)', 'en-US': 'Empty Content' } },
         ],
-      },
-
-      // ── ElCascader ─────────────────────────────────────────────────────────────
-      {
-        name: 'ElCascader',
-        label: { 'zh-CN': '级联选择器', 'en-US': 'Cascader' },
-        icon: 'mdi:layers-outline',
-        component: ElCascader,
-        props: {
-          placeholder: { type: String, label: { 'zh-CN': '占位文本', 'en-US': 'Placeholder' } },
-          size: { type: String, label: { 'zh-CN': '尺寸', 'en-US': 'Size' }, options: ['default', 'small', 'large'] },
-          disabled: { type: Boolean, label: { 'zh-CN': '禁用', 'en-US': 'Disabled' }, default: false },
-          clearable: { type: Boolean, label: { 'zh-CN': '可清空', 'en-US': 'Clearable' }, default: false },
-          filterable: { type: Boolean, label: { 'zh-CN': '可搜索', 'en-US': 'Filterable' }, default: false },
-          separator: { type: String, label: { 'zh-CN': '层级分隔符', 'en-US': 'Separator' }, default: '/' },
-          showAllLevels: { type: Boolean, label: { 'zh-CN': '显示完整路径', 'en-US': 'Show All Levels' }, default: true },
-          collapseTags: { type: Boolean, label: { 'zh-CN': '折叠标签', 'en-US': 'Collapse Tags' }, default: false },
-          collapseTagsTooltip: { type: Boolean, label: { 'zh-CN': '折叠标签显示 tooltip', 'en-US': 'Collapse Tags Tooltip' }, },
-          maxCollapseTags: { type: Number, label: { 'zh-CN': '最大显示标签数', 'en-US': 'Max Collapse Tags' } },
-          maxCollapseTagsTooltipHeight: { type: Number, label: { 'zh-CN': '折叠标签工具提示最大高度 (px)', 'en-US': 'Max Collapse Tags Tooltip Height' } },
-          debounce: { type: Number, label: { 'zh-CN': '防抖延迟 (ms)', 'en-US': 'Debounce' }, default: 300 },
-          filterMethod: { type: Function, label: { 'zh-CN': '自定义过滤方法', 'en-US': 'Filter Method' }, params: [{ name: 'node', type: Object }, { name: 'keyword', type: String }] },
-          options: { type: Array, label: { 'zh-CN': '选项数据', 'en-US': 'Options' } },
-          props: { type: Object, label: { 'zh-CN': '配置选项', 'en-US': 'Props' } },
-          beforeFilter: { type: Function, label: { 'zh-CN': '过滤前的钩子方法', 'en-US': 'Before Filter' }, params: [{ name: 'value', type: String }] },
-          popperClass: { type: String, label: { 'zh-CN': '下拉列表类名', 'en-US': 'Popper Class' } },
-          teleported: { type: Boolean, label: { 'zh-CN': '是否将弹出框插入到 body 元素', 'en-US': 'Teleported' }, default: true },
-          tagType: { type: String, label: { 'zh-CN': '标签类型', 'en-US': 'Tag Type' }, options: ['default', 'primary', 'success', 'warning', 'danger'] },
-          tagEffect: { type: String, label: { 'zh-CN': '标签效果', 'en-US': 'Tag Effect' }, options: ['dark', 'light', 'plain', 'border'] },
-          effect: { type: String, label: { 'zh-CN': '输入框效果', 'en-US': 'Effect' }, options: ['dark', 'light', 'plain', 'border'] },
-          validateEvent: { type: Boolean, label: { 'zh-CN': '触发表单校验', 'en-US': 'Validate Event' }, default: true },
-        },
-        models: {
-          modelValue: [],
-        },
-        events: {
-          change: [{ name: 'value', type: Array }],
-          'expand-change': [{ name: 'value', type: Array }],
-          blur: [{ name: 'event', type: Event }],
-          focus: [{ name: 'event', type: Event }],
-          'visible-change': [{ name: 'visible', type: Boolean }],
-          removeTag: [{ name: 'value', type: Object }],
-        },
-        slots: [],
       },
 
       // ── ElCheckbox ─────────────────────────────────────────────────────────────
@@ -768,31 +722,6 @@ const components: ComponentGroup[] = [
         slots: [],
       },
 
-      // ── ElColorPickerPanel ─────────────────────────────────────────────────────
-      {
-        name: 'ElColorPickerPanel',
-        label: { 'zh-CN': '颜色面板', 'en-US': 'Color Panel' },
-        icon: 'mdi:color-helper',
-        component: ElColorPickerPanel,
-        props: {
-          disabled: { type: Boolean, label: { 'zh-CN': '禁用', 'en-US': 'Disabled' }, default: false },
-          showAlpha: { type: Boolean, label: { 'zh-CN': '支持透明度', 'en-US': 'Show Alpha' }, default: false },
-          colorFormat: { type: String, label: { 'zh-CN': '颜色格式', 'en-US': 'Color Format' }, options: ['hsl', 'hsv', 'hex', 'rgb', 'hex8'] },
-          predefine: { type: Array, label: { 'zh-CN': '预设颜色列表', 'en-US': 'Predefine Colors' }, item: { type: String, label: '颜色' } },
-          border: { type: Boolean, label: { 'zh-CN': '显示边框', 'en-US': 'Border' }, default: true },
-        },
-        models: {
-          modelValue: '',
-        },
-        events: {
-          change: [{ name: 'value', type: String }],
-          activeChange: [{ name: 'value', type: String }],
-        },
-        slots: [
-          { name: 'footer', label: { 'zh-CN': '输入框之后要附加的内容', 'en-US': 'Footer Content' } },
-        ],
-      },
-
       // ── ElDatePicker ───────────────────────────────────────────────────────────
       {
         name: 'ElDatePicker',
@@ -895,37 +824,6 @@ const components: ComponentGroup[] = [
           change: [{ name: 'value', type: String }],
           blur: [{ name: 'event', type: Event }],
           focus: [{ name: 'event', type: Event }],
-        },
-        slots: [],
-      },
-
-      // ── ElMention ─────────────────────────────────────────────────────────────
-      {
-        name: 'ElMention',
-        label: { 'zh-CN': '提及', 'en-US': 'Mention' },
-        icon: 'mdi:at',
-        component: ElMention,
-        props: {
-          type: { type: String, label: { 'zh-CN': '输入框类型', 'en-US': 'Type' }, options: ['text', 'textarea'] },
-          placeholder: { type: String, label: { 'zh-CN': '占位文本', 'en-US': 'Placeholder' } },
-          prefix: { type: String, label: { 'zh-CN': '触发前缀', 'en-US': 'Prefix' }, default: '@' },
-          split: { type: String, label: { 'zh-CN': '分隔符', 'en-US': 'Split' }, default: ' ' },
-          disabled: { type: Boolean, label: { 'zh-CN': '禁用', 'en-US': 'Disabled' }, default: false },
-          filterOption: { type: Boolean, label: { 'zh-CN': '过滤选项', 'en-US': 'Filter Option' }, default: true },
-          placement: { type: String, label: { 'zh-CN': '弹出位置', 'en-US': 'Placement' }, options: ['bottom', 'top'] },
-          whole: { type: Boolean, label: { 'zh-CN': '整词删除', 'en-US': 'Whole' }, default: false },
-          checkIsWhole: { type: Function, label: { 'zh-CN': '自定义整词判断', 'en-US': 'Check Is Whole' }, params: [{ name: 'pattern', type: String }, { name: 'prefix', type: String }] },
-          showArrow: { type: Boolean, label: { 'zh-CN': '显示弹出框箭头', 'en-US': 'Show Arrow' }, default: true },
-        },
-        models: {
-          modelValue: '',
-        },
-        events: {
-          change: [{ name: 'value', type: String }],
-          search: [{ name: 'pattern', type: String }, { name: 'prefix', type: String }],
-          select: [{ name: 'option', type: Object }, { name: 'prefix', type: String }],
-          focus: [{ name: 'event', type: Event }],
-          blur: [{ name: 'event', type: Event }],
         },
         slots: [],
       },

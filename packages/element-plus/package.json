@@ -1,17 +1,18 @@
 {
   "name": "lc-ep",
-  "version": "0.0.6",
+  "version": "0.0.10",
   "type": "module",
   "description": "Element Plus component definitions for the low code designer/renderer",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./*": "./dist/*"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
@@ -19,7 +20,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "tsdown",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -42,7 +43,7 @@
   "homepage": "https://github.com/imlinhanchao/low-code/tree/master/packages/element-plus#readme",
   "license": "MIT",
   "peerDependencies": {
-    "element-plus": ">=2.0.0",
+    "element-plus": ">=2.1.0",
     "vue": ">=3.0.0"
   },
   "devDependencies": {

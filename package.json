@@ -1,6 +1,6 @@
 {
   "name": "lc-vue3",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "description": "Configurable low code designer and renderer based on Vue 3",
   "type": "module",
   "workspaces": [
@@ -11,7 +11,8 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./*": "./dist/*"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -26,7 +27,7 @@
     "docs:build": "vitepress build ./docs",
     "dev": "vite --host",
     "demo:build": "vite build --outDir docs/.vitepress/dist/demo",
-    "build": "tsdown && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "tsdown",
     "page:build": "npm run docs:build && npm run demo:build",
     "prepublishOnly": "npm run build"
   },
@@ -58,13 +59,15 @@
     "@vitejs/plugin-vue-jsx": "^5.1.4",
     "element-plus": "^2.13.5",
     "less": "^4.5.1",
+    "rollup-plugin-dts": "^6.4.0",
     "tsdown": "^0.21.0",
     "typescript": "^5.9.3",
+    "unplugin-vue": "^7.1.1",
     "vite": "^7.3.1",
     "vitepress": "^1.6.4",
     "vitepress-plugin-pagefind": "^0.4.19",
     "vue": "^3.5.29",
-    "vue-tsc": "^3.2.5"
+    "vue-tsc": "^3.2.6"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.0"
